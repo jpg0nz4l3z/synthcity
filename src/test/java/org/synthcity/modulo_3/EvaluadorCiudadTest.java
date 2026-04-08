@@ -1,23 +1,50 @@
 package org.synthcity.modulo_3;
 
 import org.junit.jupiter.api.Test;
+import org.synthcity.modulo_2.ResultadoSimulacion;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EvaluadorCiudadTest {
 
     @Test
-    void testEvaluarLanzaExcepcionCuandoSimulacionEsNula() {
-        // 1. Preparar el entorno (Arrange)
+    void testSimulacionCorrectaNoLanzaExcepcion() {
         EvaluadorCiudad evaluador = new EvaluadorCiudad();
-        Object simulacionNula = null;
+        // 10 bloques totales = 7 activos + 3 inactivos (Matemática correcta)
+        ResultadoSimulacion simulacionValida = new ResultadoSimulacion(10, 7, 3);
 
-        // 2. Ejecutar y Comprobar (Act & Assert)
-        // Le decimos a JUnit: "Espero que al ejecutar esto, salte esta Excepción"
-        Exception excepcionLanzada = assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
-            evaluador.evaluar(simulacionNula);
+        assertDoesNotThrow(() -> {
+            evaluador.evaluar(simulacionValida);
         });
+    }
 
-        // 3. Comprobar que el mensaje de error es exactamente el que escribiste
-        assertEquals("El ResultadoSimulacion recibido es nulo.", excepcionLanzada.getMessage());
+    @Test
+    void testEvaluarLanzaExcepcionCuandoSimulacionEsNula() {
+        EvaluadorCiudad evaluador = new EvaluadorCiudad();
+        Exception excepcion = assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
+            evaluador.evaluar(null);
+        });
+        assertEquals("El ResultadoSimulacion recibido es nulo.", excepcion.getMessage());
+    }
+
+    @Test
+    void testEvaluarLanzaExcepcionConConteosNegativos() {
+        EvaluadorCiudad evaluador = new EvaluadorCiudad();
+        // Bloques inactivos negativos (-2)
+        ResultadoSimulacion simulacionInvalida = new ResultadoSimulacion(10, 12, -2);
+
+        assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
+            evaluador.evaluar(simulacionInvalida);
+        });
+    }
+
+    @Test
+    void testEvaluarLanzaExcepcionPorIncoherenciaEstructural() {
+        EvaluadorCiudad evaluador = new EvaluadorCiudad();
+        // 5 activos + 8 inactivos = 13 (No coincide con el total de 10)
+        ResultadoSimulacion simulacionIncoherente = new ResultadoSimulacion(10, 5, 8);
+
+        assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
+            evaluador.evaluar(simulacionIncoherente);
+        });
     }
 }
