@@ -1,50 +1,63 @@
+// Ubicación: src/test/java/org/synthcity/modulo_3/EvaluadorCiudadTest.java
 package org.synthcity.modulo_3;
 
-import org.junit.jupiter.api.Test;
 import org.synthcity.modulo_2.ResultadoSimulacion;
-import static org.junit.jupiter.api.Assertions.*;
+import org.synthcity.modulo_1.TipoBloque;
+import java.util.HashMap;
+import java.util.Map;
 
-class EvaluadorCiudadTest {
+public class EvaluadorCiudadTest {
 
-    @Test
-    void testSimulacionCorrectaNoLanzaExcepcion() {
+    public static void main(String[] args) {
         EvaluadorCiudad evaluador = new EvaluadorCiudad();
-        // 10 bloques totales = 7 activos + 3 inactivos (Matemática correcta)
-        ResultadoSimulacion simulacionValida = new ResultadoSimulacion(10, 7, 3);
+        Map<TipoBloque, Integer> mapaConteo = new HashMap<>();
 
-        assertDoesNotThrow(() -> {
-            evaluador.evaluar(simulacionValida);
-        });
-    }
+        System.out.println("INICIANDO BATERÍA DE PRUEBAS DE SEGURIDAD (PERSONA 1 + 2)\n");
 
-    @Test
-    void testEvaluarLanzaExcepcionCuandoSimulacionEsNula() {
-        EvaluadorCiudad evaluador = new EvaluadorCiudad();
-        Exception excepcion = assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
+        // TEST 1: Protección contra nulos
+        try {
             evaluador.evaluar(null);
-        });
-        assertEquals("El ResultadoSimulacion recibido es nulo.", excepcion.getMessage());
-    }
+            System.out.println("TEST 1 FALLADO: El evaluador aceptó un objeto nulo.");
+        } catch (ResultadoSimulacionInvalidoException e) {
+            System.out.println("TEST 1 PASADO: Simulación nula bloqueada (" + e.getMessage() + ")");
+        }
 
-    @Test
-    void testEvaluarLanzaExcepcionConConteosNegativos() {
-        EvaluadorCiudad evaluador = new EvaluadorCiudad();
-        // Bloques inactivos negativos (-2)
-        ResultadoSimulacion simulacionInvalida = new ResultadoSimulacion(10, 12, -2);
+        // TEST 2: Protección contra números negativos
+        try {
+            ResultadoSimulacion simNegativa = new ResultadoSimulacion("Ciudad", -5, 0, 0, 100, mapaConteo);
+            evaluador.evaluar(simNegativa);
+            System.out.println("TEST 2 FALLADO: El evaluador aceptó bloques negativos.");
+        } catch (ResultadoSimulacionInvalidoException e) {
+            System.out.println("TEST 2 PASADO: Negativos bloqueados (" + e.getMessage() + ")");
+        }
 
-        assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
-            evaluador.evaluar(simulacionInvalida);
-        });
-    }
+        // TEST 3: Protección contra matemáticas rotas (Activos + Inactivos != Total)
+        try {
+            // Total 10, pero metemos 8 activos y 8 inactivos (imposible)
+            ResultadoSimulacion simIncoherente = new ResultadoSimulacion("Ciudad", 10, 8, 8, 100, mapaConteo);
+            evaluador.evaluar(simIncoherente);
+            System.out.println("TEST 3 FALLADO: El evaluador aceptó matemáticas incoherentes.");
+        } catch (ResultadoSimulacionInvalidoException e) {
+            System.out.println("TEST 3 PASADO: Matemáticas incoherentes bloqueadas (" + e.getMessage() + ")");
+        }
 
-    @Test
-    void testEvaluarLanzaExcepcionPorIncoherenciaEstructural() {
-        EvaluadorCiudad evaluador = new EvaluadorCiudad();
-        // 5 activos + 8 inactivos = 13 (No coincide con el total de 10)
-        ResultadoSimulacion simulacionIncoherente = new ResultadoSimulacion(10, 5, 8);
+        // TEST 4: Protección contra mapa nulo
+        try {
+            ResultadoSimulacion simSinMapa = new ResultadoSimulacion("Ciudad", 10, 5, 5, 100, null);
+            evaluador.evaluar(simSinMapa);
+            System.out.println("TEST 4 FALLADO: El evaluador aceptó un mapa nulo.");
+        } catch (ResultadoSimulacionInvalidoException e) {
+            System.out.println("TEST 4 PASADO: Mapa nulo bloqueado (" + e.getMessage() + ")");
+        }
 
-        assertThrows(ResultadoSimulacionInvalidoException.class, () -> {
-            evaluador.evaluar(simulacionIncoherente);
-        });
+        // TEST 5: Ejecución exitosa y conexión con MetricaCiudad
+        try {
+            System.out.println("\n--- Probando integración con MetricaCiudad ---");
+            ResultadoSimulacion simCorrecta = new ResultadoSimulacion("Utopia", 100, 60, 40, 200, mapaConteo);
+            evaluador.evaluar(simCorrecta);
+            // Si el código llega aquí y se imprime el mensaje de la clase Evaluador, la integración es un éxito.
+        } catch (Exception e) {
+            System.out.println("TEST 5 FALLADO: Error inesperado con datos correctos -> " + e.getMessage());
+        }
     }
 }

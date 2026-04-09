@@ -1,62 +1,73 @@
+// Ubicación: src/main/java/org/synthcity/modulo_3/EvaluadorCiudad.java
 package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_2.ResultadoSimulacion;
+// Nota: Cuando tengas las clases de la Persona 3 y 4, descomenta estos imports si están en otro paquete
 
 public class EvaluadorCiudad {
 
-    //  Metodo principal y Secuencia Lógica Obligatoria
-    public ResultadoEvaluacion evaluar(ResultadoSimulacion resultado) {
+    // =========================================================================
+    // METODO EVALUAR
+    // =========================================================================
+    public Object evaluar(ResultadoSimulacion resultado) { // Devuelve Object temporalmente hasta tener ResultadoEvaluacion
 
-        // 1. Validar entrada
+        // 1. Validar la entrada
         validarEntrada(resultado);
 
-        // 2. Construir la métrica
+        // 2. Construir la métrica (Usando la clase REAL de la Persona 2)
         MetricaCiudad metrica = construirMetrica(resultado);
 
-        // 3. Determinar el nivel de evaluación
+        /* *  TODO COMENTADO A LA ESPERA DE LA PERSONA 3 Y 4
+         * Cuando te den sus clases, descomenta este bloque y cambia
+         * el "Object" del metodo por "ResultadoEvaluacion".
+         *
+        // 3. Determinar el nivel de evaluación (Persona 3)
         NivelEvaluacion nivel = determinarNivelEvaluacion(metrica);
 
-        // 4. Generar mensaje
+        // 4. Generar un mensaje explicativo (Persona 4)
         String mensaje = generarMensaje(metrica, nivel);
 
-        // 5. Construir el resultado final
-        ResultadoEvaluacion resultadoFinal = construirResultado(metrica, nivel, mensaje);
+        // 5 y 6. Construir y devolver el resultado final (Persona 4)
+        return construirResultado(resultado.getNombreCiudad(), metrica, nivel, mensaje);
+        */
 
-        // 6. Devolver el resultado
-        return resultadoFinal;
+        System.out.println("Evaluación temporal completada. MetricaCiudad generada con éxito.");
+        return null; // Retorno temporal
     }
 
-    // Orquestador limpio delegando en métodos auxiliares
+    // =========================================================================
+    // MÉTODOS AUXILIARES OBLIGATORIOS
+    // =========================================================================
 
     private void validarEntrada(ResultadoSimulacion resultado) {
         if (resultado == null) {
-            throw new ResultadoSimulacionInvalidoException("El ResultadoSimulacion recibido es nulo.");
+            throw new IllegalArgumentException("El resultado de simulación no puede ser nulo.");
         }
-        if (resultado.getTotalBloques() < 0 || resultado.getBloquesActivos() < 0 || resultado.getBloquesInactivos() < 0) {
-            throw new ResultadoSimulacionInvalidoException("Los conteos de bloques no pueden ser negativos.");
+        //  CAMBIO CLAVE: Usamos getBloquesTotales() para coincidir con tu compañero
+        if (resultado.getBloquesTotales() < 0 || resultado.getBloquesActivos() < 0 || resultado.getBloquesInactivos() < 0) {
+            throw new ResultadoSimulacionInvalidoException("Los contadores de bloques no pueden ser negativos.");
         }
-        if ((resultado.getBloquesActivos() + resultado.getBloquesInactivos()) != resultado.getTotalBloques()) {
-            throw new ResultadoSimulacionInvalidoException("Incoherencia estructural: suma de bloques incorrecta.");
+        if (resultado.getBloquesActivos() > resultado.getBloquesTotales() || resultado.getBloquesInactivos() > resultado.getBloquesTotales()) {
+            throw new ResultadoSimulacionInvalidoException("Los bloques activos o inactivos no pueden superar el total.");
+        }
+        if ((resultado.getBloquesActivos() + resultado.getBloquesInactivos()) != resultado.getBloquesTotales()) {
+            throw new ResultadoSimulacionInvalidoException("Incoherencia: Activos + Inactivos no suma el total.");
+        }
+        if (resultado.getConteoPorTipo() == null) {
+            throw new ResultadoSimulacionInvalidoException("El conteo por tipo no puede ser nulo.");
         }
     }
 
     private MetricaCiudad construirMetrica(ResultadoSimulacion resultado) {
-        // TODO: La Persona 2 rellenará este método
-        return new MetricaCiudad();
+        // Aquí ya estamos usando el código real que te pasó tu compañero
+        return new MetricaCiudad(resultado);
     }
 
-    private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad metrica) {
-        // TODO: La Persona 3 rellenará este método
-        return NivelEvaluacion.SIN_DATOS;
-    }
-
-    private String generarMensaje(MetricaCiudad metrica, NivelEvaluacion nivel) {
-        // TODO: La Persona 3 rellenará este método
-        return "Mensaje temporal de evaluación.";
-    }
-
-    private ResultadoEvaluacion construirResultado(MetricaCiudad metrica, NivelEvaluacion nivel, String mensaje) {
-        // TODO: La Persona 1/4 rellenará esto cuando la clase ResultadoEvaluacion esté lista
-        return new ResultadoEvaluacion();
-    }
+    /*
+     * MÉTODOS DE LA PERSONA 3 Y 4 COMENTADOS HASTA QUE ENTREGUEN SUS PARTES
+     *
+    private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad metrica) { ... }
+    private String generarMensaje(MetricaCiudad metrica, NivelEvaluacion nivel) { ... }
+    private ResultadoEvaluacion construirResultado(String nombre, MetricaCiudad metrica, NivelEvaluacion nivel, String mensaje) { ... }
+    */
 }
