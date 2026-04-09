@@ -1,4 +1,3 @@
-// Ubicación: src/main/java/org/synthcity/modulo_3/MetricaCiudad.java
 package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_2.ResultadoSimulacion;
@@ -17,14 +16,10 @@ public final class MetricaCiudad {
     public MetricaCiudad(ResultadoSimulacion resultado) {
         this.totalBloques = resultado.getBloquesTotales();
         this.bloquesActivos = resultado.getBloquesActivos();
-
         this.bloquesInactivos = this.totalBloques - this.bloquesActivos;
 
-        if (this.totalBloques > 0) {
-            this.porcentajeActivos = (double) this.bloquesActivos / this.totalBloques;
-        } else {
-            this.porcentajeActivos = 0.0;
-        }
+        if (this.totalBloques > 0) this.porcentajeActivos = (double) this.bloquesActivos / this.totalBloques;
+        else this.porcentajeActivos = 0.0;
 
         this.porcentajeInactivos = 1.0 - this.porcentajeActivos;
 
