@@ -1,8 +1,8 @@
 public class Bloque {
 
-    TipoBloque TipoBloque;
-    Posicion Posicion;
-    boolean Activo;
+    private TipoBloque TipoBloque;
+    private Posicion Posicion;
+    private boolean Activo;
 
 
     public Bloque(TipoBloque TipoBloque, Posicion Posicion, boolean Activo) {
@@ -11,25 +11,25 @@ public class Bloque {
         this.Activo = Activo;
     }
 
-    public TipoBloque getTipo(){
+    public TipoBloque getTipo() {
         return TipoBloque;
     }
 
-    public Posicion getPosicion(){
+    public Posicion getPosicion() {
         return Posicion;
     }
 
-    public boolean estaActivo(){
+    public boolean estaActivo() {
         return Activo;
     }
 
-    public void activar(){
+    public void activar() {
         if (!Activo) {
             Activo = true;
         }
     }
 
-    public void desactivar(){
+    public void desactivar() {
         if (Activo) {
             Activo = false;
         }
@@ -37,10 +37,10 @@ public class Bloque {
 
     @Override
     public String toString() {
-        return "Bloque{" +
-                "TipoBloque=" + TipoBloque +
-                ", Posicion=" + Posicion +
-                ", Activo=" + Activo +
-                '}';
+        return "Bloque [" +
+                "tipo=" + tipoBloque +
+                ", posicion=" + posicion +
+                ", estado=" + (activo ? "activo" : "inactivo") +
+                "]";
     }
 }

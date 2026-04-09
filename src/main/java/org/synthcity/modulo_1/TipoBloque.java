@@ -1,7 +1,7 @@
 public enum TipoBloque {
-    BloqueResidencial,
-    BloqueEnergia,
-    BloqueIndustrial,
-    BloqueServicios,
-    BloqueTransporte
+    RESIDENCIAL,
+    ENERGIA,
+    INDUSTRIAL,
+    SERVICIOS,
+    TRANSPORTE
 }
