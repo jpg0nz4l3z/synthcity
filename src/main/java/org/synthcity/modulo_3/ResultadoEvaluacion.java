@@ -13,7 +13,7 @@ public class ResultadoEvaluacion {
                                String mensaje) {
 
         if (metricaCiudad == null || nivelEvaluacion == null || mensaje == null) {
-            throw new IllegalArgumentException();
+            throw new ResultadoSimulacionInvalidoException("El resultado de evaluación no puede estar incompleto.");
         }
 
         this.nombreCiudad = nombreCiudad;

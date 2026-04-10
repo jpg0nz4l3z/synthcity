@@ -1,8 +1,6 @@
 
 package org.synthcity.modulo_3;
 
-import org.synthcity.modulo_2.ResultadoSimulacion;
-
 /**
  * Persona 1: Orquestador del Módulo 3.
  * Transforma la simulación en una evaluación formal aplicando reglas deterministas.
@@ -36,7 +34,7 @@ public class EvaluadorCiudad {
 
     private void validarEntrada(ResultadoSimulacion resultado) {
         if (resultado == null) {
-            throw new IllegalArgumentException("El resultado de simulación no puede ser nulo.");
+            throw new ResultadoSimulacionInvalidoException("El resultado de simulación no puede ser nulo.");
         }
         if (resultado.getBloquesTotales() < 0 || resultado.getBloquesActivos() < 0 || resultado.getBloquesInactivos() < 0) {
             throw new ResultadoSimulacionInvalidoException("Los contadores de bloques no pueden ser negativos.");

@@ -1,7 +1,5 @@
 package org.synthcity.modulo_3;
 
-import org.synthcity.modulo_2.ResultadoSimulacion;
-import org.synthcity.modulo_1.TipoBloque;
 import java.util.Map;
 import java.util.Collections;
 
