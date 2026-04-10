@@ -2,12 +2,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class Ciudad {
+// Excepciones
+class PosicionFueraDeLimitesException extends RuntimeException {
+    public PosicionFueraDeLimitesException(String msg) { super(msg); }
+}
+class CeldaOcupadaException extends RuntimeException {
+    public CeldaOcupadaException(String msg) { super(msg); }
+}
+class CeldaVaciaException extends RuntimeException {
+    public CeldaVaciaException(String msg) { super(msg); }
+}
+class BloqueNuloException extends RuntimeException {
+    public BloqueNuloException(String msg) { super(msg); }
+}
+
+public class Ciudad {
     private String nombre;
     private int filas;
     private int columnas;
     private Bloque[][] tablero;
-
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -28,38 +41,26 @@ public abstract class Ciudad {
     public int getFilas() { return filas; }
     public int getColumnas() { return columnas; }
     public Bloque getBloque(int fila, int columna) {
+        validarPosicion(fila, columna);
         return tablero[fila][columna];
     }
     //  Validación de dimensiones
 
-    public boolean dentroLimites(Posicion posicion) {
-        if (posicion == null) return false;
-
-        int f = posicion.getFila();
-        int c = posicion.getColumna();
-
-        return f >= 0 && f < this.filas && c >= 0 && c < this.columnas;
+    public boolean dentroLimites(int fila, int columna) {
+        return fila >= 0 && fila < this.filas && columna >= 0 && columna < this.columnas;
     }
 
-    public void validarPosicion(Posicion posicion) {
-        if (posicion == null) {
-            throw new IllegalArgumentException("La posición no puede ser nula.");
-        }
-        if (!dentroLimites(posicion)) {
-            throw new IllegalArgumentException("Posición (" + posicion.getFila() + ", " + posicion.getColumna() + ") fuera del tablero.");
+    public void validarPosicion(int fila, int columna) {
+        if (!dentroLimites(fila, columna)) {
+            throw new PosicionFueraDeLimitesException("Posición (" + fila + ", " + columna + ") fuera del tablero.");
         }
     }
 
     // Gestión tablero
 
-    public Bloque getBloque(Posicion posicion) {
-        validarPosicion(posicion);
-        return tablero[posicion.getFila()][posicion.getColumna()];
-    }
-
-    public boolean estaOcupada(Posicion posicion) {
-        validarPosicion(posicion);
-        return tablero[posicion.getFila()][posicion.getColumna()] != null;
+    public boolean estaOcupada(int fila, int columna) {
+        validarPosicion(fila, columna);
+        return tablero[fila][columna] != null;  // Usa los parámetros recibidos
     }
 
     public int capacidadMaxima() {
@@ -68,28 +69,33 @@ public abstract class Ciudad {
 
     // Métodos complementarios
 
-    public void addBloque(Bloque bloque){
+    public void addBloque(Bloque bloque) {
+        if (bloque == null) {
+            throw new BloqueNuloException("El bloque no puede ser nulo.");
+        }
 
-        if (bloque == null){
-            throw new IllegalArgumentException("El Bloque no existe");
+        Posicion pos = bloque.getPosicion();
+        int fila = pos.getFila();
+        int columna = pos.getColumna();
+
+        if (!dentroLimites(fila, columna)) {
+            throw new PosicionFueraDeLimitesException("La posición (" + fila + ", " + columna + ") está fuera del tablero.");
         }
-        int fila=bloque.getFilas();
-        int columna= bloque.getColumnas();
-        if (fila < 0 || fila >= filas || columna < 0 || columna >= columnas ){
-            throw new IllegalArgumentException("La posición no se encuentra dentro del tablero");
+
+        // Validar que la celda está libre
+        if (tablero[fila][columna] != null) {
+            throw new CeldaOcupadaException("La casilla (" + fila + ", " + columna + ") ya está ocupada.");
         }
-        if (tablero[fila][columna]!= null){
-            throw new IllegalArgumentException("La casilla ya está ocupada");
-        }
+
         tablero[fila][columna] = bloque;
     }
 
-    public void removeBloque(int fila, int columna){
-        if (fila < 0 || fila >= filas || columna < 0 || columna >= columnas ){
-            throw new IllegalArgumentException("La posición no se encuentra dentro del tablero");
+    public void removeBloque(int fila, int columna) {
+        if (!dentroLimites(fila,columna)) {
+            throw new PosicionFueraDeLimitesException("La posición (" + fila + ", " + columna + ") no se encuentra dentro del tablero.");
         }
-        if (tablero[fila][columna] == null){
-            throw new IllegalArgumentException("No Hay un bloque que eliminar en esta posición");
+        if (tablero[fila][columna] == null) {
+            throw new CeldaVaciaException("No hay un bloque que eliminar en la posición (" + fila + ", " + columna + ").");
         }
         tablero[fila][columna] = null;
     }
@@ -161,16 +167,23 @@ public abstract class Ciudad {
 
     @Override
     public String toString() {
-        return "Ciudad{" +
-                "nombre='" + nombre + '\'' +
-                ", filas=" + filas +
-                ", columnas=" + columnas +
-                ", tablero=" + Arrays.toString(tablero) +
-                ", capacidad máxima=" + capacidadMaxima() +
-                ", tipo de bloque=" + TipoBloque() +
-                ", número de bloques=" + contarBloques() +
-                ", número de bloques por tipo=" + contarBloquesPorTipo() +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("Ciudad{");
+        sb.append("nombre='").append(nombre).append('\'');
+        sb.append(", dimensiones=").append(filas).append("x").append(columnas);
+        sb.append(", capacidad máxima=").append(capacidadMaxima());
+        sb.append(", bloques totales=").append(contarBloques());
+        sb.append(", distribución por tipo={");
+
+        TipoBloque[] tipos = TipoBloque.values();
+        for (int i = 0; i < tipos.length; i++) {
+            sb.append(tipos[i].name()).append(":").append(contarBloquesPorTipo(tipos[i]));
+            if (i < tipos.length - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("}}");
+        return sb.toString();
     }
 }
 

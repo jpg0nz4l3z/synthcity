@@ -30,8 +30,6 @@ public abstract class Bloque {
         activo = false;
     }
 
-    public abstract void interactuar();
-
     @Override
     public String toString() {
         return "Bloque [" +
