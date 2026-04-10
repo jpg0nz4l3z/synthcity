@@ -1,39 +1,36 @@
-public class Bloque {
+public abstract class Bloque {
 
-    private TipoBloque TipoBloque;
-    private Posicion Posicion;
-    private boolean Activo;
+    private TipoBloque tipoBloque;
+    private Posicion posicion;
+    private boolean activo;
 
-
-    public Bloque(TipoBloque TipoBloque, Posicion Posicion, boolean Activo) {
-        this.TipoBloque = TipoBloque;
-        this.Posicion = Posicion;
-        this.Activo = Activo;
+    public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo) {
+        this.tipoBloque = tipoBloque;
+        this.posicion = posicion;
+        this.activo = activo;
     }
 
     public TipoBloque getTipo() {
-        return TipoBloque;
+        return tipoBloque;
     }
 
     public Posicion getPosicion() {
-        return Posicion;
+        return posicion;
     }
 
     public boolean estaActivo() {
-        return Activo;
+        return activo;
     }
 
     public void activar() {
-        if (!Activo) {
-            Activo = true;
-        }
+        activo = true;
     }
 
     public void desactivar() {
-        if (Activo) {
-            Activo = false;
-        }
+        activo = false;
     }
+
+    public abstract void interactuar();
 
     @Override
     public String toString() {
