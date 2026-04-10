@@ -2,26 +2,30 @@ package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_2.ResultadoSimulacion;
 
+/**
+ * Persona 1: Orquestador del Módulo 3.
+ * Transforma la simulación en una evaluación formal aplicando reglas deterministas.
+ */
 public class EvaluadorCiudad {
 
     // =========================================================================
-    // MÉTODO EVALUAR (EL CORAZÓN DEL MÓDULO)
+    // MeTODO EVALUAR (EL CORAZÓN DEL MÓDULO)
     // =========================================================================
     public ResultadoEvaluacion evaluar(ResultadoSimulacion resultado) {
 
-        // 1. Validar la entrada (Tu responsabilidad)
+        // 1. Validar la entrada (Persona 1)
         validarEntrada(resultado);
 
-        // 2. Construir la métrica (Responsabilidad Persona 2)
+        // 2. Construir la métrica (Persona 2)
         MetricaCiudad metrica = construirMetrica(resultado);
 
-        // 3. Determinar el nivel de evaluación (Responsabilidad Persona 3 integrada aquí) [cite: 2434-2441]
+        // 3. Determinar el nivel de evaluación (Persona 3 integrada en Evaluador)
         NivelEvaluacion nivel = determinarNivelEvaluacion(metrica);
 
-        // 4. Generar un mensaje explicativo (Responsabilidad Persona 4)
+        // 4. Generar un mensaje explicativo (Persona 4)
         String mensaje = generarMensaje(metrica, nivel);
 
-        // 5. Construir y devolver el resultado final (Responsabilidad Persona 4)
+        // 5. Construir y devolver el resultado final (Persona 4)
         return construirResultado(resultado.getNombreCiudad(), metrica, nivel, mensaje);
     }
 
@@ -48,35 +52,34 @@ public class EvaluadorCiudad {
     }
 
     private MetricaCiudad construirMetrica(ResultadoSimulacion resultado) {
-        // La Persona 2 recibe el objeto de simulación y calcula sus propios datos
+        // La Persona 2 calcula los porcentajes en su constructor [cite: 1025-1033]
         return new MetricaCiudad(resultado);
     }
 
     private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad metrica) {
-        // Reglas de evaluación (ORDEN NO ALTERABLE) - PDF Pág 18
+        int total = metrica.getTotalBloques();
+        int activos = metrica.getBloquesActivos();
+        double porcentaje = metrica.getPorcentajeActivos();
 
-        // 5.1. Ciudad sin datos
-        if (metrica.getTotalBloques() == 0) {
+        // Reglas de evaluación
+        if (total == 0) {
             return NivelEvaluacion.SIN_DATOS;
         }
-        // 5.2. Ciudad crítica
-        if (metrica.getBloquesActivos() == 0) {
+        if (activos == 0) {
             return NivelEvaluacion.CRITICO;
         }
-        // 5.3. Ciudad óptima
-        if (metrica.getBloquesActivos() == metrica.getTotalBloques()) {
+        if (activos == total) {
             return NivelEvaluacion.OPTIMO;
         }
-        // 5.4. Ciudad funcional (Umbral del 60% / 0.6)
-        if (metrica.getPorcentajeActivos() >= 0.6) {
+        if (porcentaje >= 0.6) {
             return NivelEvaluacion.FUNCIONAL;
         }
-        // 5.5. Ciudad inestable
+
         return NivelEvaluacion.INESTABLE;
     }
 
     private String generarMensaje(MetricaCiudad metrica, NivelEvaluacion nivel) {
-        // Usamos la clase estática de la Persona 4
+        // Conectamos con la clase Generar Mensaje
         return GeneradorMensajes.generarMensaje(nivel);
     }
 
