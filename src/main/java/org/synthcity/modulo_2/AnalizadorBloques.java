@@ -1,4 +1,4 @@
-package synthcity.modulo_2;
+package org.synthcity.modulo_2;
 
 import java.util.EnumMap;
 import java.util.List;
