@@ -1,4 +1,9 @@
 package org.synthcity.modulo_4.stubs;
 
-public class NivelEvaluacion {
+    public enum NivelEvaluacion  {
+        SIN_DATOS,
+        CRITICO,
+        INESTABLE,
+        FUNCIONAL,
+        OPTIMO
 }
