@@ -21,7 +21,7 @@ public class Modulo3Test {
     void setUp() {
         evaluador = new EvaluadorCiudad();
         tiposMock = new HashMap<>();
-        // Inicializamos el mapa con todos los tipos para cumplir el contrato [cite: 65]
+
         for (TipoBloque t : TipoBloque.values()) {
             tiposMock.put(t, 0);
         }
@@ -39,7 +39,7 @@ public class Modulo3Test {
 
     @Test
     void testMatematicasIncoherentesLanzaExcepcion() {
-        // CORRECCIÓN: Ahora pasamos los 9 parámetros (nombre, filas, cols, capMax, total, activos, inactivos, mapa, estado)
+
         ResultadoSimulacion mock = new ResultadoSimulacion("Test", 5, 5, 25, 10, 5, 4, tiposMock, EstadoSimulacion.EJECUTADA);
         assertThrows(ResultadoSimulacionInvalidoException.class, () -> evaluador.evaluar(mock));
     }
@@ -54,7 +54,6 @@ public class Modulo3Test {
         ResultadoSimulacion sup = new ResultadoSimulacion("Sup", 5, 5, 25, 10, 15, 0, tiposMock, EstadoSimulacion.EJECUTADA);
         assertThrows(ResultadoSimulacionInvalidoException.class, () -> evaluador.evaluar(sup));
 
-        // Mapa de tipos nulo [cite: 64, 2219]
         ResultadoSimulacion sinMapa = new ResultadoSimulacion("NoMap", 5, 5, 25, 10, 5, 5, null, EstadoSimulacion.EJECUTADA);
         assertThrows(ResultadoSimulacionInvalidoException.class, () -> evaluador.evaluar(sinMapa));
     }
@@ -86,7 +85,6 @@ public class Modulo3Test {
 
     @Test
     void testCiudadFuncional() {
-        // 6 activos de 10 = 60% (Umbral mínimo aceptable [cite: 2490])
         ResultadoSimulacion mock = new ResultadoSimulacion("Delta", 5, 5, 25, 10, 6, 4, tiposMock, EstadoSimulacion.EJECUTADA);
         ResultadoEvaluacion res = evaluador.evaluar(mock);
         assertEquals(NivelEvaluacion.FUNCIONAL, res.getNivelEvaluacion());
@@ -94,7 +92,6 @@ public class Modulo3Test {
 
     @Test
     void testCiudadInestable() {
-        // 5 activos de 10 = 50% (Por debajo del 60% [cite: 2492-2494])
         ResultadoSimulacion mock = new ResultadoSimulacion("Epsilon", 5, 5, 25, 10, 5, 5, tiposMock, EstadoSimulacion.EJECUTADA);
         ResultadoEvaluacion res = evaluador.evaluar(mock);
         assertEquals(NivelEvaluacion.INESTABLE, res.getNivelEvaluacion());
@@ -109,7 +106,7 @@ public class Modulo3Test {
         ResultadoSimulacion sim = new ResultadoSimulacion("Vacia", 5, 5, 25, 0, 0, 0, tiposMock, EstadoSimulacion.CIUDAD_VACIA);
         MetricaCiudad metrica = new MetricaCiudad(sim);
 
-        // Control de división por cero [cite: 1796, 2272]
+
         assertEquals(0.0, metrica.getPorcentajeActivos(), "El porcentaje debe ser 0.0");
         assertEquals(1.0, metrica.getPorcentajeInactivos(), "Inactivos debe ser 1.0");
     }
@@ -119,7 +116,6 @@ public class Modulo3Test {
         ResultadoSimulacion sim = new ResultadoSimulacion("RatioTest", 5, 5, 25, 10, 7, 3, tiposMock, EstadoSimulacion.EJECUTADA);
         MetricaCiudad metrica = new MetricaCiudad(sim);
 
-        // Verificamos que se usen los getters correctos de ResultadoSimulacion [cite: 2249]
         assertEquals(10, metrica.getTotalBloques());
         assertEquals(7, metrica.getBloquesActivos());
         assertEquals(3, metrica.getBloquesInactivos());
@@ -134,7 +130,6 @@ public class Modulo3Test {
         ResultadoSimulacion sim = new ResultadoSimulacion("Test", 5, 5, 25, 10, 5, 5, tiposMock, EstadoSimulacion.EJECUTADA);
         MetricaCiudad m = new MetricaCiudad(sim);
 
-        // Verificamos robustez del constructor de ResultadoEvaluacion [cite: 1898-1900, 2070]
         assertThrows(ResultadoSimulacionInvalidoException.class, () -> new ResultadoEvaluacion("City", m, null, "Mensaje"));
         assertThrows(ResultadoSimulacionInvalidoException.class, () -> new ResultadoEvaluacion("City", m, NivelEvaluacion.FUNCIONAL, null));
     }
@@ -148,7 +143,6 @@ public class Modulo3Test {
         ResultadoSimulacion mock = new ResultadoSimulacion("Beta", 5, 5, 25, 10, 0, 10, tiposMock, EstadoSimulacion.SIN_BLOQUES_ACTIVOS);
         ResultadoEvaluacion res = evaluador.evaluar(mock);
 
-        // El mensaje debe ser coherente con el nivel CRÍTICO [cite: 78, 2734]
         assertTrue(res.getMensaje().toLowerCase().contains("no tiene actividad"));
     }
 
@@ -157,7 +151,6 @@ public class Modulo3Test {
         ResultadoSimulacion sim = new ResultadoSimulacion("Zeta", 5, 5, 25, 10, 8, 2, tiposMock, EstadoSimulacion.EJECUTADA);
         ResultadoEvaluacion res = evaluador.evaluar(sim);
 
-        // Verificamos que el objeto entregado al M4 sea completo [cite: 71-72, 1897]
         assertNotNull(res.getMetricaCiudad());
         assertNotNull(res.getNivelEvaluacion());
         assertNotNull(res.getMensaje());
