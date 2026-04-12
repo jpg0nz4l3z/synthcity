@@ -1,7 +1,7 @@
 package org.synthcity.modulo_4;
 
-import org.synthcity.modulo_4.stubs.MetricaCiudad;
-import org.synthcity.modulo_4.stubs.ResultadoEvaluacion;
+import org.synthcity.modulo_3.MetricaCiudad;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class PresentadorCiudad {
 
