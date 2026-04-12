@@ -1,4 +1,4 @@
-package org.synthcity.modulo_1;
+package org.synthcity.modulo_4.stubs;
 
 public enum TipoBloque {
     RESIDENCIAL,

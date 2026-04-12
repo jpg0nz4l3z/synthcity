@@ -1,3 +1,5 @@
+package org.synthcity.modulo_1;
+
 import java.util.Objects;
 
 public class Posicion {
