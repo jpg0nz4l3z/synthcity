@@ -1,5 +1,6 @@
-
 package org.synthcity.modulo_3;
+
+import org.synthcity.modulo_2.ResultadoSimulacion;
 
 /**
  * Persona 1: Orquestador del Módulo 3.
