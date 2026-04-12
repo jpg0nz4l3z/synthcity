@@ -3,9 +3,9 @@ package org.synthcity.modulo_2;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import synthcity.modulo_1.Bloque;
-import synthcity.modulo_1.Ciudad;
-import synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_1.Bloque;
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.TipoBloque;
 
 public class SimuladorCiudad {
 
