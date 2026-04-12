@@ -1,4 +1,4 @@
-package simulador.excepciones;
+package org.synthcity.modulo_2;
 
 public class CiudadNulaException extends RuntimeException {
 
