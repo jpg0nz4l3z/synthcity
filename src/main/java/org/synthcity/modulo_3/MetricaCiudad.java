@@ -1,5 +1,9 @@
 package org.synthcity.modulo_3;
 
+
+import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.ResultadoSimulacion;
+
 import java.util.Map;
 import java.util.Collections;
 
@@ -9,7 +13,7 @@ public final class MetricaCiudad {
     private final int bloquesInactivos;
     private final double porcentajeActivos;
     private final double porcentajeInactivos;
-    private final Map< TipoBloque, Integer> conteoPorTipo;
+    private final Map<TipoBloque, Integer> conteoPorTipo;
 
     public MetricaCiudad(ResultadoSimulacion resultado) {
         this.totalBloques = resultado.getBloquesTotales();
