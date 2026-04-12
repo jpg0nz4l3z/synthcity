@@ -19,7 +19,7 @@ public class TestSimuladorCiudad {
         try {
             simulador.simular(null);
             System.out.println("❌ ERROR: no lanzó excepción con ciudad nula");
-        } catch (CiudadNulaException e) {
+        } catch (CiudadNulaExcepcion e) {
             System.out.println("✅ TEST 1 OK: excepción ciudad nula capturada");
         }
 
