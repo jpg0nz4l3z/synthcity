@@ -1,12 +1,12 @@
 package org.synthcity.modulo_2;
 
-public class CiudadNulaException extends RuntimeException {
+public class CiudadNulaExcepcion extends RuntimeException {
 
-    public CiudadNulaException() {
+    public CiudadNulaExcepcion() {
         super("La ciudad no puede ser nula.");
     }
 
-    public CiudadNulaException(String mensaje) {
+    public CiudadNulaExcepcion(String mensaje) {
         super(mensaje);
     }
 }
