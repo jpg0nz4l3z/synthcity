@@ -1,4 +1,9 @@
 package org.synthcity.modulo_4.stubs;
 
-public class TipoBloque {
+public enum TipoBloque {
+    RESIDENCIAL,
+    ENERGIA,
+    INDUSTRIAL,
+    SERVICIOS,
+    TRANSPORTE
 }
