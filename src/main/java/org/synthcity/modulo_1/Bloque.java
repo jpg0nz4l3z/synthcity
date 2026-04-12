@@ -1,3 +1,5 @@
+package org.synthcity.modulo_1;
+
 public abstract class Bloque {
 
     private TipoBloque tipoBloque;
