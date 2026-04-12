@@ -49,7 +49,7 @@ public class SimuladorCiudad {
     // Validación de entrada
     private void validarEntrada(Ciudad ciudad) {
         if (ciudad == null) {
-            throw new CiudadNulaException("No se puede simular una ciudad nula.");
+            throw new CiudadNulaExcepcion("No se puede simular una ciudad nula.");
         }
     }
 
