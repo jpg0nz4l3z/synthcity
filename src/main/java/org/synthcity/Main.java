@@ -3,12 +3,14 @@ package org.synthcity;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.EstadoSimulacion;
+import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.MetricaCiudad;
+import org.synthcity.modulo_3.NivelEvaluacion;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
 import org.synthcity.modulo_4.PresentadorCiudad;
 import org.synthcity.modulo_4.SalidaTexto;
-import org.synthcity.modulo_4.stubs.MetricaCiudad;
-import org.synthcity.modulo_4.stubs.NivelEvaluacion;
-import org.synthcity.modulo_4.stubs.ResultadoEvaluacion;
-import org.synthcity.modulo_4.stubs.TipoBloque;
 
 public class Main {
 
@@ -52,14 +54,19 @@ public class Main {
         conteo.put(TipoBloque.SERVICIOS, 1);
         conteo.put(TipoBloque.TRANSPORTE, 1);
 
-        MetricaCiudad metrica = new MetricaCiudad(
+        ResultadoSimulacion simulacion = new ResultadoSimulacion(
+                "NeoMadrid",
+                2,
+                5,
+                10,
                 10,
                 7,
                 3,
-                0.70,
-                0.30,
-                conteo
+                conteo,
+                EstadoSimulacion.EJECUTADA
         );
+
+        MetricaCiudad metrica = new MetricaCiudad(simulacion);
 
         return new ResultadoEvaluacion(
                 "NeoMadrid",
@@ -72,14 +79,19 @@ public class Main {
     private static ResultadoEvaluacion crearResultadoSinDatos() {
         Map<TipoBloque, Integer> conteo = crearMapaBase();
 
-        MetricaCiudad metrica = new MetricaCiudad(
+        ResultadoSimulacion simulacion = new ResultadoSimulacion(
+                "CiudadVacia",
                 0,
                 0,
                 0,
-                0.0,
-                0.0,
-                conteo
+                0,
+                0,
+                0,
+                conteo,
+                EstadoSimulacion.EJECUTADA
         );
+
+        MetricaCiudad metrica = new MetricaCiudad(simulacion);
 
         return new ResultadoEvaluacion(
                 "CiudadVacia",
@@ -96,14 +108,19 @@ public class Main {
         conteo.put(TipoBloque.ENERGIA, 1);
         conteo.put(TipoBloque.SERVICIOS, 1);
 
-        MetricaCiudad metrica = new MetricaCiudad(
+        ResultadoSimulacion simulacion = new ResultadoSimulacion(
+                "CiudadCritica",
+                2,
+                3,
+                6,
                 5,
                 0,
                 5,
-                0.0,
-                1.0,
-                conteo
+                conteo,
+                EstadoSimulacion.EJECUTADA
         );
+
+        MetricaCiudad metrica = new MetricaCiudad(simulacion);
 
         return new ResultadoEvaluacion(
                 "CiudadCritica",
