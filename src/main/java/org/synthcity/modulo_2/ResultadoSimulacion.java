@@ -2,6 +2,7 @@ package org.synthcity.modulo_2;
 
 import java.util.Map;
 import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
 
 public class ResultadoSimulacion {
 
@@ -15,8 +16,26 @@ public class ResultadoSimulacion {
     private final int bloquesInactivos;
 
     private final Map<TipoBloque, Integer> conteoPorTipo;
-
     private final EstadoSimulacion estadoSimulacion;
+
+    private double densidad;
+    private TipoEstructuralCiudad tipoEstructural;
+    //Energía
+    private int energiaProducida;
+    private int consumoEnergetico;
+    private int equilibrioEnergetico;
+    //Servicios e Impacto
+    private int demandaServicios;
+    private int coberturaServicios;
+    private int presionIndustrial;
+    private int soporteTransporte;
+    private int contaminacion;
+    //Indices y Ratios
+    private double bienestar;
+    private double estabilidadBasica;
+    private double ratioEnergetico;
+    private double ratioCoberturaServicios;
+
 
     // Constructor con todos los atributos inicializados
     public ResultadoSimulacion(
