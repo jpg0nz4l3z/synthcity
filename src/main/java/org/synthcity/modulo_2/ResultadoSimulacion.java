@@ -152,6 +152,17 @@ public class ResultadoSimulacion {
 
     public boolean hayDeficitServicios(){return coberturaServicios < demandaServicios;}
 
+    /**
+     * Devuelve una descripción compacta del resultado del ciclo.
+     * Útil para trazabilidad rápida y depuración.
+     */
+    public String getResumenSimulacion() {
+        return String.format(
+                "Resumen de [%s]: Estado: %s | Bienestar: %.2f | Estabilidad: %.2f | Bal. Energía: %d",
+                nombreCiudad, estadoSimulacion, bienestar, estabilidadBasica, equilibrioEnergetico
+        );
+    }
+
     // toString para depuración
     @Override
     public String toString() {
@@ -170,6 +181,7 @@ public class ResultadoSimulacion {
         // Sección de Energía
         sb.append("Energía Prod/Cons:").append(energiaProducida).append(" / ").append(consumoEnergetico).append("\n");
         sb.append("Balance Energético:").append(equilibrioEnergetico).append("\n");
+        sb.append("Ratio Energético:  ").append(ratioEnergetico).append("\n");
 
         // Sección de Servicios e Impacto
         sb.append("Servicios (D/C):  ").append(demandaServicios).append(" / ").append(coberturaServicios).append("\n");
