@@ -6,6 +6,7 @@ import java.util.Map;
 import org.synthcity.modulo_1.Bloque;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
 
 public class SimuladorCiudad {
 
@@ -42,7 +43,11 @@ public class SimuladorCiudad {
         return construirResultadoSimulacion(
                 nombreCiudad, filas, columnas, capacidadMaxima,
                 totalBloques, totalActivos, totalInactivos,
-                conteoPorTipo, estado
+                conteoPorTipo, estado, 0.0, null, // densidad y tipoEstructural (Stubs)
+                0, 0, 0,   // Energía (Stubs)
+                0, 0,      // Servicios (Stubs)
+                0, 0, 0,   // Impacto (Stubs)
+                0.0, 0.0, 0.0, 0.0 // Índices y Ratios (Stubs)
         );
     }
 
@@ -68,12 +73,24 @@ public class SimuladorCiudad {
     private ResultadoSimulacion construirResultadoSimulacion(
             String nombreCiudad, int filas, int columnas, int capacidadMaxima,
             int bloquesTotales, int bloquesActivos, int bloquesInactivos,
-            Map<TipoBloque, Integer> conteoPorTipo, EstadoSimulacion estado) {
+            Map<TipoBloque, Integer> conteoPorTipo, EstadoSimulacion estado,
+            double densidad, TipoEstructuralCiudad tipoEstructural,
+            int energiaProducida, int consumoEnergetico, int equilibrioEnergetico,
+            int demandaServicios, int coberturaServicios,
+            int presionIndustrial, int soporteTransporte, int contaminacion,
+            double bienestar, double estabilidadBasica,
+            double ratioEnergetico, double ratioCoberturaServicios) {
 
         return new ResultadoSimulacion(
                 nombreCiudad, filas, columnas, capacidadMaxima,
                 bloquesTotales, bloquesActivos, bloquesInactivos,
-                conteoPorTipo, estado
+                conteoPorTipo, estado,
+                densidad, tipoEstructural,
+                energiaProducida, consumoEnergetico, equilibrioEnergetico,
+                demandaServicios, coberturaServicios,
+                presionIndustrial, soporteTransporte, contaminacion,
+                bienestar, estabilidadBasica,
+                ratioEnergetico, ratioCoberturaServicios
         );
     }
 

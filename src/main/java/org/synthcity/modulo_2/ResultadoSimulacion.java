@@ -18,23 +18,23 @@ public class ResultadoSimulacion {
     private final Map<TipoBloque, Integer> conteoPorTipo;
     private final EstadoSimulacion estadoSimulacion;
 
-    private double densidad;
-    private TipoEstructuralCiudad tipoEstructural;
+    private final double densidad;
+    private final TipoEstructuralCiudad tipoEstructural;
     //Energía
-    private int energiaProducida;
-    private int consumoEnergetico;
-    private int equilibrioEnergetico;
+    private final int energiaProducida;
+    private final int consumoEnergetico;
+    private final int equilibrioEnergetico;
     //Servicios e Impacto
-    private int demandaServicios;
-    private int coberturaServicios;
-    private int presionIndustrial;
-    private int soporteTransporte;
-    private int contaminacion;
+    private final int demandaServicios;
+    private final int coberturaServicios;
+    private final int presionIndustrial;
+    private final int soporteTransporte;
+    private final int contaminacion;
     //Indices y Ratios
-    private double bienestar;
-    private double estabilidadBasica;
-    private double ratioEnergetico;
-    private double ratioCoberturaServicios;
+    private final double bienestar;
+    private final double estabilidadBasica;
+    private final double ratioEnergetico;
+    private final double ratioCoberturaServicios;
 
 
     // Constructor con todos los atributos inicializados
@@ -47,7 +47,21 @@ public class ResultadoSimulacion {
             int bloquesActivos,
             int bloquesInactivos,
             Map<TipoBloque, Integer> conteoPorTipo,
-            EstadoSimulacion estadoSimulacion) {
+            EstadoSimulacion estadoSimulacion,
+            double densidad,
+            TipoEstructuralCiudad tipoEstructural,
+            int energiaProducida,
+            int consumoEnergetico,
+            int equilibrioEnergetico,
+            int demandaServicios ,
+            int coberturaServicios,
+            int presionIndustrial,
+            int soporteTransporte,
+            int contaminacion,
+            double bienestar,
+            double estabilidadBasica,
+            double ratioEnergetico,
+            double ratioCoberturaServicios) {
 
         this.nombreCiudad = nombreCiudad;
         this.filas = filas;
@@ -58,6 +72,20 @@ public class ResultadoSimulacion {
         this.bloquesInactivos = bloquesInactivos;
         this.conteoPorTipo = conteoPorTipo; // Java 10+; protege el mapa
         this.estadoSimulacion = estadoSimulacion;
+        this.densidad = densidad;
+        this.tipoEstructural = tipoEstructural;
+        this.energiaProducida = energiaProducida;
+        this.consumoEnergetico = consumoEnergetico;
+        this.equilibrioEnergetico = equilibrioEnergetico;
+        this.demandaServicios = demandaServicios;
+        this.coberturaServicios = coberturaServicios;
+        this.presionIndustrial = presionIndustrial;
+        this.soporteTransporte = soporteTransporte;
+        this.contaminacion = contaminacion;
+        this.bienestar = bienestar;
+        this.estabilidadBasica = estabilidadBasica;
+        this.ratioEnergetico = ratioEnergetico;
+        this.ratioCoberturaServicios = ratioCoberturaServicios;
     }
 
     // GETTERS
@@ -70,6 +98,21 @@ public class ResultadoSimulacion {
     public int getBloquesInactivos() { return bloquesInactivos; }
     public Map<TipoBloque, Integer> getConteoPorTipo() { return conteoPorTipo; }
     public EstadoSimulacion getEstadoSimulacion() { return estadoSimulacion; }
+
+    public double getDensidad() {return densidad;}
+    public TipoEstructuralCiudad getTipoEstructural() {return tipoEstructural;}
+    public int getEnergiaProducida() {return energiaProducida;}
+    public int getConsumoEnergetico() {return consumoEnergetico;}
+    public int getEquilibrioEnergetico() {return equilibrioEnergetico;}
+    public int getDemandaServicios() {return demandaServicios;}
+    public int getCoberturaServicios() {return coberturaServicios;}
+    public int getPresionIndustrial() {return presionIndustrial;}
+    public int getSoporteTransporte() {return soporteTransporte;}
+    public int getContaminacion() {return contaminacion;}
+    public double getBienestar() {return bienestar;}
+    public double getEstabilidadBasica() {return estabilidadBasica;}
+    public double getRatioEnergetico() {return ratioEnergetico;}
+    public double getRatioCoberturaServicios() {return ratioCoberturaServicios;}
 
     // MÉTODOS FUNCIONALES
     public int getCantidadPorTipo(TipoBloque tipo) {
