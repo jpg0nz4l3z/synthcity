@@ -181,7 +181,6 @@ public class ResultadoSimulacion {
         // Sección de Energía
         sb.append("Energía Prod/Cons:").append(energiaProducida).append(" / ").append(consumoEnergetico).append("\n");
         sb.append("Balance Energético:").append(equilibrioEnergetico).append("\n");
-        sb.append("Ratio Energético:  ").append(ratioEnergetico).append("\n");
 
         // Sección de Servicios e Impacto
         sb.append("Servicios (D/C):  ").append(demandaServicios).append(" / ").append(coberturaServicios).append("\n");
@@ -192,6 +191,8 @@ public class ResultadoSimulacion {
         // Sección de Índices
         sb.append("Bienestar:        ").append(bienestar).append("\n");
         sb.append("Estabilidad:      ").append(estabilidadBasica).append("\n");
+        sb.append("Ratio Energético:  ").append(ratioEnergetico).append("\n");
+        sb.append("Ratio Servicios:  ").append(ratioCoberturaServicios).append("\n");
         sb.append("Estado:           ").append(estadoSimulacion).append("\n");
 
         sb.append("Distribución por tipo:\n");
