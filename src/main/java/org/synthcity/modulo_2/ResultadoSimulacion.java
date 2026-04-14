@@ -126,16 +126,17 @@ public class ResultadoSimulacion {
         return bloquesTotales == 0;
     }
 
-    public boolean hayBloquesActivos() {
+    public boolean hayBloquesActivos() {return bloquesActivos > 0;}
 
-        return bloquesActivos > 0;
-    }
+    public boolean hayDeficitEnergetico(){return equilibrioEnergetico < 0;}
+
+    public boolean hayDeficitServicios(){return coberturaServicios < demandaServicios;}
 
     // toString para depuración
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("=== RESULTADO DE SIMULACION ===\n");
+        sb.append("=== RESULTADO DE SIMULACIÓN ===\n");
         sb.append("Ciudad:           ").append(nombreCiudad).append("\n");
         sb.append("Dimensiones:      ").append(filas).append("x").append(columnas).append("\n");
         sb.append("Capacidad maxima: ").append(capacidadMaxima).append("\n");
@@ -143,7 +144,7 @@ public class ResultadoSimulacion {
         sb.append("Bloques activos:  ").append(bloquesActivos).append("\n");
         sb.append("Bloques inactivos:").append(bloquesInactivos).append("\n");
         sb.append("Estado:           ").append(estadoSimulacion).append("\n");
-        sb.append("Distribucion por tipo:\n");
+        sb.append("Distribución por tipo:\n");
 
         for (TipoBloque tipo : TipoBloque.values()) {
             sb.append("  ").append(tipo).append(": ").append(getCantidadPorTipo(tipo)).append("\n");
