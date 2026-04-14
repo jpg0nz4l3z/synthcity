@@ -86,6 +86,26 @@ public class ResultadoSimulacion {
         this.estabilidadBasica = estabilidadBasica;
         this.ratioEnergetico = ratioEnergetico;
         this.ratioCoberturaServicios = ratioCoberturaServicios;
+
+        // 1. Invariante de conteo de bloques: la suma debe ser exacta
+        if (this.bloquesTotales != (this.bloquesActivos + this.bloquesInactivos)) {
+            throw new ResultadoSimulacionInvalidoException("Inconsistencia en el conteo de bloques: la suma de activos e inactivos no coincide con el total.");
+        }
+
+        // 2. Invariante de energía: el equilibrio debe ser la diferencia exacta entre producción y consumo
+        if (this.equilibrioEnergetico != (this.energiaProducida - this.consumoEnergetico)) {
+            throw new ResultadoSimulacionInvalidoException("Inconsistencia energética: el equilibrio no corresponde a la diferencia entre producción y consumo.");
+        }
+
+        // 3. Invariante de densidad: debe estar en un rango lógico (ejemplo: entre 0 y 1 o según lo defina M1)
+        if (this.densidad < 0) {
+            throw new ResultadoSimulacionInvalidoException("La densidad no puede ser un valor negativo.");
+        }
+
+        // 4. Invariante de mapa: el conteo por tipo no puede ser nulo y debe ser completo
+        if (this.conteoPorTipo == null || this.conteoPorTipo.size() < TipoBloque.values().length) {
+            throw new ResultadoSimulacionInvalidoException("El mapa de conteo por tipo es nulo o está incompleto.");
+        }
     }
 
     // GETTERS
