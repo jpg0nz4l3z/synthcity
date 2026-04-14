@@ -158,14 +158,31 @@ public class ResultadoSimulacion {
         StringBuilder sb = new StringBuilder();
         sb.append("=== RESULTADO DE SIMULACIÓN ===\n");
         sb.append("Ciudad:           ").append(nombreCiudad).append("\n");
+        sb.append("Tipo Estructural: ").append(tipoEstructural).append("\n");
         sb.append("Dimensiones:      ").append(filas).append("x").append(columnas).append("\n");
         sb.append("Capacidad maxima: ").append(capacidadMaxima).append("\n");
+        sb.append("Densidad:         ").append(densidad).append("\n");
+
         sb.append("Bloques totales:  ").append(bloquesTotales).append("\n");
         sb.append("Bloques activos:  ").append(bloquesActivos).append("\n");
         sb.append("Bloques inactivos:").append(bloquesInactivos).append("\n");
-        sb.append("Estado:           ").append(estadoSimulacion).append("\n");
-        sb.append("Distribución por tipo:\n");
 
+        // Sección de Energía
+        sb.append("Energía Prod/Cons:").append(energiaProducida).append(" / ").append(consumoEnergetico).append("\n");
+        sb.append("Balance Energético:").append(equilibrioEnergetico).append("\n");
+
+        // Sección de Servicios e Impacto
+        sb.append("Servicios (D/C):  ").append(demandaServicios).append(" / ").append(coberturaServicios).append("\n");
+        sb.append("Presión Industrial:").append(presionIndustrial).append("\n");
+        sb.append("Soporte Transporte:").append(soporteTransporte).append("\n");
+        sb.append("Contaminación:    ").append(contaminacion).append("\n");
+
+        // Sección de Índices
+        sb.append("Bienestar:        ").append(bienestar).append("\n");
+        sb.append("Estabilidad:      ").append(estabilidadBasica).append("\n");
+        sb.append("Estado:           ").append(estadoSimulacion).append("\n");
+
+        sb.append("Distribución por tipo:\n");
         for (TipoBloque tipo : TipoBloque.values()) {
             sb.append("  ").append(tipo).append(": ").append(getCantidadPorTipo(tipo)).append("\n");
         }
