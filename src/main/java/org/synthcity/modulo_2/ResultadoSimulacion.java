@@ -6,35 +6,61 @@ import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
 
 public class ResultadoSimulacion {
 
+    /** Nombre identificador de la ciudad. Heredado de Sprint 1. */
     private final String nombreCiudad;
+    /** Número de filas del grid urbano. */
     private final int filas;
+    /** Número de columnas del grid urbano. */
     private final int columnas;
+    /** Capacidad total de bloques que admite la ciudad. */
     private final int capacidadMaxima;
 
+    /** Total de bloques presentes en el tablero. */
     private final int bloquesTotales;
+    /** Cantidad de bloques con estado activo. */
     private final int bloquesActivos;
+    /** Cantidad de bloques con estado inactivo. */
     private final int bloquesInactivos;
 
+    /** Mapa completo con la distribución de bloques por tipo. Todos los tipos del enum están presentes. */
     private final Map<TipoBloque, Integer> conteoPorTipo;
+    /** Estado técnico resultante del ciclo de simulación. */
     private final EstadoSimulacion estadoSimulacion;
 
-    private final double densidad;
-    private final TipoEstructuralCiudad tipoEstructural;
-    //Energía
+    /** Energía total generada por los bloques de tipo energía activos. */
     private final int energiaProducida;
+    /** Consumo total de energía de todos los bloques activos. */
     private final int consumoEnergetico;
-    private final int equilibrioEnergetico;
-    //Servicios e Impacto
+    /** Necesidad de servicios generada principalmente por bloques residenciales. */
     private final int demandaServicios;
+    /** Capacidad de servicios proporcionada por bloques de servicios activos. */
     private final int coberturaServicios;
+    /** Nivel de carga o presión introducida por la actividad industrial. */
     private final int presionIndustrial;
+    /** Capacidad de conectividad o transporte instalada. */
     private final int soporteTransporte;
+    /** Nivel de emisiones totales, incluyendo base industrial y penalización por densidad. */
     private final int contaminacion;
-    //Indices y Ratios
-    private final double bienestar;
-    private final double estabilidadBasica;
+
+    // --- ATRIBUTOS RATIOS (Relaciones proporcionales) ---
+
+    /** Relación entre bloques ocupados y dimensiones totales. Determina penalizaciones de contaminación. */
+    private final double densidad;
+    /** Clasificación estructural de la ciudad (Pueblo, Ciudad, Metrópolis). */
+    private final TipoEstructuralCiudad tipoEstructural;
+    /** Proporción entre producción y consumo energético. */
     private final double ratioEnergetico;
+    /** Proporción entre cobertura real y demanda de servicios. */
     private final double ratioCoberturaServicios;
+
+    // --- ATRIBUTOS DERIVADOS Y VARIABLES COMPUESTAS ---
+
+    /** Diferencia neta entre energía producida y consumida (energiaProducida - consumoEnergetico). */
+    private final int equilibrioEnergetico;
+    /** Índice de calidad de vida ponderando servicios, transporte y contaminación. */
+    private final double bienestar;
+    /** Indicador de salud general del sistema basado en el equilibrio de todas las variables. */
+    private final double estabilidadBasica;
 
 
     // Constructor con todos los atributos inicializados
@@ -70,7 +96,7 @@ public class ResultadoSimulacion {
         this.bloquesTotales = bloquesTotales;
         this.bloquesActivos = bloquesActivos;
         this.bloquesInactivos = bloquesInactivos;
-        this.conteoPorTipo = conteoPorTipo; // Java 10+; protege el mapa
+        this.conteoPorTipo = Map.copyOf(conteoPorTipo);
         this.estadoSimulacion = estadoSimulacion;
         this.densidad = densidad;
         this.tipoEstructural = tipoEstructural;
@@ -87,24 +113,30 @@ public class ResultadoSimulacion {
         this.ratioEnergetico = ratioEnergetico;
         this.ratioCoberturaServicios = ratioCoberturaServicios;
 
-        // 1. Invariante de conteo de bloques: la suma debe ser exacta
+        // 1. Validación de Ratios: No pueden ser NaN ni Infinitos
+        if (!Double.isFinite(this.ratioEnergetico) || !Double.isFinite(this.ratioCoberturaServicios)) {
+            throw new ResultadoSimulacionInvalidoException("Ratios no válidos detectados (NaN o Infinity).");
+        }
+        // 2. Invariante de conteo de bloques: la suma debe ser exacta
         if (this.bloquesTotales != (this.bloquesActivos + this.bloquesInactivos)) {
             throw new ResultadoSimulacionInvalidoException("Inconsistencia en el conteo de bloques: la suma de activos e inactivos no coincide con el total.");
         }
 
-        // 2. Invariante de energía: el equilibrio debe ser la diferencia exacta entre producción y consumo
+        // 3. Invariante de energía: el equilibrio debe ser la diferencia exacta entre producción y consumo
         if (this.equilibrioEnergetico != (this.energiaProducida - this.consumoEnergetico)) {
             throw new ResultadoSimulacionInvalidoException("Inconsistencia energética: el equilibrio no corresponde a la diferencia entre producción y consumo.");
         }
 
-        // 3. Invariante de densidad: debe estar en un rango lógico (ejemplo: entre 0 y 1 o según lo defina M1)
+        // 4. Invariante de densidad: debe estar en un rango lógico (ejemplo: entre 0 y 1 o según lo defina M1)
         if (this.densidad < 0) {
             throw new ResultadoSimulacionInvalidoException("La densidad no puede ser un valor negativo.");
         }
 
-        // 4. Invariante de mapa: el conteo por tipo no puede ser nulo y debe ser completo
-        if (this.conteoPorTipo == null || this.conteoPorTipo.size() < TipoBloque.values().length) {
-            throw new ResultadoSimulacionInvalidoException("El mapa de conteo por tipo es nulo o está incompleto.");
+        // 5. Invariante de mapa: el conteo por tipo no puede ser nulo y debe ser completo
+        for (TipoBloque tipo : TipoBloque.values()) {
+            if (!this.conteoPorTipo.containsKey(tipo)) {
+                throw new ResultadoSimulacionInvalidoException("Contrato incompleto: falta el tipo de bloque " + tipo + " en el mapa.");
+            }
         }
     }
 
@@ -150,7 +182,7 @@ public class ResultadoSimulacion {
 
     public boolean hayDeficitEnergetico(){return equilibrioEnergetico < 0;}
 
-    public boolean hayDeficitServicios(){return coberturaServicios < demandaServicios;}
+    public boolean hayDeficitServicios(){return ratioCoberturaServicios < 1.0;}
 
     /**
      * Devuelve una descripción compacta del resultado del ciclo.
