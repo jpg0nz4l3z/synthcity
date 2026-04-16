@@ -42,6 +42,7 @@ public class Ciudad {
         this.columnas = columnas;
         this.tablero = new Bloque[filas][columnas];
         this.tipoEstructural = calcularTipoEstructural();
+        this.expansionesRealizadas = 0;
     }
 
     private TipoEstructuralCiudad calcularTipoEstructural() {
@@ -61,6 +62,28 @@ public class Ciudad {
         validarPosicion(fila, columna);
         return tablero[fila][columna];
     }
+    public double getDensidad() {
+
+        int capacidad = capacidadMaxima();
+
+        if (capacidad == 0) return 0.0;
+
+        return (double) getOcupacionActual() / capacidad;
+    }
+    public int getOcupacionActual() {
+        return contarBloques();
+    }
+    public boolean hayBloquesActivos() {
+        return !listarBloquesActivos().isEmpty();
+    }
+
+    public boolean estaProximaASaturacion() {
+        return getDensidad() >= umbralExpansion;
+    }
+    public TipoEstructuralCiudad getTipoEstructural() {
+        return tipoEstructural;
+    }
+
     //  Validación de dimensiones
 
     public boolean dentroLimites(int fila, int columna) {
@@ -115,6 +138,32 @@ public class Ciudad {
             throw new CeldaVaciaException("No hay un bloque que eliminar en la posición (" + fila + ", " + columna + ").");
         }
         tablero[fila][columna] = null;
+    }
+
+    public void activarBloque(int fila, int columna) {
+
+        validarPosicion(fila, columna);
+
+        Bloque bloque = tablero[fila][columna];
+
+        if (bloque == null) {
+            throw new CeldaVaciaException("No hay bloque en la posición (" + fila + ", " + columna + ")");
+        }
+
+        bloque.activar();
+    }
+
+    public void desactivarBloque(int fila, int columna) {
+
+        validarPosicion(fila, columna);
+
+        Bloque bloque = tablero[fila][columna];
+
+        if (bloque == null) {
+            throw new CeldaVaciaException("No hay bloque en la posición (" + fila + ", " + columna + ")");
+        }
+
+        bloque.desactivar();
     }
 
     public List<Bloque> listarBloques() {
