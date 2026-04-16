@@ -23,6 +23,12 @@ public class Ciudad {
     private int filas;
     private int columnas;
     private Bloque[][] tablero;
+    // === CONSTANTES Y ATRIBUTOS DE EXPANSIÓN  ===
+    private static final int MAX_FILAS = 100;
+    private static final int MAX_COLUMNAS = 100;
+    private static final int MAX_EXPANSIONES = 5;   // política del grupo
+
+    private int expansionesRealizadas = 0;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -165,6 +171,68 @@ public class Ciudad {
             }
         }
         return true;
+    }
+    public boolean puedeExpandirse() {
+        return expansionesRealizadas < MAX_EXPANSIONES &&
+                (filas + 10 <= MAX_FILAS) && (columnas + 10 <= MAX_COLUMNAS);
+    }
+    public void expandir(int nuevasFilas, int nuevasColumnas) {
+        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir la ciudad a " + nuevasFilas + "x" + nuevasColumnas +
+                            " porque las nuevas dimensiones deben ser mayores que las actuales (" +
+                            this.filas + "x" + this.columnas + ").");
+        }
+        if (nuevasFilas > MAX_FILAS || nuevasColumnas > MAX_COLUMNAS) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir la ciudad a " + nuevasFilas + "x" +
+                            nuevasColumnas +
+                            " porque supera los límites globales (max. " + MAX_FILAS + " filas y " +
+                            MAX_COLUMNAS + " columnas).");
+        }
+        if (expansionesRealizadas > MAX_EXPANSIONES) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir: se ha alcanzado el máximo de expansiones permitidas (" +
+                            MAX_EXPANSIONES + ").");
+        }
+        Bloque[][] nuevoTablero = new Bloque[filas][columnas];
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                nuevoTablero[i][j] = this.tablero[i][j];
+            }
+        }
+        this.tablero = nuevoTablero;
+        this.filas = nuevasFilas;
+        this.columnas = nuevasColumnas;
+
+        calcularTipoEstructural();
+        this.expansionesRealizadas++;
+        }
+        public void expandirSegunPolitica(){
+        if(!puedeExpandirse()) {
+            throw new ExpansionCiudadException("La ciudad no puede expandirse según la política actual.");
+        }
+        int nuevasFilas = this.filas + 10;
+        int nuevasColumnas = this.columnas + 10;
+        expandir(nuevasFilas, nuevasColumnas);
+        }
+        public ResumenEstructuralCiudad getResumenEstructural() {
+        int ocupacion = contarBloques();
+        int activos = listarBloquesActivos().size();
+        int inactivos = ocupacion - activos;
+
+        return new ResumenEstructuralCiudad(
+                this.nombre,
+                this.filas,
+                this.columnas,
+                capacidadMaxima(),
+                ocupacion,
+                getDensidad(),
+                getTipoEstructural(),
+                activos,
+                inactivos
+        );
+
     }
 
     @Override
