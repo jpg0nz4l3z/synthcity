@@ -1,5 +1,6 @@
 package org.synthcity.modulo_1;
 
+
 public abstract class Bloque {
 
     private TipoBloque tipoBloque;
@@ -32,6 +33,10 @@ public abstract class Bloque {
         activo = false;
     }
 
+    public void cambiarEstado(boolean estado) {
+        this.activo = estado;
+    }
+
     @Override
     public String toString() {
         return "Bloque [" +
@@ -40,4 +45,25 @@ public abstract class Bloque {
                 ", estado=" + (activo ? "activo" : "inactivo") +
                 "]";
     }
+
+   
+    public abstract int getProduccionEnergia();
+
+   
+    public abstract int getConsumoEnergetico();
+
+    
+    public abstract int getDemandaServicios();
+
+    
+    public abstract int getCoberturaServicios();
+
+   
+    public abstract int getPresionIndustrial();
+
+   
+    public abstract int getSoporteTransporte();
+
+    
+    public abstract int getContaminacion();
 }
