@@ -24,6 +24,11 @@ public class Ciudad {
     private int columnas;
     private Bloque[][] tablero;
 
+    private TipoEstructuralCiudad tipoEstructural;
+    private int expansionesRealizadas;
+    private int maximoExpansiones = 5;
+    private double umbralExpansion = 0.80;
+
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la ciudad es obligatorio.");
