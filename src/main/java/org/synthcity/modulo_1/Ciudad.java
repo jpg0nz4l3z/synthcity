@@ -41,6 +41,7 @@ public class Ciudad {
         this.filas = filas;
         this.columnas = columnas;
         this.tablero = new Bloque[filas][columnas];
+        this.tipoEstructural = calcularTipoEstructural();
     }
 
     // Getters
