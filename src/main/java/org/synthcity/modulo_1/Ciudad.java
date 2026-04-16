@@ -44,6 +44,15 @@ public class Ciudad {
         this.tipoEstructural = calcularTipoEstructural();
     }
 
+    private TipoEstructuralCiudad calcularTipoEstructural() {
+
+        int capacidad = capacidadMaxima();
+
+        if (capacidad <= 400) return TipoEstructuralCiudad.PEQUENA;
+        if (capacidad <= 1600) return TipoEstructuralCiudad.MEDIANA;
+        return TipoEstructuralCiudad.GRANDE;
+    }
+
     // Getters
     public String getNombre() { return nombre; }
     public int getFilas() { return filas; }
