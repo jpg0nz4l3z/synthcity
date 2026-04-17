@@ -40,7 +40,7 @@ class PredictorCiudadTest {
     }
 
     @Test
-    void deberia_devolver_riesgo_operativo_si_no_hay_bloques_activos() {
+    void deberia_devolver_riesgo_alto_si_no_hay_bloques_activos() {
         PredictorCiudad predictor = new PredictorCiudad();
 
         Map<TipoBloque, Integer> conteo = crearConteoBase();
@@ -65,38 +65,35 @@ class PredictorCiudadTest {
 
         PredictionResult result = predictor.predecir(input);
 
-        assertEquals(TendenciaPredicha.RIESGO_OPERATIVO, result.getTendenciaPredicha());
+        assertEquals(TendenciaPredicha.RIESGO_ALTO, result.getTendenciaPredicha());
     }
 
     @Test
-    void deberia_devolver_expansion_saludable_en_ciudad_bien_balanceada() {
+    void deberia_devolver_mejora_probable_con_input_predictivo_favorable() {
         PredictorCiudad predictor = new PredictorCiudad();
 
-        Map<TipoBloque, Integer> conteo = crearConteoBase();
-        conteo.put(TipoBloque.RESIDENCIAL, 5);
-        conteo.put(TipoBloque.ENERGIA, 2);
-        conteo.put(TipoBloque.INDUSTRIAL, 1);
-        conteo.put(TipoBloque.SERVICIOS, 1);
-        conteo.put(TipoBloque.TRANSPORTE, 1);
-
-        ResultadoSimulacion simulacion = new ResultadoSimulacion(
-                "NeoMadrid",
-                2,
-                5,
-                10,
-                10,
-                7,
-                3,
-                conteo,
+        PredictionInput input = new PredictionInput(
+                20,
+                16,
+                4,
+                30,
+                0.80,
+                0.20,
+                0.60,
+                1.00,
+                0.80,
+                0.80,
+                0.80,
+                0.20,
+                0.40,
+                0.85,
                 EstadoSimulacion.EJECUTADA
         );
 
-        MetricaCiudad metrica = new MetricaCiudad(simulacion);
-        PredictionInput input = PredictionInput.desdeMetrica(metrica);
-
         PredictionResult result = predictor.predecir(input);
 
-        assertTrue(result.getScorePredicho() > 0.0);
+        assertEquals(TendenciaPredicha.MEJORA_PROBABLE, result.getTendenciaPredicha());
+        assertTrue(result.getScorePredicho() >= 75.0);
         assertNotNull(result.getMensajePrediccion());
     }
 
