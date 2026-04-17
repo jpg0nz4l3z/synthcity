@@ -55,30 +55,34 @@ public class PredictorCiudad {
 
     private TendenciaPredicha determinarTendencia(PredictionInput input, double score) {
         if (input.getEstadoSimulacion() == EstadoSimulacion.SIN_BLOQUES_ACTIVOS) {
-            return TendenciaPredicha.RIESGO_OPERATIVO;
+            return TendenciaPredicha.RIESGO_ALTO;
         }
 
         if (input.getPorcentajeActivos() < 0.40) {
-            return TendenciaPredicha.RIESGO_OPERATIVO;
+            return TendenciaPredicha.RIESGO_ALTO;
         }
 
-        boolean desequilibrio = input.getRatioEnergia() == 0.0
-                || input.getRatioServicios() == 0.0
-                || input.getDiversidadTipos() < 0.40;
+        boolean saturacion = input.getDensidadOcupacion() > 0.85
+                && (input.getRatioEnergia() < 0.10 || input.getRatioServicios() < 0.10);
 
-        if (desequilibrio) {
-            return TendenciaPredicha.DESEQUILIBRIO_ESTRUCTURAL;
+        if (saturacion) {
+            return TendenciaPredicha.SATURACION_PROBABLE;
         }
 
-        if (score >= 75.0 && input.getPorcentajeActivos() >= 0.70) {
-            return TendenciaPredicha.EXPANSION_SALUDABLE;
+        boolean mejoraProbable = input.getPorcentajeActivos() >= 0.70
+                && input.getRatioEnergia() >= 0.10
+                && input.getRatioServicios() >= 0.10
+                && input.getPresionIndustrial() <= 0.30;
+
+        if (mejoraProbable && score >= 75.0) {
+            return TendenciaPredicha.MEJORA_PROBABLE;
         }
 
         if (score >= 60.0) {
             return TendenciaPredicha.ESTABLE;
         }
 
-        return TendenciaPredicha.RECUPERACION_PROBABLE;
+        return TendenciaPredicha.RIESGO_MODERADO;
     }
 
     private double calcularConfianza(PredictionInput input, TendenciaPredicha tendencia) {
@@ -104,16 +108,16 @@ public class PredictorCiudad {
         return switch (tendencia) {
             case SIN_BASE ->
                     "No se puede predecir una tendencia consistente porque no hay base estructural suficiente.";
-            case RIESGO_OPERATIVO ->
-                    "La ciudad presenta riesgo operativo por falta de actividad suficiente para sostener el sistema.";
-            case DESEQUILIBRIO_ESTRUCTURAL ->
-                    "La ciudad muestra desequilibrios estructurales que pueden comprometer su evolución.";
+            case RIESGO_ALTO ->
+                    "La ciudad presenta una tendencia de riesgo alto por baja actividad o debilidad operativa.";
+            case SATURACION_PROBABLE ->
+                    "La ciudad muestra una tendencia probable a saturacion por densidad elevada y deficit estructural.";
+            case MEJORA_PROBABLE ->
+                    "La ciudad presenta condiciones favorables y una mejora probable a corto plazo.";
             case ESTABLE ->
                     "La ciudad presenta una proyeccion estable con score " + String.format("%.2f", score) + ".";
-            case RECUPERACION_PROBABLE ->
-                    "La ciudad podria evolucionar favorablemente si consolida su actividad y su equilibrio interno.";
-            case EXPANSION_SALUDABLE ->
-                    "La ciudad muestra condiciones favorables para una expansion saludable y sostenida.";
+            case RIESGO_MODERADO ->
+                    "La ciudad podria evolucionar con riesgo moderado si no mejora su equilibrio interno.";
         };
     }
 }
