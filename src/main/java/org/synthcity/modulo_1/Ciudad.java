@@ -205,7 +205,6 @@ public class Ciudad {
         this.filas = nuevasFilas;
         this.columnas = nuevasColumnas;
 
-        calcularTipoEstructural();
         this.expansionesRealizadas++;
         }
         public void expandirSegunPolitica(){
@@ -227,8 +226,6 @@ public class Ciudad {
                 this.columnas,
                 capacidadMaxima(),
                 ocupacion,
-                getDensidad(),
-                getTipoEstructural(),
                 activos,
                 inactivos
         );
