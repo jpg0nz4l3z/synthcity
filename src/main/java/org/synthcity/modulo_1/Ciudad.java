@@ -46,6 +46,9 @@ public class Ciudad {
         validarPosicion(fila, columna);
         return tablero[fila][columna];
     }
+    public int getCapacidadMaxima() {
+        return capacidadMaxima();}
+
     //  Validación de dimensiones
 
     public boolean dentroLimites(int fila, int columna) {
