@@ -35,7 +35,7 @@ public class Ciudad {
             throw new IllegalArgumentException("El nombre de la ciudad es obligatorio.");
         }
         if (filas <= 0 || columnas <= 0) {
-            throw new IllegalArgumentException("Las dimensiones tienen que ser mayor que 0.");
+            throw new DimensionesInvalidasException("Las dimensiones tienen que ser mayor que 0.");
         }
 
         this.nombre = nombre;
@@ -183,7 +183,7 @@ public class Ciudad {
                             " porque las nuevas dimensiones deben ser mayores que las actuales (" +
                             this.filas + "x" + this.columnas + ").");
         }
-        if (nuevasFilas > MAX_FILAS || nuevasColumnas > MAX_COLUMNAS) {
+        if (nuevasFilas >= MAX_FILAS || nuevasColumnas >= MAX_COLUMNAS) {
             throw new ExpansionCiudadException(
                     "No se puede expandir la ciudad a " + nuevasFilas + "x" +
                             nuevasColumnas +
@@ -195,7 +195,7 @@ public class Ciudad {
                     "No se puede expandir: se ha alcanzado el máximo de expansiones permitidas (" +
                             MAX_EXPANSIONES + ").");
         }
-        Bloque[][] nuevoTablero = new Bloque[filas][columnas];
+        Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
                 nuevoTablero[i][j] = this.tablero[i][j];
