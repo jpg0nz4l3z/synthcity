@@ -24,9 +24,11 @@ public class Ciudad {
     private int columnas;
     private Bloque[][] tablero;
 
+    // Tipo Estructural y control de expansión
+
     private TipoEstructuralCiudad tipoEstructural;
-    private int expansionesRealizadas;
-    private int maximoExpansiones = 5;
+    private int expansionesRealizadas = 0;
+    private int maximoExpansiones = MAX_EXPANSIONES;
     private double umbralExpansion = 0.80;
 
     public Ciudad(String nombre, int filas, int columnas) {
@@ -45,13 +47,18 @@ public class Ciudad {
         this.expansionesRealizadas = 0;
     }
 
+    // Tipo Estructural
+
     private TipoEstructuralCiudad calcularTipoEstructural() {
 
         int capacidad = capacidadMaxima();
-
         if (capacidad <= 400) return TipoEstructuralCiudad.PEQUENA;
         if (capacidad <= 1600) return TipoEstructuralCiudad.MEDIANA;
         return TipoEstructuralCiudad.GRANDE;
+    }
+
+    public TipoEstructuralCiudad getTipoEstructural() {
+        return tipoEstructural;
     }
 
     // Getters
@@ -62,28 +69,6 @@ public class Ciudad {
         validarPosicion(fila, columna);
         return tablero[fila][columna];
     }
-    public double getDensidad() {
-
-        int capacidad = capacidadMaxima();
-
-        if (capacidad == 0) return 0.0;
-
-        return (double) getOcupacionActual() / capacidad;
-    }
-    public int getOcupacionActual() {
-        return contarBloques();
-    }
-    public boolean hayBloquesActivos() {
-        return !listarBloquesActivos().isEmpty();
-    }
-
-    public boolean estaProximaASaturacion() {
-        return getDensidad() >= umbralExpansion;
-    }
-    public TipoEstructuralCiudad getTipoEstructural() {
-        return tipoEstructural;
-    }
-
     //  Validación de dimensiones
 
     public boolean dentroLimites(int fila, int columna) {
@@ -140,30 +125,48 @@ public class Ciudad {
         tablero[fila][columna] = null;
     }
 
-    public void activarBloque(int fila, int columna) {
+    // Ocupación, densidad y saturación
 
-        validarPosicion(fila, columna);
-
-        Bloque bloque = tablero[fila][columna];
-
-        if (bloque == null) {
-            throw new CeldaVaciaException("No hay bloque en la posición (" + fila + ", " + columna + ")");
-        }
-
-        bloque.activar();
+    public int getOcupacionActual() {
+        return contarBloques();
     }
 
-    public void desactivarBloque(int fila, int columna) {
+    public double getDensidad() {
+        int capacidad = capacidadMaxima();
+        if (capacidad == 0) return 0.0;
+        return (double) getOcupacionActual() / capacidad;
+    }
 
+    public boolean estaProximaASaturacion() {
+        return getDensidad() >= umbralExpansion;
+    }
+
+    public boolean hayBloquesActivos() {
+        return !listarBloquesActivos().isEmpty();
+    }
+
+    // Activación y desactivación por posición
+
+    public void activarBloque(Posicion pos) {
+        int fila    = pos.getFila();
+        int columna = pos.getColumna();
         validarPosicion(fila, columna);
-
-        Bloque bloque = tablero[fila][columna];
-
-        if (bloque == null) {
-            throw new CeldaVaciaException("No hay bloque en la posición (" + fila + ", " + columna + ")");
+        if (tablero[fila][columna] == null) {
+            throw new CeldaVaciaException(
+                    "No hay bloque que activar en la posición (" + fila + ", " + columna + ").");
         }
+        tablero[fila][columna].activar();
+    }
 
-        bloque.desactivar();
+    public void desactivarBloque(Posicion pos) {
+        int fila    = pos.getFila();
+        int columna = pos.getColumna();
+        validarPosicion(fila, columna);
+        if (tablero[fila][columna] == null) {
+            throw new CeldaVaciaException(
+                    "No hay bloque que desactivar en la posición (" + fila + ", " + columna + ").");
+        }
+        tablero[fila][columna].desactivar();
     }
 
     public List<Bloque> listarBloques() {
