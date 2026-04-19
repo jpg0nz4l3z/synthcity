@@ -1,10 +1,15 @@
 package org.synthcity.modulo_4;
 
-public final class SalidaTexto {
 
-    private final String contenido;
+public class SalidaTexto {
+    private String titulo;
+    private String contenido;
+    private String nombreCiudad;
+    private String fechaGeneracion;
 
-    public SalidaTexto(String contenido) {
+
+    public SalidaTexto(String titulo, String contenido, String nombreCiudad, String fechaGeneracion) {
+        this.titulo = titulo;
         if (contenido == null) {
             throw new FormatoSalidaException("El contenido no puede ser null.");
         }
@@ -12,14 +17,24 @@ public final class SalidaTexto {
             throw new FormatoSalidaException("El contenido no puede estar vacio.");
         }
         this.contenido = contenido;
+        this.nombreCiudad = nombreCiudad;
+        this.fechaGeneracion = fechaGeneracion;
+    }
+
+    // Getters
+    public String getTitulo() {
+        return titulo;
     }
 
     public String getContenido() {
         return contenido;
     }
 
-    @Override
-    public String toString() {
-        return contenido;
+    public String getNombreCiudad() {
+        return nombreCiudad;
+    }
+
+    public String getFechaGeneracion() {
+        return fechaGeneracion;
     }
 }

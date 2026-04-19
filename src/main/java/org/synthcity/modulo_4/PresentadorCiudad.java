@@ -3,6 +3,9 @@ package org.synthcity.modulo_4;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class PresentadorCiudad {
 
     private final FormateadorResultado formateador;
@@ -15,6 +18,31 @@ public class PresentadorCiudad {
         validarEntrada(resultado);
         String contenido = formateador.formatear(resultado);
         return new SalidaTexto(contenido);
+    }
+
+    public SalidaTexto generarResumen(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
+
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Ciudad
+        sb.append("Ciudad: ").append(ciudad.getNombre()).append("\n");
+
+        // 2. Evaluación
+        sb.append("Evaluación: ").append(evaluacion.getNivelEvaluacion())
+                .append(" (Score: ").append(evaluacion.getScoreViabilidad()).append(")\n");
+
+        // 3. Predicción
+        if (prediccion != null) {
+            sb.append("Predicción: ").append(prediccion.getTendenciaPredicha());
+        } else {
+            sb.append("Predicción: No disponible");
+        }
+
+        // Fecha para la encapsulación
+        String fechaRegistro = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        // Retorna la SalidaTexto
+        return new SalidaTexto("Resumen Breve", sb.toString(), ciudad.getNombre(), fechaRegistro);
     }
 
     private void validarEntrada(ResultadoEvaluacion resultado) {

@@ -130,6 +130,7 @@ import org.synthcity.modulo_3.NivelEvaluacion;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -252,5 +253,40 @@ class FormateadorResultadoTest {
                 conteo,
                 EstadoSimulacion.EJECUTADA
         );
+    }
+    @Test
+    public void testFormatear_GeneraInformeCorrectamente_CaminoBasico() {
+        FormateadorResultado formateador = new FormateadorResultado();
+
+        // 1. Creamos las métricas falsas para el camino ideal
+        MetricaCiudad metricaFake = new MetricaCiudad() {
+            @Override public int getTotalBloques() { return 100; }
+            @Override public int getBloquesActivos() { return 80; }
+            @Override public int getBloquesInactivos() { return 20; }
+            @Override public double getPorcentajeActivos() { return 0.8; }
+            @Override public double getPorcentajeInactivos() { return 0.2; }
+            @Override public Map<TipoBloque, Integer> getConteoPorTipo() {
+                Map<TipoBloque, Integer> mapa = new HashMap<>();
+                mapa.put(TipoBloque.RESIDENCIAL, 50);
+                mapa.put(TipoBloque.COMERCIAL, 30);
+                mapa.put(TipoBloque.INDUSTRIAL, 20);
+                return mapa;
+            }
+        };
+
+        // 2. Creamos la evaluación falsa inyectando las métricas
+        ResultadoEvaluacion resultadoFake = new ResultadoEvaluacion() {
+            @Override public String getNombreCiudad() { return "Ciudad Test"; }
+            @Override public String getNivelEvaluacion() { return "Estable"; }
+            @Override public String getMensaje() { return "Todo correcto"; }
+            @Override public MetricaCiudad getMetricaCiudad() { return metricaFake; }
+        };
+
+        String informe = formateador.formatear(resultadoFake);
+
+        assertNotNull(informe);
+        assertTrue(informe.contains("INFORME DE ESTADO DE CIUDAD"));
+        assertTrue(informe.contains("Ciudad Test"));
+        assertTrue(informe.contains("Estable"));
     }
 }
