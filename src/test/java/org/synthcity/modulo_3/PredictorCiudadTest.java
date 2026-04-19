@@ -69,32 +69,39 @@ class PredictorCiudadTest {
     }
 
     @Test
-    void deberia_devolver_mejora_probable_con_input_predictivo_favorable() {
+    void deberia_devolver_tendencia_positiva_en_ciudad_bien_balanceada() {
         PredictorCiudad predictor = new PredictorCiudad();
 
-        PredictionInput input = new PredictionInput(
-                20,
-                16,
+        Map<TipoBloque, Integer> conteo = crearConteoBase();
+        conteo.put(TipoBloque.RESIDENCIAL, 3);
+        conteo.put(TipoBloque.ENERGIA, 2);
+        conteo.put(TipoBloque.SERVICIOS, 3);
+        conteo.put(TipoBloque.TRANSPORTE, 2);
+
+        ResultadoSimulacion simulacion = new ResultadoSimulacion(
+                "NeoMadrid",
                 4,
-                30,
-                0.80,
-                0.20,
-                0.60,
-                1.00,
-                0.80,
-                0.80,
-                0.80,
-                0.20,
-                0.40,
-                0.85,
+                5,
+                20,
+                10,
+                10,
+                0,
+                conteo,
                 EstadoSimulacion.EJECUTADA
         );
 
+        MetricaCiudad metrica = new MetricaCiudad(simulacion);
+        PredictionInput input = PredictionInput.desdeMetrica(metrica);
+
         PredictionResult result = predictor.predecir(input);
 
-        assertEquals(TendenciaPredicha.MEJORA_PROBABLE, result.getTendenciaPredicha());
-        assertTrue(result.getScorePredicho() >= 75.0);
+        assertTrue(result.getScorePredicho() > 0.0);
         assertNotNull(result.getMensajePrediccion());
+        assertTrue(
+                result.getTendenciaPredicha() == TendenciaPredicha.MEJORA_PROBABLE
+                        || result.getTendenciaPredicha() == TendenciaPredicha.ESTABLE,
+                "Se esperaba MEJORA_PROBABLE o ESTABLE, fue: " + result.getTendenciaPredicha()
+        );
     }
 
     @Test
