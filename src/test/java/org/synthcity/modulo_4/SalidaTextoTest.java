@@ -39,4 +39,13 @@ class SalidaTextoTest {
 
         assertEquals("El contenido no puede estar vacio.", ex.getMessage());
     }
+    @Test
+    public void testCrearSalidaTexto_Correcta_CaminoBasico() {
+        SalidaTexto salida = new SalidaTexto("Título", "Contenido del informe", "Madrid", "2024-05-20");
+
+        assertEquals("Título", salida.getTitulo());
+        assertEquals("Contenido del informe", salida.getContenido());
+        assertEquals("Madrid", salida.getNombreCiudad());
+        assertEquals("2024-05-20", salida.getFechaGeneracion());
+    }
 }
