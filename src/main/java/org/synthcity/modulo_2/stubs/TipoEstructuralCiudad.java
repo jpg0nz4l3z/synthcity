@@ -1,14 +1,8 @@
 package org.synthcity.modulo_2.stubs;
 
-/**
- * STUB PROVISIONAL - Sprint 2
- * Representa la clasificación estructural de la ciudad.
- * Este enum será proporcionado oficialmente por el Módulo 1.
- */
+// STUB TEMPORAL: El Módulo 2 necesita esto para compilar porque M1 no lo ha subido.
 public enum TipoEstructuralCiudad {
-    ALDEA,             // Muy poca densidad, tolerancias bajas
-    PUEBLO,            // Densidad media-baja
-    CIUDAD_ESTANDAR,   // Equilibrio base
-    METROPOLIS,        // Alta densidad, tolera mejor la presión industrial [cite: 460]
-    MEGALOPOLIS        // Máxima complejidad
+    PUEBLO,
+    CIUDAD,
+    METROPOLIS
 }

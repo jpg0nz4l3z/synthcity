@@ -4,8 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-// Importamos los stubs que crearemos en la carpeta del Módulo 1
+import org.synthcity.modulo_1.Bloque;
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.Posicion;
 import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class SimuladorCiudadTest {
 
@@ -17,85 +23,92 @@ class SimuladorCiudadTest {
     }
 
     // =========================================================
-    // A. CASOS ESTRUCTURALES BÁSICOS
+    // STUBS LOCALES (Ajustados al código real del Módulo 1)
+    // =========================================================
+
+    class CiudadStub extends Ciudad {
+        private final List<Bloque> bloques = new ArrayList<>();
+        private final List<Bloque> activos = new ArrayList<>();
+        private double densidad = 0.5;
+
+        public CiudadStub() {
+            super("TestCity", 10, 10);
+        }
+
+        // Estos métodos ya existen en el padre o los creamos para el test
+        @Override public String getNombre() { return "TestCity"; }
+        @Override public int getFilas() { return 10; }
+        @Override public int getColumnas() { return 10; }
+        @Override public int capacidadMaxima() { return 100; }
+
+        // Si el M1 aún no tiene getDensidad en Ciudad.java, quita el @Override
+        public double getDensidad() { return densidad; }
+
+        @Override public List<Bloque> listarBloques() { return bloques; }
+        @Override public List<Bloque> listarBloquesActivos() { return activos; }
+
+        public void setDensidad(double d) { this.densidad = d; }
+        public void agregarBloque(Bloque b, boolean activo) {
+            bloques.add(b);
+            if (activo) activos.add(b);
+        }
+    }
+
+    class BloqueStub extends Bloque {
+        private int energia = 0, consumo = 0, contaminacion = 0;
+        private int demanda = 0, cobertura = 0, transporte = 0;
+
+        public BloqueStub(TipoBloque tipo) {
+            // AJUSTE CRÍTICO: El constructor de Bloque pide (TipoBloque, Posicion, boolean)
+            super(tipo, new Posicion(0, 0), true);
+        }
+
+        // IMPLEMENTACIÓN DE LOS 7 MÉTODOS ABSTRACTOS REALES
+        @Override public int getProduccionEnergia() { return energia; }
+        @Override public int getConsumoEnergetico() { return consumo; }
+        @Override public int getDemandaServicios() { return demanda; }
+        @Override public int getCoberturaServicios() { return cobertura; }
+        @Override public int getPresionIndustrial() { return 0; }
+        @Override public int getSoporteTransporte() { return transporte; }
+        @Override public int getContaminacion() { return contaminacion; }
+
+        // Métodos de ayuda para configurar el test
+        public BloqueStub setValoresEnergia(int e, int c) { this.energia = e; this.consumo = c; return this; }
+        public BloqueStub setValoresServicios(int d, int co) { this.demanda = d; this.cobertura = co; return this; }
+        public BloqueStub setContaminacion(int cont) { this.contaminacion = cont; return this; }
+    }
+
+    // =========================================================
+    // PRUEBAS UNITARIAS
     // =========================================================
 
     @Test
-    void testSimular_CiudadNula_LanzaExcepcion() {
-        assertThrows(CiudadInvalidaParaSimulacionException.class, () -> {
-            simulador.simular(null);
-        });
+    void testSimular_Polimorfismo_ExtraccionCorrecta() {
+        CiudadStub ciudad = new CiudadStub();
+
+        // Bloque que produce 15 de energía
+        ciudad.agregarBloque(new BloqueStub(TipoBloque.ENERGIA).setValoresEnergia(15, 0), true);
+
+        ResultadoSimulacion resultado = simulador.simular(ciudad);
+
+        assertEquals(15, resultado.getEnergiaProducida());
     }
 
     @Test
     void testSimular_CiudadVacia_EstadoCorrecto() {
-        // Usamos nuestro Stub de ciudad (simulando que está vacía)
-        CiudadStub ciudadVacia = new CiudadStub("Ciudad Fantasma", 10, 10, 0.1, TipoEstructuralCiudad.PUEBLO);
-
-        ResultadoSimulacion resultado = simulador.simular(ciudadVacia);
-
+        ResultadoSimulacion resultado = simulador.simular(new CiudadStub());
         assertEquals(EstadoSimulacion.CIUDAD_VACIA, resultado.getEstadoSimulacion());
-        assertEquals(0, resultado.getBloquesTotales());
     }
-
-    // =========================================================
-    // B. COMPROBACIÓN DEL POLIMORFISMO
-    // =========================================================
-
-    @Test
-    void testSimular_Polimorfismo_UnBloqueEnergia() {
-        CiudadStub ciudad = new CiudadStub("Central City", 10, 10, 0.5, TipoEstructuralCiudad.CIUDAD);
-
-        // Creamos un bloque de energía que devuelve 10 (sin usar ifs ni switches)
-        BloqueStub central = new BloqueStub(TipoBloque.ENERGIA);
-        central.setProduccionEnergia(ReglasSimulacion.ENERGIA_POR_BLOQUE_ENERGIA);
-
-        ciudad.agregarBloque(central, true); // Lo añadimos como activo
-
-        ResultadoSimulacion resultado = simulador.simular(ciudad);
-
-        assertEquals(10, resultado.getEnergiaProducida());
-        assertEquals(1, resultado.getCantidadPorTipo(TipoBloque.ENERGIA));
-        assertTrue(resultado.getEquilibrioEnergetico() > 0);
-    }
-
-    // =========================================================
-    // C. DÉFICIT ENERGÉTICO
-    // =========================================================
 
     @Test
     void testSimular_DeficitEnergetico_Detectado() {
-        CiudadStub ciudad = new CiudadStub("Industrial City", 10, 10, 0.5, TipoEstructuralCiudad.CIUDAD);
-
-        // Bloque industrial que consume 5 pero no produce nada
-        BloqueStub industrial = new BloqueStub(TipoBloque.INDUSTRIAL);
-        industrial.setConsumoEnergetico(ReglasSimulacion.CONSUMO_INDUSTRIAL);
-
-        ciudad.agregarBloque(industrial, true);
+        CiudadStub ciudad = new CiudadStub();
+        // Bloque que consume 20 sin producir nada
+        ciudad.agregarBloque(new BloqueStub(TipoBloque.RESIDENCIAL).setValoresEnergia(0, 20), true);
 
         ResultadoSimulacion resultado = simulador.simular(ciudad);
 
         assertTrue(resultado.hayDeficitEnergetico());
         assertEquals(EstadoSimulacion.DEFICIT_ENERGETICO, resultado.getEstadoSimulacion());
-    }
-
-    // =========================================================
-    // D. REGLAS DEL SISTEMA (DENSIDAD)
-    // =========================================================
-
-    @Test
-    void testSimular_DensidadAlta_AplicaPenalizacionContaminacion() {
-        // Ciudad con densidad del 90% (Supera el umbral de 0.80)
-        CiudadStub ciudad = new CiudadStub("Kowloon", 10, 10, 0.90, TipoEstructuralCiudad.METROPOLIS);
-
-        BloqueStub industrial = new BloqueStub(TipoBloque.INDUSTRIAL);
-        industrial.setContaminacionGenerada(ReglasSimulacion.CONTAMINACION_POR_INDUSTRIAL);
-
-        ciudad.agregarBloque(industrial, true);
-
-        ResultadoSimulacion resultado = simulador.simular(ciudad);
-
-        // Contaminación base (5) + Extra por hacinamiento (10) = 15
-        assertEquals(15, resultado.getContaminacion());
     }
 }

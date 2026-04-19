@@ -1,7 +1,7 @@
 package org.synthcity.modulo_2;
 
 /**
- * Persona 3: Contenedor de constantes del Módulo 2 (Sprint 2 - Fusión).
+ *
  * Centraliza las reglas que usarán tanto el motor como las subclases de Bloque.
  */
 public final class ReglasSimulacion {
