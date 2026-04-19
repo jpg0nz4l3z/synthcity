@@ -46,24 +46,24 @@ public abstract class Bloque {
                 "]";
     }
 
-   
+
     public abstract int getProduccionEnergia();
 
-   
+
     public abstract int getConsumoEnergetico();
 
-    
+
     public abstract int getDemandaServicios();
 
-    
+
     public abstract int getCoberturaServicios();
 
-   
+
     public abstract int getPresionIndustrial();
 
-   
+
     public abstract int getSoporteTransporte();
 
-    
+
     public abstract int getContaminacion();
 }
