@@ -1,5 +1,6 @@
 package org.synthcity.modulo_1;
 
+import org.synthcity.modulo_2.ReglasSimulacion;
 
 public class BloqueIndustrial extends Bloque {
 
