@@ -174,6 +174,30 @@ class PresentadorCiudadTest {
                 EstadoSimulacion.EJECUTADA
         );
     }
+    @Test
+    public void testGenerarResumen_FlujoCompleto_CaminoBasico() {
+        PresentadorCiudad presentador = new PresentadorCiudad();
+        Ciudad ciudad = new Ciudad("NeoTokyo", 10, 10);
+
+        ResultadoEvaluacion evaluacionFake = new ResultadoEvaluacion() {
+            @Override public String getNivelEvaluacion() { return "Optimo"; }
+            @Override public double getScoreViabilidad() { return 95.5; }
+        };
+
+        PredictionResult prediccionFake = new PredictionResult() {
+            @Override public String getTendenciaPredicha() { return "Mejora Constante"; }
+        };
+
+        SalidaTexto resultado = presentador.generarResumen(ciudad, evaluacionFake, prediccionFake);
+
+        assertNotNull(resultado);
+        assertEquals("NeoTokyo", resultado.getNombreCiudad());
+        assertEquals("Resumen Breve", resultado.getTitulo());
+        assertTrue(resultado.getContenido().contains("NeoTokyo"));
+        assertTrue(resultado.getContenido().contains("Optimo"));
+        assertTrue(resultado.getContenido().contains("95.5"));
+        assertTrue(resultado.getContenido().contains("Mejora Constante"));
+    }
 
     private Map<TipoBloque, Integer> crearConteoBase() {
         Map<TipoBloque, Integer> conteo = new EnumMap<>(TipoBloque.class);
