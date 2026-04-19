@@ -1,8 +1,7 @@
 package org.synthcity.modulo_2;
 
 /**
- * Indica que los datos calculados para el resultado no cumplen
- * con las reglas de coherencia del sistema (invariantes).
+ * Excepción lanzada cuando el ResultadoSimulacion viola las invariantes matemáticas del contrato.
  */
 public class ResultadoSimulacionInvalidoException extends RuntimeException {
     public ResultadoSimulacionInvalidoException(String mensaje) {
