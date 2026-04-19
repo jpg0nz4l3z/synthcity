@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: daw-mysql
+    restart: unless-stopped
+
+    # MySQL accesible SOLO desde el propio host (no desde la red del aula).
+    ports:
+      - "127.0.0.1:3311:3306"
+
+    environment:
+      # Credenciales fijas para el examen/prácticas (los alumnos NO deben tocar esto).
+      MYSQL_ROOT_PASSWORD: "rootpass"
+
+      TZ: "Europe/Madrid"
+
+    # Persistencia. Lo que creen desde JDBC se guarda en el volumen.
+    volumes:
+      - daw_mysql_data:/var/lib/mysql
+      # Scripts de inicialización (se ejecutan SOLO la primera vez con volumen vacío).
+      - ./init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # Opcional: interfaz web de administración (recomendado en aula; en examen real puedes quitarlo).
+  adminer:
+    image: adminer:latest
+    container_name: daw-adminer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      - mysql
+
+volumes:
+  daw_mysql_data:
