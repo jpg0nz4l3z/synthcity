@@ -51,7 +51,7 @@ public class CalculadorVariablesUrbanas {
 
     public static int calcularContaminacion(List<Bloque> activos, double densidad, int soporteTransporte) {
         int contaminacionBase = activos.stream()
-                .mapToInt(Bloque::getContaminacionGenerada)
+                .mapToInt(Bloque::getContaminacion)
                 .sum();
 
         // Penalización por densidad alta (>80%) definida en ReglasSimulacion
