@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.synthcity.modulo_1.Ciudad;
 
-public class VentanaPrincipal {
+/*public class VentanaPrincipal {
     private Stage stage;
     private BorderPane root;
     private PanelCiudad panelCiudad;
@@ -141,4 +141,4 @@ public class VentanaPrincipal {
         }
         stage.show();
     }
-}
+}*/

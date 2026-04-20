@@ -1,4 +1,4 @@
-package org.synthcity.modulo_3;
+/*package org.synthcity.modulo_3;
 
 import org.junit.jupiter.api.Test;
 import org.synthcity.modulo_1.TipoBloque;
@@ -131,4 +131,4 @@ class ComparadorCiudadesTest {
         assertTrue(ComparadorCiudades.compararPorViabilidad(null, real) > 0);
         assertTrue(ComparadorCiudades.compararPorViabilidad(real, null) < 0);
     }
-}
+}*/

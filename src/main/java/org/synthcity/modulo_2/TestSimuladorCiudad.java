@@ -1,10 +1,10 @@
 package org.synthcity.modulo_2;
 
-import org.synthcity.modulo_1.BloqueEnergia;
-import org.synthcity.modulo_1.BloqueIndustrial;
-import org.synthcity.modulo_1.BloqueResidencial;
-import org.synthcity.modulo_1.BloqueServicios;
-import org.synthcity.modulo_1.BloqueTransporte;
+import org.synthcity.modulo_1.bloques.BloqueEnergia;
+import org.synthcity.modulo_1.bloques.BloqueIndustrial;
+import org.synthcity.modulo_1.bloques.BloqueResidencial;
+import org.synthcity.modulo_1.bloques.BloqueServicios;
+import org.synthcity.modulo_1.bloques.BloqueTransporte;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.Posicion;
 import org.synthcity.modulo_1.TipoBloque;

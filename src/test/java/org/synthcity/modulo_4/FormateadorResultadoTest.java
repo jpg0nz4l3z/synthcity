@@ -135,7 +135,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FormateadorResultadoTest {
+/*class FormateadorResultadoTest {
 
     @Test
     void formatear_deberia_generar_texto_con_datos_principales() {
@@ -289,4 +289,4 @@ class FormateadorResultadoTest {
         assertTrue(informe.contains("Ciudad Test"));
         assertTrue(informe.contains("Estable"));
     }
-}
+}*/

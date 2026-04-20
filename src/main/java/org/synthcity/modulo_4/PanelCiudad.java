@@ -6,7 +6,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import org.synthcity.modulo_1.Bloque;
+import org.synthcity.modulo_1.bloques.Bloque;
 import org.synthcity.modulo_1.Ciudad;
 
 public class PanelCiudad extends GridPane {

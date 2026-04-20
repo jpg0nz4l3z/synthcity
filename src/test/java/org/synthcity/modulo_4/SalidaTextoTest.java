@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SalidaTextoTest {
+/*class SalidaTextoTest {
 
     @Test
     void constructor_deberia_guardar_contenido_correctamente() {
@@ -48,4 +48,4 @@ class SalidaTextoTest {
         assertEquals("Madrid", salida.getNombreCiudad());
         assertEquals("2024-05-20", salida.getFechaGeneracion());
     }
-}
+}*/

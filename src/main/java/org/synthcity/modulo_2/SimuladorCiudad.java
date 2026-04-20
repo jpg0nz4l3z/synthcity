@@ -3,11 +3,11 @@ package org.synthcity.modulo_2;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import org.synthcity.modulo_1.Bloque;
+import org.synthcity.modulo_1.bloques.Bloque;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.TipoBloque;
 // Importamos el tipo estructural directamente del Módulo 1, nada de stubs inventados
-import org.synthcity.modulo_1.TipoEstructuralCiudad;
+
 
 public class SimuladorCiudad {
 

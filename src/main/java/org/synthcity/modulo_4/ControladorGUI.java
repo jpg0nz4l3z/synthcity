@@ -1,4 +1,4 @@
-package SPRINT2;
+/*package SPRINT2;
 
 public class ControladorGUI {
 
@@ -64,3 +64,4 @@ public class ControladorGUI {
 
     }
 }
+*/

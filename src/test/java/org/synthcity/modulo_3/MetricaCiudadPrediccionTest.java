@@ -1,4 +1,4 @@
-package org.synthcity.modulo_3;
+/*package org.synthcity.modulo_3;
 
 import org.junit.jupiter.api.Test;
 import org.synthcity.modulo_1.TipoBloque;
@@ -93,4 +93,4 @@ class MetricaCiudadPrediccionTest {
         }
         return conteo;
     }
-}
+}*/

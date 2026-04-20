@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ResultadoRepository {
+/*public class ResultadoRepository {
 
     private final DatabaseManager dbManager;
 
@@ -97,4 +97,4 @@ public class ResultadoRepository {
             System.err.println("Error al listar resultados: " + e.getMessage());
         }
     }
-}
+}*/

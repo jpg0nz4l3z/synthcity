@@ -9,7 +9,7 @@ import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.NivelEvaluacion;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
-import org.synthcity.modulo_4.PresentadorCiudad;
+/*import org.synthcity.modulo_4.PresentadorCiudad;
 import org.synthcity.modulo_4.SalidaTexto;
 
 public class Main {
@@ -139,4 +139,4 @@ public class Main {
 
         return conteo;
     }
-}
+}*/

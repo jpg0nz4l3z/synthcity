@@ -79,7 +79,7 @@ public class PanelResumenSistema extends VBox{
             this.getChildren().addAll(tituloPrediccion, prediccionBox);
         }
 
-    public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion){
+   /* public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion){
 
         nombreCiudad.setText("Nombre: " + ciudad.getNombre());
         tipoEstructural.setText("Tipo: " + ciudad.getTipo());
@@ -115,5 +115,5 @@ public class PanelResumenSistema extends VBox{
         scorePredicho.setText("Score predicho: ");
         mensajePrediccion.setText("Mensaje predicción: ");
     }
-
+*/
 }

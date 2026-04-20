@@ -6,7 +6,7 @@ import org.synthcity.modulo_3.ResultadoEvaluacion;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class PresentadorCiudad {
+/*public class PresentadorCiudad {
 
     private final FormateadorResultado formateador;
 
@@ -86,4 +86,4 @@ public class PresentadorCiudad {
             throw new FormatoSalidaException("Bloques inactivos invalidos.");
         }
     }
-}
+}*/

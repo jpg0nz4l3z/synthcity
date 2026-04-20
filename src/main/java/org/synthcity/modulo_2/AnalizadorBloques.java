@@ -3,7 +3,7 @@ package org.synthcity.modulo_2;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import org.synthcity.modulo_1.Bloque;
+import org.synthcity.modulo_1.bloques.Bloque;
 import org.synthcity.modulo_1.TipoBloque;
 
 public class AnalizadorBloques {

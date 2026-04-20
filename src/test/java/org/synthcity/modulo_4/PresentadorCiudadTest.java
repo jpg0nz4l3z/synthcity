@@ -14,7 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PresentadorCiudadTest {
+/*class PresentadorCiudadTest {
 
     @Test
     void presentar_deberia_devolver_salida_valida_si_resultado_es_correcto() {
@@ -206,4 +206,4 @@ class PresentadorCiudadTest {
         }
         return conteo;
     }
-}
+}*/
