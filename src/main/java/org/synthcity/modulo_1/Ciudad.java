@@ -23,19 +23,48 @@ public class Ciudad {
     private int filas;
     private int columnas;
     private Bloque[][] tablero;
+    // === CONSTANTES Y ATRIBUTOS DE EXPANSIÓN  ===
+    private static final int MAX_FILAS = 100;
+    private static final int MAX_COLUMNAS = 100;
+    private static final int MAX_EXPANSIONES = 5;   // política del grupo
+
+    private int expansionesRealizadas = 0;
+
+    // Tipo Estructural y control de expansión
+
+    private TipoEstructuralCiudad tipoEstructural;
+    private int expansionesRealizadas = 0;
+    private int maximoExpansiones = MAX_EXPANSIONES;
+    private double umbralExpansion = 0.80;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la ciudad es obligatorio.");
         }
         if (filas <= 0 || columnas <= 0) {
-            throw new IllegalArgumentException("Las dimensiones tienen que ser mayor que 0.");
+            throw new DimensionesInvalidasException("Las dimensiones tienen que ser mayor que 0.");
         }
 
         this.nombre = nombre;
         this.filas = filas;
         this.columnas = columnas;
         this.tablero = new Bloque[filas][columnas];
+        this.tipoEstructural = calcularTipoEstructural();
+        this.expansionesRealizadas = 0;
+    }
+
+    // Tipo Estructural
+
+    private TipoEstructuralCiudad calcularTipoEstructural() {
+
+        int capacidad = capacidadMaxima();
+        if (capacidad <= 400) return TipoEstructuralCiudad.PEQUENA;
+        if (capacidad <= 1600) return TipoEstructuralCiudad.MEDIANA;
+        return TipoEstructuralCiudad.GRANDE;
+    }
+
+    public TipoEstructuralCiudad getTipoEstructural() {
+        return tipoEstructural;
     }
 
     // Getters
@@ -46,6 +75,9 @@ public class Ciudad {
         validarPosicion(fila, columna);
         return tablero[fila][columna];
     }
+    public int getCapacidadMaxima() {
+        return capacidadMaxima();}
+
     //  Validación de dimensiones
 
     public boolean dentroLimites(int fila, int columna) {
@@ -100,6 +132,50 @@ public class Ciudad {
             throw new CeldaVaciaException("No hay un bloque que eliminar en la posición (" + fila + ", " + columna + ").");
         }
         tablero[fila][columna] = null;
+    }
+
+    // Ocupación, densidad y saturación
+
+    public int getOcupacionActual() {
+        return contarBloques();
+    }
+
+    public double getDensidad() {
+        int capacidad = capacidadMaxima();
+        if (capacidad == 0) return 0.0;
+        return (double) getOcupacionActual() / capacidad;
+    }
+
+    public boolean estaProximaASaturacion() {
+        return getDensidad() >= umbralExpansion;
+    }
+
+    public boolean hayBloquesActivos() {
+        return !listarBloquesActivos().isEmpty();
+    }
+
+    // Activación y desactivación por posición
+
+    public void activarBloque(Posicion pos) {
+        int fila    = pos.getFila();
+        int columna = pos.getColumna();
+        validarPosicion(fila, columna);
+        if (tablero[fila][columna] == null) {
+            throw new CeldaVaciaException(
+                    "No hay bloque que activar en la posición (" + fila + ", " + columna + ").");
+        }
+        tablero[fila][columna].activar();
+    }
+
+    public void desactivarBloque(Posicion pos) {
+        int fila    = pos.getFila();
+        int columna = pos.getColumna();
+        validarPosicion(fila, columna);
+        if (tablero[fila][columna] == null) {
+            throw new CeldaVaciaException(
+                    "No hay bloque que desactivar en la posición (" + fila + ", " + columna + ").");
+        }
+        tablero[fila][columna].desactivar();
     }
 
     public List<Bloque> listarBloques() {
@@ -165,6 +241,65 @@ public class Ciudad {
             }
         }
         return true;
+    }
+    public boolean puedeExpandirse() {
+        return expansionesRealizadas < MAX_EXPANSIONES &&
+                (filas + 10 <= MAX_FILAS) && (columnas + 10 <= MAX_COLUMNAS);
+    }
+    public void expandir(int nuevasFilas, int nuevasColumnas) {
+        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir la ciudad a " + nuevasFilas + "x" + nuevasColumnas +
+                            " porque las nuevas dimensiones deben ser mayores que las actuales (" +
+                            this.filas + "x" + this.columnas + ").");
+        }
+        if (nuevasFilas >= MAX_FILAS || nuevasColumnas >= MAX_COLUMNAS) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir la ciudad a " + nuevasFilas + "x" +
+                            nuevasColumnas +
+                            " porque supera los límites globales (max. " + MAX_FILAS + " filas y " +
+                            MAX_COLUMNAS + " columnas).");
+        }
+        if (expansionesRealizadas > MAX_EXPANSIONES) {
+            throw new ExpansionCiudadException(
+                    "No se puede expandir: se ha alcanzado el máximo de expansiones permitidas (" +
+                            MAX_EXPANSIONES + ").");
+        }
+        Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                nuevoTablero[i][j] = this.tablero[i][j];
+            }
+        }
+        this.tablero = nuevoTablero;
+        this.filas = nuevasFilas;
+        this.columnas = nuevasColumnas;
+
+        this.expansionesRealizadas++;
+        }
+        public void expandirSegunPolitica(){
+        if(!puedeExpandirse()) {
+            throw new ExpansionCiudadException("La ciudad no puede expandirse según la política actual.");
+        }
+        int nuevasFilas = this.filas + 10;
+        int nuevasColumnas = this.columnas + 10;
+        expandir(nuevasFilas, nuevasColumnas);
+        }
+        public ResumenEstructuralCiudad getResumenEstructural() {
+        int ocupacion = contarBloques();
+        int activos = listarBloquesActivos().size();
+        int inactivos = ocupacion - activos;
+
+        return new ResumenEstructuralCiudad(
+                this.nombre,
+                this.filas,
+                this.columnas,
+                capacidadMaxima(),
+                ocupacion,
+                activos,
+                inactivos
+        );
+
     }
 
     @Override

@@ -3,9 +3,9 @@ package org.synthcity.modulo_4;
 import java.util.Locale;
 import java.util.Map;
 
-import org.synthcity.modulo_4.stubs.MetricaCiudad;
-import org.synthcity.modulo_4.stubs.ResultadoEvaluacion;
-import org.synthcity.modulo_4.stubs.TipoBloque;
+import org.synthcity.modulo_3.MetricaCiudad;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
+import org.synthcity.modulo_1.TipoBloque;
 
 public class FormateadorResultado {
 
