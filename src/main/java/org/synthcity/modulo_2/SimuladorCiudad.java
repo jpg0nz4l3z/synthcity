@@ -67,7 +67,7 @@ public class SimuladorCiudad {
         int transporte = activos.stream().mapToInt(Bloque::getSoporteTransporte).sum();
 
         // Contaminación: híbrido entre stream y regla de sistema
-        int contaminacion = activos.stream().mapToInt(Bloque::getContaminacionGenerada).sum();
+        int contaminacion = activos.stream().mapToInt(Bloque::getContaminacion).sum();
         if (densidad >= ReglasSimulacion.PENALIZACION_DENSIDAD_ALTA) {
             contaminacion += ReglasSimulacion.EXTRA_CONTAMINACION_DENSIDAD;
         }

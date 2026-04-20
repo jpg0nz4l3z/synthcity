@@ -2,7 +2,7 @@ package org.synthcity.modulo_2;
 
 import java.util.Map;
 import org.synthcity.modulo_1.TipoBloque;
-import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
+import org.synthcity.modulo_1.TipoEstructuralCiudad;
 
 public class ResultadoSimulacion {
 
