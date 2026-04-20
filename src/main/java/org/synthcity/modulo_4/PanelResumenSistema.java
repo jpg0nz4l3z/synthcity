@@ -2,6 +2,7 @@ package org.synthcity.modulo_4;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
 import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_3.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class PanelResumenSistema extends VBox{
@@ -95,7 +96,7 @@ public class PanelResumenSistema extends VBox{
             mensajePrediccion.setText("Mensaje: " + prediccion.getMensaje());
         } else {
             tendencia.setText("Tendencia: N/A");
-            scorePredicho.setText("Score predicho: N/A";
+            scorePredicho.setText("Score predicho: N/A");
             mensajePrediccion.setText("Mensaje: Predicción no disponible ");
         }
     }
