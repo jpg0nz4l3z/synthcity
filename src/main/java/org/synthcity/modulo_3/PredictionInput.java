@@ -1,5 +1,6 @@
 package org.synthcity.modulo_3;
 
+import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
 
 public class PredictionInput {
@@ -20,6 +21,16 @@ public class PredictionInput {
     private final double indiceEquilibrioBase;
     private final EstadoSimulacion estadoSimulacion;
 
+    private final double densidad;
+    private final double ratioEnergetico;
+    private final double ratioCoberturaServicios;
+    private final int contaminacion;
+    private final double estabilidadBasica;
+    private final double bienestar;
+    private final double indiceSaturacion;
+    private final double indiceViabilidadBase;
+    private final TipoEstructuralCiudad tipoEstructural;
+
     public PredictionInput(
             int totalBloques,
             int bloquesActivos,
@@ -35,7 +46,16 @@ public class PredictionInput {
             double presionIndustrial,
             double pesoResidencial,
             double indiceEquilibrioBase,
-            EstadoSimulacion estadoSimulacion
+            EstadoSimulacion estadoSimulacion,
+            double densidad,
+            double ratioEnergetico,
+            double ratioCoberturaServicios,
+            int contaminacion,
+            double estabilidadBasica,
+            double bienestar,
+            double indiceSaturacion,
+            double indiceViabilidadBase,
+            TipoEstructuralCiudad tipoEstructural
     ) {
         if (totalBloques < 0) {
             throw new IllegalArgumentException("El total de bloques no puede ser negativo.");
@@ -79,6 +99,33 @@ public class PredictionInput {
         if (estadoSimulacion == null) {
             throw new IllegalArgumentException("estadoSimulacion no puede ser null.");
         }
+        if (densidad < 0.0 || densidad > 1.0) {
+            throw new IllegalArgumentException("densidad debe estar entre 0.0 y 1.0.");
+        }
+        if (ratioEnergetico < 0.0) {
+            throw new IllegalArgumentException("ratioEnergetico no puede ser negativo.");
+        }
+        if (ratioCoberturaServicios < 0.0) {
+            throw new IllegalArgumentException("ratioCoberturaServicios no puede ser negativo.");
+        }
+        if (contaminacion < 0 || contaminacion > 100) {
+            throw new IllegalArgumentException("contaminacion debe estar entre 0 y 100.");
+        }
+        if (estabilidadBasica < 0.0 || estabilidadBasica > 1.0) {
+            throw new IllegalArgumentException("estabilidadBasica debe estar entre 0.0 y 1.0.");
+        }
+        if (bienestar < 0.0 || bienestar > 1.0) {
+            throw new IllegalArgumentException("bienestar debe estar entre 0.0 y 1.0.");
+        }
+        if (indiceSaturacion < 0.0 || indiceSaturacion > 1.0) {
+            throw new IllegalArgumentException("indiceSaturacion debe estar entre 0.0 y 1.0.");
+        }
+        if (indiceViabilidadBase < 0.0 || indiceViabilidadBase > 1.0) {
+            throw new IllegalArgumentException("indiceViabilidadBase debe estar entre 0.0 y 1.0.");
+        }
+        if (tipoEstructural == null) {
+            throw new IllegalArgumentException("tipoEstructural no puede ser null.");
+        }
 
         this.totalBloques = totalBloques;
         this.bloquesActivos = bloquesActivos;
@@ -95,6 +142,15 @@ public class PredictionInput {
         this.pesoResidencial = pesoResidencial;
         this.indiceEquilibrioBase = indiceEquilibrioBase;
         this.estadoSimulacion = estadoSimulacion;
+        this.densidad = densidad;
+        this.ratioEnergetico = ratioEnergetico;
+        this.ratioCoberturaServicios = ratioCoberturaServicios;
+        this.contaminacion = contaminacion;
+        this.estabilidadBasica = estabilidadBasica;
+        this.bienestar = bienestar;
+        this.indiceSaturacion = indiceSaturacion;
+        this.indiceViabilidadBase = indiceViabilidadBase;
+        this.tipoEstructural = tipoEstructural;
     }
 
     public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
@@ -117,67 +173,43 @@ public class PredictionInput {
                 metrica.getPresionIndustrial(),
                 metrica.getPesoResidencial(),
                 metrica.getIndiceEquilibrioBase(),
-                metrica.getEstadoSimulacion()
+                metrica.getEstadoSimulacion(),
+                metrica.getDensidad(),
+                Math.min(1.0, metrica.getRatioEnergetico()),
+                Math.min(1.0, metrica.getRatioCoberturaServicios()),
+                metrica.getContaminacion(),
+                metrica.getEstabilidadBasica(),
+                metrica.getBienestar(),
+                metrica.getIndiceSaturacion(),
+                metrica.getIndiceViabilidadBase(),
+                metrica.getTipoEstructural()
         );
     }
 
-    public int getTotalBloques() {
-        return totalBloques;
-    }
+    public int getTotalBloques() { return totalBloques; }
+    public int getBloquesActivos() { return bloquesActivos; }
+    public int getBloquesInactivos() { return bloquesInactivos; }
+    public int getCapacidadMaxima() { return capacidadMaxima; }
+    public double getPorcentajeActivos() { return porcentajeActivos; }
+    public double getPorcentajeInactivos() { return porcentajeInactivos; }
+    public double getDensidadOcupacion() { return densidadOcupacion; }
+    public double getDiversidadTipos() { return diversidadTipos; }
+    public double getRatioEnergia() { return ratioEnergia; }
+    public double getRatioServicios() { return ratioServicios; }
+    public double getRatioTransporte() { return ratioTransporte; }
+    public double getPresionIndustrial() { return presionIndustrial; }
+    public double getPesoResidencial() { return pesoResidencial; }
+    public double getIndiceEquilibrioBase() { return indiceEquilibrioBase; }
+    public EstadoSimulacion getEstadoSimulacion() { return estadoSimulacion; }
 
-    public int getBloquesActivos() {
-        return bloquesActivos;
-    }
-
-    public int getBloquesInactivos() {
-        return bloquesInactivos;
-    }
-
-    public int getCapacidadMaxima() {
-        return capacidadMaxima;
-    }
-
-    public double getPorcentajeActivos() {
-        return porcentajeActivos;
-    }
-
-    public double getPorcentajeInactivos() {
-        return porcentajeInactivos;
-    }
-
-    public double getDensidadOcupacion() {
-        return densidadOcupacion;
-    }
-
-    public double getDiversidadTipos() {
-        return diversidadTipos;
-    }
-
-    public double getRatioEnergia() {
-        return ratioEnergia;
-    }
-
-    public double getRatioServicios() {
-        return ratioServicios;
-    }
-
-    public double getRatioTransporte() {
-        return ratioTransporte;
-    }
-
-    public double getPresionIndustrial() {
-        return presionIndustrial;
-    }
-
-    public double getPesoResidencial() {
-        return pesoResidencial;
-    }
-
-    public double getIndiceEquilibrioBase() {
-        return indiceEquilibrioBase;
-    }
-
-    public EstadoSimulacion getEstadoSimulacion() {
-        return estadoSimulacion;
-    }
+    public double getDensidad() { return densidad; }
+    public double getRatioEnergetico() { return ratioEnergetico; }
+    public double getRatioCoberturaServicios() { return ratioCoberturaServicios; }
+    public int getContaminacion() { return contaminacion; }
+    public double getEstabilidadBasica() { return estabilidadBasica; }
+    public double getBienestar() { return bienestar; }
+    public double getIndiceSaturacion() { return indiceSaturacion; }
+    public double getIndiceViabilidadBase() { return indiceViabilidadBase; }
+    public TipoEstructuralCiudad getTipoEstructural() { return tipoEstructural; }
 }
+
