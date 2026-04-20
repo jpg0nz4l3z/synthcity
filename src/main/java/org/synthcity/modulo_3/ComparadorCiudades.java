@@ -1,122 +1,41 @@
 package org.synthcity.modulo_3;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class ComparadorCiudades {
+public final class ComparadorCiudades {
 
-    /**
-     * Versión provisional y compatible con el contrato actual del repo.
-     *
-     * El documento revisado pide comparar por scoreViabilidad, pero como el
-     * ResultadoEvaluacion actual todavía no expone score ni alertas, aquí usamos
-     * un criterio estable y documentado:
-     *
-     * 1. NivelEvaluacion (OPTIMO > FUNCIONAL > INESTABLE > CRITICO > SIN_DATOS)
-     * 2. porcentajeActivos (mayor es mejor)
-     * 3. totalBloques (mayor es mejor)
-     * 4. nombreCiudad (orden alfabético para estabilidad del resultado)
-     *
-     * Cuando Persona 1 amplíe ResultadoEvaluacion con scoreViabilidad, este método
-     * debe migrarse a comparación por score.
-     */
-    public int compararPorViabilidad(ResultadoEvaluacion a, ResultadoEvaluacion b) {
-        validarEvaluacion(a);
-        validarEvaluacion(b);
+    private ComparadorCiudades() {}
 
-        int comparacionNivel = Integer.compare(
-                prioridadNivel(b.getNivelEvaluacion()),
-                prioridadNivel(a.getNivelEvaluacion())
-        );
-        if (comparacionNivel != 0) {
-            return comparacionNivel;
-        }
+    // Orden: mayor score primero; desempate por menor número de alertas;
+    // último desempate alfabético por nombre para que la ordenación sea determinista.
+    public static int compararPorViabilidad(ResultadoEvaluacion a, ResultadoEvaluacion b) {
+        if (a == null && b == null) return 0;
+        if (a == null) return 1;
+        if (b == null) return -1;
 
-        int comparacionActividad = Double.compare(
-                b.getMetricaCiudad().getPorcentajeActivos(),
-                a.getMetricaCiudad().getPorcentajeActivos()
-        );
-        if (comparacionActividad != 0) {
-            return comparacionActividad;
-        }
+        int cmpScore = Double.compare(b.getScoreViabilidad(), a.getScoreViabilidad());
+        if (cmpScore != 0) return cmpScore;
 
-        int comparacionTamano = Integer.compare(
-                b.getMetricaCiudad().getTotalBloques(),
-                a.getMetricaCiudad().getTotalBloques()
-        );
-        if (comparacionTamano != 0) {
-            return comparacionTamano;
-        }
+        int cmpAlertas = Integer.compare(a.getNumeroAlertas(), b.getNumeroAlertas());
+        if (cmpAlertas != 0) return cmpAlertas;
 
         String nombreA = a.getNombreCiudad() == null ? "" : a.getNombreCiudad();
         String nombreB = b.getNombreCiudad() == null ? "" : b.getNombreCiudad();
-
-        return nombreA.compareToIgnoreCase(nombreB);
+        return nombreA.compareTo(nombreB);
     }
 
-    public List<ResultadoEvaluacion> ordenarPorViabilidad(List<ResultadoEvaluacion> evaluaciones) {
+    public static List<ResultadoEvaluacion> ordenarPorViabilidad(List<ResultadoEvaluacion> evaluaciones) {
         if (evaluaciones == null) {
-            throw new IllegalArgumentException("La lista de evaluaciones no puede ser null.");
+            throw new IllegalArgumentException("La lista de evaluaciones no puede ser nula.");
         }
-
         List<ResultadoEvaluacion> copia = new ArrayList<>(evaluaciones);
-        copia.sort(this::compararPorViabilidad);
+        copia.sort(ComparadorCiudades::compararPorViabilidad);
         return copia;
     }
 
-    /**
-     * Coherencia mínima entre la evaluación actual y la predicción.
-     * No exige igualdad, pero sí evita contradicciones absurdas.
-     */
-    public boolean esCoherenteConPrediccion(ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
-        validarEvaluacion(evaluacion);
-
-        if (prediccion == null) {
-            throw new IllegalArgumentException("La prediccion no puede ser null.");
-        }
-
-        NivelEvaluacion nivel = evaluacion.getNivelEvaluacion();
-        TendenciaPredicha tendencia = prediccion.getTendenciaPredicha();
-
-        if (nivel == NivelEvaluacion.SIN_DATOS) {
-            return tendencia == TendenciaPredicha.SIN_BASE;
-        }
-
-        if (nivel == NivelEvaluacion.CRITICO) {
-            return tendencia != TendenciaPredicha.MEJORA_PROBABLE
-                    && tendencia != TendenciaPredicha.ESTABLE;
-        }
-
-        if (nivel == NivelEvaluacion.INESTABLE) {
-            return tendencia != TendenciaPredicha.MEJORA_PROBABLE;
-        }
-
-        if (nivel == NivelEvaluacion.FUNCIONAL || nivel == NivelEvaluacion.OPTIMO) {
-            return tendencia != TendenciaPredicha.RIESGO_ALTO;
-        }
-
-        return true;
-    }
-
-    private void validarEvaluacion(ResultadoEvaluacion evaluacion) {
-        if (evaluacion == null) {
-            throw new IllegalArgumentException("La evaluacion no puede ser null.");
-        }
-        if (evaluacion.getMetricaCiudad() == null) {
-            throw new IllegalArgumentException("La evaluacion debe tener metrica.");
-        }
-        if (evaluacion.getNivelEvaluacion() == null) {
-            throw new IllegalArgumentException("La evaluacion debe tener nivel.");
-        }
-    }
-
-    private int prioridadNivel(NivelEvaluacion nivel) {
-        return switch (nivel) {
-            case SIN_DATOS -> 0;
-            case CRITICO -> 1;
-            case INESTABLE -> 2;
-            case FUNCIONAL -> 3;
-            case OPTIMO -> 4;
-        };
+    public static Comparator<ResultadoEvaluacion> porViabilidad() {
+        return ComparadorCiudades::compararPorViabilidad;
     }
 }
