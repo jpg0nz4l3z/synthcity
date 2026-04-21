@@ -5,11 +5,15 @@ public enum TipoEstructuralCiudad {
     MEDIANA,   // capacidad <= 1600
     GRANDE;    // capacidad > 1600
 
-    public String descripcionCorta() {
-        return switch (this) {
-            case PEQUENA -> "Ciudad pequeña";
-            case MEDIANA -> "Ciudad mediana";
-            case GRANDE -> "Ciudad grande";
-        };
+    public static String descripcionCorta(int capacidad) {
+        if (capacidad <= 400) {
+            return "Ciudad pequeña";
+        } else if (capacidad <= 1600) {
+            return "Ciudad mediana";
+        } else if (capacidad > 1600) {
+            return "Ciudad grande";
+        }
+
+        return null;
     }
 }

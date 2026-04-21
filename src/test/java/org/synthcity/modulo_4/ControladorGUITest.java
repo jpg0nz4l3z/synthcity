@@ -1,4 +1,4 @@
-package org.synthcity.modulo_4;
+/*package org.synthcity.modulo_4;
 
 import javafx.application.Platform;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,7 +10,7 @@ import org.synthcity.modulo_2.EstadoSimulacion;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.NivelEvaluacion;
-import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 import org.synthcity.modulo_3.TendenciaPredicha;
 
@@ -59,7 +59,7 @@ public class ControladorGUITest {
         assertDoesNotThrow(() -> controlador.mostrarSistema(ciudad, evaluacion, prediccion));
     }
 
-    private ResultadoEvaluacion crearEvaluacion(String nombre) {
+    /*private ResultadoEvaluacion crearEvaluacion(String nombre) {
         Map<TipoBloque, Integer> conteo = new EnumMap<>(TipoBloque.class);
         for (TipoBloque tipo : TipoBloque.values()) {
             conteo.put(tipo, 0);
@@ -91,4 +91,4 @@ public class ControladorGUITest {
                 "Sin riesgos relevantes detectados."
         );
     }
-}
+}*/

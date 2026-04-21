@@ -1,11 +1,13 @@
-package org.synthcity.modulo_1;
+package org.synthcity.modulo_1.bloques;
 
+import org.synthcity.modulo_1.Posicion;
+import org.synthcity.modulo_1.TipoBloque;
 import org.synthcity.modulo_2.ReglasSimulacion;
 
-public class BloqueTransporte extends Bloque {
+public class BloqueResidencial extends Bloque {
 
-    public BloqueTransporte(Posicion posicion) {
-        super(TipoBloque.TRANSPORTE, posicion, true);
+    public BloqueResidencial(Posicion posicion) {
+        super(TipoBloque.RESIDENCIAL, posicion, true);
     }
 
     @Override
@@ -15,12 +17,12 @@ public class BloqueTransporte extends Bloque {
 
     @Override
     public int getConsumoEnergetico() {
-        return ReglasSimulacion.CONSUMO_TRANSPORTE;
+        return ReglasSimulacion.CONSUMO_RESIDENCIAL;
     }
 
     @Override
     public int getDemandaServicios() {
-        return 0;
+        return ReglasSimulacion.DEMANDA_POR_RESIDENCIAL;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class BloqueTransporte extends Bloque {
 
     @Override
     public int getSoporteTransporte() {
-        return ReglasSimulacion.TRANSPORTE_SOPORTE;
+        return 0;
     }
 
     @Override
@@ -45,7 +47,7 @@ public class BloqueTransporte extends Bloque {
 
     @Override
     public String toString() {
-        return "BloqueTransporte [posicion=" + getPosicion() +
+        return "BloqueResidencial [posicion=" + getPosicion() +
                 ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";
     }
 }
