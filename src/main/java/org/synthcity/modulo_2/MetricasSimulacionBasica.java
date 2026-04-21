@@ -24,13 +24,13 @@ public class MetricasSimulacionBasica {
     // --- Índices Globales ---
     private final double estabilidadBasica;
 
-    public MetricasSimulacionBasica(int energiaProducida, int consumoEnergetico, int equilibrioEnergetico,
+    public MetricasSimulacionBasica(int energiaProducida, int consumoEnergetico,
                                     int demandaServicios, int coberturaServicios, int presionIndustrial,
                                     int soporteTransporte, int contaminacion, double bienestar,
                                     double estabilidadBasica) {
         this.energiaProducida = energiaProducida;
         this.consumoEnergetico = consumoEnergetico;
-        this.equilibrioEnergetico = equilibrioEnergetico;
+        this.equilibrioEnergetico = energiaProducida - consumoEnergetico;
         this.demandaServicios = demandaServicios;
         this.coberturaServicios = coberturaServicios;
         this.presionIndustrial = presionIndustrial;

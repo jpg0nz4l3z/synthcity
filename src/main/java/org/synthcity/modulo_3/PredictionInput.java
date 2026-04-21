@@ -1,5 +1,6 @@
 package org.synthcity.modulo_3;
 
+import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
 
 public class PredictionInput {
@@ -211,3 +212,4 @@ public class PredictionInput {
     public double getIndiceViabilidadBase() { return indiceViabilidadBase; }
     public TipoEstructuralCiudad getTipoEstructural() { return tipoEstructural; }
 }
+

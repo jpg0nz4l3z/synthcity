@@ -1,7 +1,7 @@
 package org.synthcity.modulo_2;
 
 import java.util.List;
-import org.synthcity.modulo_1.bloques.Bloque;
+import org.synthcity.modulo_1.Bloque;
 
 /**
  * Persona 3: Motor de cálculo matemático del Módulo 2 (Sprint 2 - Fusión).

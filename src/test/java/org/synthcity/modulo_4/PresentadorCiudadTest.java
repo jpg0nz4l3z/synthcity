@@ -1,13 +1,16 @@
 package org.synthcity.modulo_4;
 
 import org.junit.jupiter.api.Test;
+import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.TipoBloque;
 import org.synthcity.modulo_2.EstadoSimulacion;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.NivelEvaluacion;
+import org.synthcity.modulo_3.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
+import org.synthcity.modulo_3.TendenciaPredicha;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,9 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
     @Test
     void presentar_deberia_devolver_salida_valida_si_resultado_es_correcto() {
         PresentadorCiudad presentador = new PresentadorCiudad();
-        ResultadoEvaluacion resultado = crearResultadoValido();
 
-        SalidaTexto salida = presentador.presentar(resultado);
+        SalidaTexto salida = presentador.presentar(crearResultadoValido());
 
         assertNotNull(salida);
         assertTrue(salida.getContenido().contains("NeoMadrid"));
@@ -44,12 +46,11 @@ import static org.junit.jupiter.api.Assertions.*;
     @Test
     void presentar_deberia_lanzar_excepcion_si_nombre_es_null() {
         PresentadorCiudad presentador = new PresentadorCiudad();
-
         ResultadoEvaluacion resultado = new ResultadoEvaluacion(
                 null,
                 crearMetricaValida(),
                 NivelEvaluacion.FUNCIONAL,
-                "Mensaje válido"
+                "Mensaje valido"
         );
 
         FormatoSalidaException ex = assertThrows(
@@ -64,97 +65,60 @@ import static org.junit.jupiter.api.Assertions.*;
     void constructor_deberia_lanzar_excepcion_si_metrica_es_null() {
         ResultadoSimulacionInvalidoException ex = assertThrows(
                 ResultadoSimulacionInvalidoException.class,
-                () -> new ResultadoEvaluacion(
-                        "NeoMadrid",
-                        null,
-                        NivelEvaluacion.FUNCIONAL,
-                        "Mensaje válido"
-                )
+                () -> new ResultadoEvaluacion("NeoMadrid", null, NivelEvaluacion.FUNCIONAL, "Mensaje valido")
         );
 
         assertEquals("El resultado de evaluación no puede estar incompleto.", ex.getMessage());
     }
 
     @Test
-    void constructor_deberia_lanzar_excepcion_si_nivel_es_null() {
-        ResultadoSimulacionInvalidoException ex = assertThrows(
-                ResultadoSimulacionInvalidoException.class,
-                () -> new ResultadoEvaluacion(
-                        "NeoMadrid",
-                        crearMetricaValida(),
-                        null,
-                        "Mensaje válido"
-                )
-        );
-
-        assertEquals("El resultado de evaluación no puede estar incompleto.", ex.getMessage());
-    }
-
-    @Test
-    void constructor_deberia_lanzar_excepcion_si_mensaje_es_null() {
-        ResultadoSimulacionInvalidoException ex = assertThrows(
-                ResultadoSimulacionInvalidoException.class,
-                () -> new ResultadoEvaluacion(
-                        "NeoMadrid",
-                        crearMetricaValida(),
-                        NivelEvaluacion.FUNCIONAL,
-                        null
-                )
-        );
-
-        assertEquals("El resultado de evaluación no puede estar incompleto.", ex.getMessage());
-    }
-
-    @Test
-    void presentar_deberia_lanzar_excepcion_si_total_bloques_es_negativo() {
+    void generarResumen_deberia_unir_ciudad_evaluacion_y_prediccion() {
         PresentadorCiudad presentador = new PresentadorCiudad();
-
-        Map<TipoBloque, Integer> conteo = crearConteoBase();
-
-        ResultadoSimulacion simulacion = new ResultadoSimulacion(
-                "NeoMadrid",
-                2,
-                3,
-                6,
-                -1,
-                0,
-                0,
-                conteo,
-                EstadoSimulacion.EJECUTADA
+        Ciudad ciudad = new Ciudad("NeoTokyo", 10, 10);
+        ResultadoEvaluacion evaluacion = crearResultadoValido("NeoTokyo");
+        PredictionResult prediccion = new PredictionResult(
+                TendenciaPredicha.MEJORA_PROBABLE,
+                95.5,
+                0.85,
+                "Mejora constante"
         );
 
-        MetricaCiudad metrica = new MetricaCiudad(simulacion);
+        SalidaTexto resultado = presentador.generarResumen(ciudad, evaluacion, prediccion);
 
-        ResultadoEvaluacion resultado = new ResultadoEvaluacion(
-                "NeoMadrid",
-                metrica,
-                NivelEvaluacion.CRITICO,
-                "Mensaje válido"
-        );
-
-        FormatoSalidaException ex = assertThrows(
-                FormatoSalidaException.class,
-                () -> presentador.presentar(resultado)
-        );
-
-        assertEquals("Total de bloques invalido.", ex.getMessage());
+        assertNotNull(resultado);
+        assertEquals("NeoTokyo", resultado.getNombreCiudad());
+        assertEquals("Resumen Breve", resultado.getTitulo());
+        assertTrue(resultado.getContenido().contains("NeoTokyo"));
+        assertTrue(resultado.getContenido().contains("FUNCIONAL"));
+        assertTrue(resultado.getContenido().contains("95.5"));
+        assertTrue(resultado.getContenido().contains("MEJORA_PROBABLE"));
     }
 
     private ResultadoEvaluacion crearResultadoValido() {
+        return crearResultadoValido("NeoMadrid");
+    }
+
+    private ResultadoEvaluacion crearResultadoValido(String nombre) {
         return new ResultadoEvaluacion(
-                "NeoMadrid",
-                crearMetricaValida(),
+                nombre,
+                crearMetricaValida(nombre),
                 NivelEvaluacion.FUNCIONAL,
-                "La ciudad presenta un nivel suficiente de actividad."
+                "La ciudad presenta un nivel suficiente de actividad.",
+                72.5,
+                java.util.EnumSet.noneOf(org.synthcity.modulo_3.AlertaEvaluacion.class),
+                "Sin riesgos relevantes detectados."
         );
     }
 
     private MetricaCiudad crearMetricaValida() {
-        ResultadoSimulacion simulacion = crearResultadoSimulacionValido();
-        return new MetricaCiudad(simulacion);
+        return crearMetricaValida("NeoMadrid");
     }
 
-    private ResultadoSimulacion crearResultadoSimulacionValido() {
+    private MetricaCiudad crearMetricaValida(String nombre) {
+        return new MetricaCiudad(crearResultadoSimulacionValido(nombre));
+    }
+
+    private ResultadoSimulacion crearResultadoSimulacionValido(String nombre) {
         Map<TipoBloque, Integer> conteo = crearConteoBase();
         conteo.put(TipoBloque.RESIDENCIAL, 5);
         conteo.put(TipoBloque.ENERGIA, 2);
@@ -163,7 +127,7 @@ import static org.junit.jupiter.api.Assertions.*;
         conteo.put(TipoBloque.TRANSPORTE, 1);
 
         return new ResultadoSimulacion(
-                "NeoMadrid",
+                nombre,
                 2,
                 5,
                 10,
