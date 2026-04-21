@@ -105,12 +105,12 @@ public class Modulo3Test {
     }
 
     @Test
-    void testCiudadFuncionalActividadModerada() {
+    void testCiudadActividadModeradaConDeficitPuedeSerInestable() {
         Map<TipoBloque, Integer> conteo = conteoMixtoConIndustria();
         ResultadoSimulacion mock = new ResultadoSimulacion("Delta", 5, 5, 20, 10, 7, 3, conteo, EstadoSimulacion.EJECUTADA);
         ResultadoEvaluacion res = evaluador.evaluar(mock);
-        assertEquals(NivelEvaluacion.FUNCIONAL, res.getNivelEvaluacion());
-        assertTrue(res.getScoreViabilidad() >= 65.0 && res.getScoreViabilidad() < 85.0);
+        assertEquals(NivelEvaluacion.INESTABLE, res.getNivelEvaluacion());
+        assertTrue(res.getScoreViabilidad() >= 40.0 && res.getScoreViabilidad() < 65.0);
     }
 
     @Test

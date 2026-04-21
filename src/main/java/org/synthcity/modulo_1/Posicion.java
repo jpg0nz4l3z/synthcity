@@ -3,8 +3,8 @@ package org.synthcity.modulo_1;
 import java.util.Objects;
 
 public class Posicion {
-    private int fila;
-    private int columna;
+    private final int fila;
+    private final int columna;
 
     public Posicion(int fila, int columna) {
         if (fila < 0 || columna < 0) {

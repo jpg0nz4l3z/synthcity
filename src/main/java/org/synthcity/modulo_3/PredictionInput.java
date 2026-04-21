@@ -1,5 +1,6 @@
 package org.synthcity.modulo_3;
 
+import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
 
 public class PredictionInput {
@@ -29,6 +30,7 @@ public class PredictionInput {
     private final double indiceSaturacion;
     private final double indiceViabilidadBase;
     private final TipoEstructuralCiudad tipoEstructural;
+
 
     public PredictionInput(
             int totalBloques,
@@ -152,6 +154,7 @@ public class PredictionInput {
         this.tipoEstructural = tipoEstructural;
     }
 
+
     public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
         if (metrica == null) {
             throw new IllegalArgumentException("La metrica no puede ser null.");
@@ -211,3 +214,4 @@ public class PredictionInput {
     public double getIndiceViabilidadBase() { return indiceViabilidadBase; }
     public TipoEstructuralCiudad getTipoEstructural() { return tipoEstructural; }
 }
+

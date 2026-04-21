@@ -1,66 +1,65 @@
-package SPRINT2;
+package org.synthcity.modulo_4;
+
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class ControladorGUI {
 
-    // Atributos de Estado Actual
     private Ciudad ciudadActual;
     private ResultadoEvaluacion evaluacionActual;
     private PredictionResult prediccionActual;
 
-    // Referencias
-    private PanelCiudad panelCiudad;               // Persona 1
-    private PanelResumenSistema panelResumen;      // Persona 2
-    private ResultadoRepository resultadoRepository; // Persona 3
+    private final PanelCiudad panelCiudad;
+    private final PanelResumenSistema panelResumen;
+    private final ResultadoRepository resultadoRepository;
 
-    // Constructor
-    public ControladorGUI(PanelCiudad panelCiudad, PanelResumenSistema panelResumen, ResultadoRepository resultadoRepository) {
+    public ControladorGUI(PanelCiudad panelCiudad,
+                          PanelResumenSistema panelResumen,
+                          ResultadoRepository resultadoRepository) {
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
         this.resultadoRepository = resultadoRepository;
     }
 
-
-    // Recibe los datos y los distribuye
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
         this.ciudadActual = ciudad;
         this.evaluacionActual = evaluacion;
         this.prediccionActual = prediccion;
 
-        //Persona 1
-        if (this.panelCiudad != null && this.ciudadActual != null) {
-            this.panelCiudad.mostrarCiudad(this.ciudadActual);
+        if (panelCiudad != null) {
+            panelCiudad.mostrarCiudad(ciudad);
         }
-        //Persona 2
-        if (this.panelResumen != null && this.ciudadActual != null && this.evaluacionActual != null) {
-            this.panelResumen.mostrarSistema(this.ciudadActual, this.evaluacionActual, this.prediccionActual);
+        if (panelResumen != null) {
+            panelResumen.mostrarSistema(ciudad, evaluacion, prediccion);
         }
     }
 
-    // Vuelve a pintar la interfaz con los datos ya guardados
     public void refrescarVista() {
-        if (this.ciudadActual != null && this.evaluacionActual != null) {
-            mostrarSistema(this.ciudadActual, this.evaluacionActual, this.prediccionActual);
-    }}
-
-    // Deja el sistema en blanco
-    public void limpiarVista() {
-        this.ciudadActual = null;
-        this.evaluacionActual = null;
-        this.prediccionActual = null;
-
-        if (this.panelCiudad != null){
-            this.panelCiudad.limpiar();
-        }
-        if (this.panelResumen != null){
-            this.panelResumen.limpiar();
+        if (ciudadActual != null && evaluacionActual != null) {
+            mostrarSistema(ciudadActual, evaluacionActual, prediccionActual);
         }
     }
 
-    // Conecta el botón de la interfaz con la base de datos
-    public void guardarResultadoActual() {
-        if (this.resultadoRepository != null && this.evaluacionActual != null && this.prediccionActual != null) {
-            this.resultadoRepository.guardarResultado(this.ciudadActual, this.evaluacionActual, this.prediccionActual);
-        }
+    public void limpiarVista() {
+        ciudadActual = null;
+        evaluacionActual = null;
+        prediccionActual = null;
 
+        if (panelCiudad != null) {
+            panelCiudad.limpiar();
+        }
+        if (panelResumen != null) {
+            panelResumen.limpiar();
+        }
+    }
+
+    public void guardarResultadoActual() {
+        if (resultadoRepository != null
+                && ciudadActual != null
+                && evaluacionActual != null
+                && prediccionActual != null) {
+            resultadoRepository.guardarResultado(ciudadActual, evaluacionActual, prediccionActual);
+        }
     }
 }

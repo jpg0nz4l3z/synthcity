@@ -5,6 +5,3 @@ public class ExpansionCiudadException extends RuntimeException {
         super (mensaje);
     }
 }
-
-
-

@@ -8,8 +8,6 @@ import org.synthcity.modulo_1.Bloque;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.Posicion;
 import org.synthcity.modulo_1.TipoBloque;
-import org.synthcity.modulo_2.stubs.TipoEstructuralCiudad;
-
 import java.util.ArrayList;
 import java.util.List;
 
