@@ -30,6 +30,10 @@ public class ResultadoEvaluacion {
                                Set<AlertaEvaluacion> alertas,
                                String resumenRiesgo) {
 
+        if (nombreCiudad == null || nombreCiudad.isBlank()) {
+            throw new ResultadoSimulacionInvalidoException("El nombre de la ciudad no puede ser nulo ni vacío.");
+        }
+
         if (metricaCiudad == null || nivelEvaluacion == null || mensaje == null) {
             throw new ResultadoSimulacionInvalidoException("El resultado de evaluación no puede estar incompleto.");
         }

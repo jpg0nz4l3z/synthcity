@@ -1,22 +1,5 @@
 package org.synthcity.modulo_4;
 
-import org.junit.jupiter.api.Test;
-import org.synthcity.modulo_1.Ciudad;
-import org.synthcity.modulo_1.TipoBloque;
-import org.synthcity.modulo_2.EstadoSimulacion;
-import org.synthcity.modulo_2.ResultadoSimulacion;
-import org.synthcity.modulo_3.MetricaCiudad;
-import org.synthcity.modulo_3.NivelEvaluacion;
-import org.synthcity.modulo_3.PredictionResult;
-import org.synthcity.modulo_3.ResultadoEvaluacion;
-import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
-import org.synthcity.modulo_3.TendenciaPredicha;
-
-import java.util.EnumMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /*class PresentadorCiudadTest {
 
     @Test

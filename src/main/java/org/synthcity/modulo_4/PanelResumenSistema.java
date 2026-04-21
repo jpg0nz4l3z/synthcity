@@ -1,9 +1,6 @@
 package org.synthcity.modulo_4;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
-import org.synthcity.modulo_1.Ciudad;
-import org.synthcity.modulo_3.PredictionResult;
-import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class PanelResumenSistema extends VBox{
 

@@ -1,16 +1,5 @@
 package org.synthcity.modulo_4;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
-import org.synthcity.modulo_1.Ciudad;
-import org.synthcity.modulo_3.MetricaCiudad;
-import org.synthcity.modulo_3.PredictionResult;
-import org.synthcity.modulo_3.ResultadoEvaluacion;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 /*public class PresentadorCiudad {
 
     private final FormateadorResultado formateador;

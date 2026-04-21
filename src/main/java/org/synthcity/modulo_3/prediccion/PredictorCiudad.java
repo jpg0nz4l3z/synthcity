@@ -1,6 +1,6 @@
-package org.synthcity.modulo_3;
+package org.synthcity.modulo_3.prediccion;
 
-import org.synthcity.modulo_2.EstadoSimulacion;
+import org.synthcity.modulo_3.TendenciaPredicha;
 
 public class PredictorCiudad {
 
@@ -41,8 +41,7 @@ public class PredictorCiudad {
     }
 
     private boolean esCasoSinBase(PredictionInput input) {
-        return input.getTotalBloques() == 0
-                || input.getEstadoSimulacion() == EstadoSimulacion.CIUDAD_VACIA;
+        return input.getTotalBloques() == 0;
     }
 
     private double calcularScore(PredictionInput input) {
@@ -57,7 +56,7 @@ public class PredictorCiudad {
         if (input.getContaminacion() >= UMBRAL_CONTAMINACION_ALTA) {
             score -= PENAL_CONTAMINACION;
         }
-        if (input.getDensidad() > UMBRAL_DENSIDAD_SATURACION) {
+        if (input.getDensidad() >= UMBRAL_DENSIDAD_SATURACION) {
             score -= PENAL_SATURACION;
         }
 
@@ -67,23 +66,20 @@ public class PredictorCiudad {
     }
 
     private TendenciaPredicha determinarTendencia(PredictionInput input, double score) {
-        // Caso 2: actividad muy baja
-        if (input.getPorcentajeActivos() < UMBRAL_ACTIVIDAD_RIESGO_ALTO
-                || input.getEstadoSimulacion() == EstadoSimulacion.SIN_BLOQUES_ACTIVOS) {
+        if (input.getPorcentajeActivos() < UMBRAL_ACTIVIDAD_RIESGO_ALTO) {
             return TendenciaPredicha.RIESGO_ALTO;
         }
 
-        boolean hayDeficit = input.getRatioEnergetico() < UMBRAL_DEFICIT_RATIO
-                || input.getRatioCoberturaServicios() < UMBRAL_DEFICIT_RATIO;
+        boolean hayDeficitEnergeticoOServicios =
+                input.getRatioEnergetico() < UMBRAL_DEFICIT_RATIO
+                        || input.getRatioCoberturaServicios() < UMBRAL_DEFICIT_RATIO;
 
-        // Caso 3: saturación probable
-        if (input.getDensidad() > UMBRAL_DENSIDAD_SATURACION && hayDeficit) {
+        if (input.getDensidad() >= UMBRAL_DENSIDAD_SATURACION && hayDeficitEnergeticoOServicios) {
             return TendenciaPredicha.SATURACION_PROBABLE;
         }
 
-        // Caso 4: balance positivo
         if (input.getPorcentajeActivos() >= UMBRAL_ACTIVIDAD_BALANCE
-                && !hayDeficit
+                && !hayDeficitEnergeticoOServicios
                 && input.getContaminacion() < UMBRAL_CONTAMINACION_ALTA) {
             if (score >= 70.0) {
                 return TendenciaPredicha.MEJORA_PROBABLE;
@@ -91,7 +87,6 @@ public class PredictorCiudad {
             return TendenciaPredicha.ESTABLE;
         }
 
-        // Caso 5: intermedio
         return TendenciaPredicha.RIESGO_MODERADO;
     }
 
@@ -105,17 +100,14 @@ public class PredictorCiudad {
         if (input.getTotalBloques() >= 10) {
             confianza += 0.10;
         }
-        if (input.getDiversidadTipos() >= 0.60) {
+        if (input.getConteoPorTipo().size() >= 3) {
             confianza += 0.10;
         }
         if (input.getEstabilidadBasica() >= 0.60) {
             confianza += 0.10;
         }
 
-        if (confianza > 0.95) {
-            return 0.95;
-        }
-        return confianza;
+        return Math.min(confianza, 0.95);
     }
 
     private String generarMensaje(TendenciaPredicha tendencia, double score) {
@@ -123,15 +115,15 @@ public class PredictorCiudad {
             case SIN_BASE ->
                     "No se puede predecir una tendencia consistente porque no hay base estructural suficiente.";
             case ESTABLE ->
-                    "La ciudad presenta una proyeccion estable con score " + String.format("%.2f", score) + ".";
+                    "La ciudad presenta una proyección estable con score " + String.format(java.util.Locale.ROOT, "%.2f", score) + ".";
             case MEJORA_PROBABLE ->
-                    "La ciudad muestra condiciones favorables para una evolucion positiva a corto plazo.";
+                    "La ciudad muestra condiciones favorables para una evolución positiva a corto plazo.";
             case RIESGO_MODERADO ->
-                    "La ciudad presenta senales de riesgo moderado que pueden agravarse si no se corrigen desequilibrios.";
+                    "La ciudad presenta señales de riesgo moderado que pueden agravarse si no se corrigen desequilibrios.";
             case RIESGO_ALTO ->
                     "La ciudad presenta riesgo alto por falta de actividad suficiente para sostener el sistema.";
             case SATURACION_PROBABLE ->
-                    "La ciudad muestra alta densidad con deficits internos, lo que indica saturacion probable.";
+                    "La ciudad muestra alta densidad con déficits internos, lo que indica saturación probable.";
         };
     }
 }

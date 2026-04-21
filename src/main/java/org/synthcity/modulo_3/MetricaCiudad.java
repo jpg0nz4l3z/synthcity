@@ -1,6 +1,7 @@
 package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 
@@ -10,22 +11,11 @@ import java.util.Map;
 
 public final class MetricaCiudad {
 
-    // Factores de derivación de indicadores urbanos a partir del conteo por tipo.
-    // Centralizados aquí para que los valores sean únicos y reproducibles.
-    private static final int FACTOR_PRODUCCION_ENERGIA = 10;
-    private static final int FACTOR_CONSUMO_RESIDENCIAL = 2;
-    private static final int FACTOR_CONSUMO_INDUSTRIAL = 4;
-    private static final int FACTOR_CONSUMO_SERVICIOS = 1;
-    private static final int FACTOR_CONSUMO_TRANSPORTE = 1;
-    private static final int FACTOR_COBERTURA_SERVICIOS = 3;
-    private static final int FACTOR_CONTAMINACION_INDUSTRIAL = 10;
-    private static final int FACTOR_CONTAMINACION_RESIDENCIAL = 1;
-    private static final int FACTOR_MITIGACION_SERVICIOS = 3;
-
     private static final double UMBRAL_DENSIDAD_RIESGO = 0.85;
     private static final double UMBRAL_CONTAMINACION_ALTA = 60.0;
     private static final double UMBRAL_RATIO_DEFICIT = 0.80;
 
+    // Heredados / básicos
     private final int totalBloques;
     private final int bloquesActivos;
     private final int bloquesInactivos;
@@ -33,25 +23,22 @@ public final class MetricaCiudad {
     private final double porcentajeInactivos;
     private final Map<TipoBloque, Integer> conteoPorTipo;
 
+    // Estructura y estado de simulación
     private final int filas;
     private final int columnas;
     private final int capacidadMaxima;
     private final EstadoSimulacion estadoSimulacion;
 
-    // Indicadores estructurales ya existentes (Sprint 1)
+    // Métricas estructurales / analíticas
     private final double densidadOcupacion;
     private final double diversidadTipos;
     private final double ratioEnergia;
     private final double ratioServicios;
     private final double ratioTransporte;
-    private final double presionIndustrial;
     private final double pesoResidencial;
     private final double indiceEquilibrioBase;
 
-    // Nuevos indicadores urbanos (Sprint 2).
-    // Al no exponerlos todavía ResultadoSimulacion, se derivan de conteoPorTipo
-    // usando factores centralizados. Esto NO es recalcular la simulación:
-    // es transformar la base cuantitativa ya entregada en indicadores analíticos.
+    // Datos ricos procedentes de ResultadoSimulacion
     private final double densidad;
     private final TipoEstructuralCiudad tipoEstructural;
     private final int energiaProducida;
@@ -59,12 +46,13 @@ public final class MetricaCiudad {
     private final int equilibrioEnergetico;
     private final int demandaServicios;
     private final int coberturaServicios;
+    private final int presionIndustrial;
     private final int soporteTransporte;
     private final int contaminacion;
     private final double bienestar;
     private final double estabilidadBasica;
 
-    // Ratios e índices derivados del Sprint 2
+    // Derivados
     private final double ratioCoberturaServicios;
     private final double ratioEnergetico;
     private final double indiceSaturacion;
@@ -72,10 +60,14 @@ public final class MetricaCiudad {
 
     public MetricaCiudad(ResultadoSimulacion resultado) {
         if (resultado == null) {
-            throw new ResultadoSimulacionInvalidoException("No se puede construir MetricaCiudad con un resultado nulo.");
+            throw new ResultadoSimulacionInvalidoException(
+                    "No se puede construir MetricaCiudad con un resultado nulo."
+            );
         }
         if (resultado.getConteoPorTipo() == null) {
-            throw new ResultadoSimulacionInvalidoException("El conteo por tipo no puede ser nulo.");
+            throw new ResultadoSimulacionInvalidoException(
+                    "El conteo por tipo no puede ser nulo."
+            );
         }
 
         this.totalBloques = resultado.getBloquesTotales();
@@ -83,22 +75,32 @@ public final class MetricaCiudad {
         this.bloquesInactivos = resultado.getBloquesInactivos();
 
         if (this.totalBloques < 0 || this.bloquesActivos < 0 || this.bloquesInactivos < 0) {
-            throw new ResultadoSimulacionInvalidoException("Los valores de bloques no pueden ser negativos.");
+            throw new ResultadoSimulacionInvalidoException(
+                    "Los valores de bloques no pueden ser negativos."
+            );
         }
-        if ((this.bloquesActivos + this.bloquesInactivos) != this.totalBloques) {
-            throw new ResultadoSimulacionInvalidoException("Activos + inactivos debe coincidir con el total.");
+        if (this.bloquesActivos + this.bloquesInactivos != this.totalBloques) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "Activos + inactivos debe coincidir con el total."
+            );
         }
 
-        if (this.totalBloques > 0) {
-            this.porcentajeActivos = (double) this.bloquesActivos / this.totalBloques;
-        } else {
-            this.porcentajeActivos = 0.0;
-        }
-        this.porcentajeInactivos = 1.0 - this.porcentajeActivos;
+        this.porcentajeActivos = this.totalBloques == 0
+                ? 0.0
+                : (double) this.bloquesActivos / this.totalBloques;
+        this.porcentajeInactivos = this.totalBloques == 0
+                ? 0.0
+                : 1.0 - this.porcentajeActivos;
 
         Map<TipoBloque, Integer> copia = new EnumMap<>(TipoBloque.class);
         for (TipoBloque tipo : TipoBloque.values()) {
-            copia.put(tipo, resultado.getConteoPorTipo().getOrDefault(tipo, 0));
+            Integer cantidad = resultado.getConteoPorTipo().get(tipo);
+            if (cantidad == null || cantidad < 0) {
+                throw new ResultadoSimulacionInvalidoException(
+                        "Conteo inválido para el tipo " + tipo + "."
+                );
+            }
+            copia.put(tipo, cantidad);
         }
         this.conteoPorTipo = Collections.unmodifiableMap(copia);
 
@@ -107,40 +109,78 @@ public final class MetricaCiudad {
         this.capacidadMaxima = resultado.getCapacidadMaxima();
         this.estadoSimulacion = resultado.getEstadoSimulacion();
 
-        this.densidadOcupacion = calcularDensidadOcupacion(this.totalBloques, this.capacidadMaxima);
-        this.densidad = this.densidadOcupacion;
+        if (this.filas <= 0 || this.columnas <= 0 || this.capacidadMaxima <= 0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "Las dimensiones o la capacidad máxima son inválidas."
+            );
+        }
+        if (this.estadoSimulacion == null) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "El estado de simulación no puede ser nulo."
+            );
+        }
+
+        // Copia de métricas del Módulo 2
+        this.densidad = resultado.getDensidad();
+        this.densidadOcupacion = this.densidad;
+        this.tipoEstructural = resultado.getTipoEstructural();
+        this.energiaProducida = resultado.getEnergiaProducida();
+        this.consumoEnergetico = resultado.getConsumoEnergetico();
+        this.equilibrioEnergetico = resultado.getEquilibrioEnergetico();
+        this.demandaServicios = resultado.getDemandaServicios();
+        this.coberturaServicios = resultado.getCoberturaServicios();
+        this.presionIndustrial = resultado.getPresionIndustrial();
+        this.soporteTransporte = resultado.getSoporteTransporte();
+        this.contaminacion = resultado.getContaminacion();
+        this.bienestar = resultado.getBienestar();
+        this.estabilidadBasica = resultado.getEstabilidadBasica();
+
+        if (this.densidad < 0.0 || this.densidad > 1.0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "La densidad debe estar entre 0.0 y 1.0."
+            );
+        }
+        if (this.tipoEstructural == null) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "El tipo estructural no puede ser nulo."
+            );
+        }
+        if (this.energiaProducida < 0 || this.consumoEnergetico < 0 || this.demandaServicios < 0
+                || this.coberturaServicios < 0 || this.presionIndustrial < 0
+                || this.soporteTransporte < 0 || this.contaminacion < 0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "Las métricas de simulación no pueden ser negativas."
+            );
+        }
+        if (this.equilibrioEnergetico != this.energiaProducida - this.consumoEnergetico) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "El equilibrio energético no coincide con energiaProducida - consumoEnergetico."
+            );
+        }
+        if (this.bienestar < 0.0 || this.bienestar > 1.0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "El bienestar debe estar entre 0.0 y 1.0."
+            );
+        }
+        if (this.estabilidadBasica < 0.0 || this.estabilidadBasica > 1.0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "La estabilidad básica debe estar entre 0.0 y 1.0."
+            );
+        }
+
+        // Derivados propios de Módulo 3
         this.diversidadTipos = calcularDiversidadTipos(this.conteoPorTipo);
-        this.ratioEnergia = ratioPorTipo(TipoBloque.ENERGIA);
-        this.ratioServicios = ratioPorTipo(TipoBloque.SERVICIOS);
-        this.ratioTransporte = ratioPorTipo(TipoBloque.TRANSPORTE);
-        this.presionIndustrial = ratioPorTipo(TipoBloque.INDUSTRIAL);
-        this.pesoResidencial = ratioPorTipo(TipoBloque.RESIDENCIAL);
-        this.indiceEquilibrioBase = calcularIndiceEquilibrioBase();
-
-        int res = this.conteoPorTipo.getOrDefault(TipoBloque.RESIDENCIAL, 0);
-        int ene = this.conteoPorTipo.getOrDefault(TipoBloque.ENERGIA, 0);
-        int ind = this.conteoPorTipo.getOrDefault(TipoBloque.INDUSTRIAL, 0);
-        int ser = this.conteoPorTipo.getOrDefault(TipoBloque.SERVICIOS, 0);
-        int tra = this.conteoPorTipo.getOrDefault(TipoBloque.TRANSPORTE, 0);
-
-        this.energiaProducida = ene * FACTOR_PRODUCCION_ENERGIA;
-        this.consumoEnergetico =
-                res * FACTOR_CONSUMO_RESIDENCIAL
-                        + ind * FACTOR_CONSUMO_INDUSTRIAL
-                        + ser * FACTOR_CONSUMO_SERVICIOS
-                        + tra * FACTOR_CONSUMO_TRANSPORTE;
-        this.equilibrioEnergetico = this.energiaProducida - this.consumoEnergetico;
-        this.demandaServicios = res;
-        this.coberturaServicios = ser * FACTOR_COBERTURA_SERVICIOS;
-        this.soporteTransporte = tra;
-        this.contaminacion = calcularContaminacion(ind, res, ser);
-
         this.ratioEnergetico = calcularRatioEnergetico(this.energiaProducida, this.consumoEnergetico);
         this.ratioCoberturaServicios = calcularRatioCobertura(this.coberturaServicios, this.demandaServicios);
 
-        this.tipoEstructural = inferirTipoEstructural(this.conteoPorTipo, this.diversidadTipos, this.totalBloques);
-        this.estabilidadBasica = calcularEstabilidadBasica();
-        this.bienestar = calcularBienestar();
+        // Estos dos son indicadores analíticos complementarios.
+        // Usan datos ya agregados; no reconstruyen la simulación.
+        this.ratioEnergia = this.ratioEnergetico;
+        this.ratioServicios = this.ratioCoberturaServicios;
+        this.ratioTransporte = ratioPorTipo(TipoBloque.TRANSPORTE);
+        this.pesoResidencial = ratioPorTipo(TipoBloque.RESIDENCIAL);
+
+        this.indiceEquilibrioBase = calcularIndiceEquilibrioBase();
         this.indiceSaturacion = calcularIndiceSaturacion();
         this.indiceViabilidadBase = calcularIndiceViabilidad();
     }
@@ -152,13 +192,6 @@ public final class MetricaCiudad {
         return (double) this.conteoPorTipo.getOrDefault(tipo, 0) / this.totalBloques;
     }
 
-    private double calcularDensidadOcupacion(int total, int capacidad) {
-        if (capacidad <= 0) {
-            return 0.0;
-        }
-        return (double) total / capacidad;
-    }
-
     private double calcularDiversidadTipos(Map<TipoBloque, Integer> conteo) {
         int tiposPresentes = 0;
         for (TipoBloque tipo : TipoBloque.values()) {
@@ -167,15 +200,6 @@ public final class MetricaCiudad {
             }
         }
         return (double) tiposPresentes / TipoBloque.values().length;
-    }
-
-    private int calcularContaminacion(int ind, int res, int ser) {
-        int base = ind * FACTOR_CONTAMINACION_INDUSTRIAL
-                + res * FACTOR_CONTAMINACION_RESIDENCIAL
-                - ser * FACTOR_MITIGACION_SERVICIOS;
-        if (base < 0) return 0;
-        if (base > 100) return 100;
-        return base;
     }
 
     private double calcularRatioEnergetico(int producida, int consumo) {
@@ -192,59 +216,6 @@ public final class MetricaCiudad {
         return (double) cobertura / demanda;
     }
 
-    private TipoEstructuralCiudad inferirTipoEstructural(Map<TipoBloque, Integer> conteo,
-                                                         double diversidad,
-                                                         int total) {
-        if (total <= 0) {
-            return TipoEstructuralCiudad.SIN_DATOS;
-        }
-        if (diversidad >= 0.80) {
-            return TipoEstructuralCiudad.EQUILIBRADA;
-        }
-        TipoBloque dominante = null;
-        int maximo = -1;
-        for (TipoBloque tipo : TipoBloque.values()) {
-            int count = conteo.getOrDefault(tipo, 0);
-            if (count > maximo) {
-                maximo = count;
-                dominante = tipo;
-            }
-        }
-        if (dominante == null) {
-            return TipoEstructuralCiudad.SIN_DATOS;
-        }
-        return switch (dominante) {
-            case RESIDENCIAL -> TipoEstructuralCiudad.RESIDENCIAL_DOMINANTE;
-            case INDUSTRIAL -> TipoEstructuralCiudad.INDUSTRIAL_DOMINANTE;
-            case ENERGIA -> TipoEstructuralCiudad.ENERGETICA_DOMINANTE;
-            case SERVICIOS -> TipoEstructuralCiudad.SERVICIOS_DOMINANTE;
-            case TRANSPORTE -> TipoEstructuralCiudad.TRANSPORTE_DOMINANTE;
-        };
-    }
-
-    private double calcularEstabilidadBasica() {
-        if (this.totalBloques <= 0) {
-            return 0.0;
-        }
-        double cobertura = Math.min(1.0, this.ratioCoberturaServicios);
-        double energia = Math.min(1.0, this.ratioEnergetico);
-        double diversidad = this.diversidadTipos;
-        double actividad = this.porcentajeActivos;
-        double score = (cobertura * 0.25) + (energia * 0.25) + (diversidad * 0.25) + (actividad * 0.25);
-        return clamp01(score);
-    }
-
-    private double calcularBienestar() {
-        if (this.totalBloques <= 0) {
-            return 0.0;
-        }
-        double cobertura = Math.min(1.0, this.ratioCoberturaServicios);
-        double actividad = this.porcentajeActivos;
-        double contaminacionNormalizada = this.contaminacion / 100.0;
-        double score = (cobertura * 0.45) + (actividad * 0.40) + ((1.0 - contaminacionNormalizada) * 0.15);
-        return clamp01(score);
-    }
-
     private double calcularIndiceSaturacion() {
         double base = this.densidad;
         if (hayDeficitEnergetico()) base += 0.05;
@@ -255,13 +226,19 @@ public final class MetricaCiudad {
 
     private double calcularIndiceEquilibrioBase() {
         double score = 0.0;
-        score += porcentajeActivos * 0.40;
-        score += diversidadTipos * 0.20;
-        score += ratioEnergia * 0.10;
-        score += ratioServicios * 0.10;
-        score += ratioTransporte * 0.10;
-        if (presionIndustrial <= 0.30) score += 0.05;
-        if (densidadOcupacion <= 0.80) score += 0.05;
+        score += this.porcentajeActivos * 0.40;
+        score += this.diversidadTipos * 0.20;
+        score += Math.min(1.0, this.ratioEnergia) * 0.10;
+        score += Math.min(1.0, this.ratioServicios) * 0.10;
+        score += this.ratioTransporte * 0.10;
+
+        // Presión industrial absoluta: penalización simple si es alta
+        if (this.presionIndustrial <= 10.0) {
+            score += 0.05;
+        }
+        if (this.densidadOcupacion <= 0.80) {
+            score += 0.05;
+        }
         return clamp01(score);
     }
 
@@ -305,50 +282,146 @@ public final class MetricaCiudad {
     public String resumenMetrico() {
         return "Total=" + totalBloques
                 + ", activos=" + bloquesActivos
-                + ", %act=" + String.format("%.2f", porcentajeActivos)
-                + ", densidad=" + String.format("%.2f", densidad)
-                + ", ratioE=" + String.format("%.2f", ratioEnergetico)
-                + ", ratioS=" + String.format("%.2f", ratioCoberturaServicios)
+                + ", %act=" + String.format(java.util.Locale.ROOT, "%.2f", porcentajeActivos)
+                + ", densidad=" + String.format(java.util.Locale.ROOT, "%.2f", densidad)
+                + ", ratioE=" + String.format(java.util.Locale.ROOT, "%.2f", ratioEnergetico)
+                + ", ratioS=" + String.format(java.util.Locale.ROOT, "%.2f", ratioCoberturaServicios)
                 + ", contaminacion=" + contaminacion
-                + ", estabilidad=" + String.format("%.2f", estabilidadBasica)
+                + ", estabilidad=" + String.format(java.util.Locale.ROOT, "%.2f", estabilidadBasica)
                 + ", tipo=" + tipoEstructural;
     }
 
-    public int getTotalBloques() { return totalBloques; }
-    public int getBloquesActivos() { return bloquesActivos; }
-    public int getBloquesInactivos() { return bloquesInactivos; }
-    public double getPorcentajeActivos() { return porcentajeActivos; }
-    public double getPorcentajeInactivos() { return porcentajeInactivos; }
-    public Map<TipoBloque, Integer> getConteoPorTipo() { return conteoPorTipo; }
-    public int getFilas() { return filas; }
-    public int getColumnas() { return columnas; }
-    public int getCapacidadMaxima() { return capacidadMaxima; }
-    public EstadoSimulacion getEstadoSimulacion() { return estadoSimulacion; }
+    public int getTotalBloques() {
+        return totalBloques;
+    }
 
-    public double getDensidadOcupacion() { return densidadOcupacion; }
-    public double getDiversidadTipos() { return diversidadTipos; }
-    public double getRatioEnergia() { return ratioEnergia; }
-    public double getRatioServicios() { return ratioServicios; }
-    public double getRatioTransporte() { return ratioTransporte; }
-    public double getPresionIndustrial() { return presionIndustrial; }
-    public double getPesoResidencial() { return pesoResidencial; }
-    public double getIndiceEquilibrioBase() { return indiceEquilibrioBase; }
+    public int getBloquesActivos() {
+        return bloquesActivos;
+    }
 
-    public double getDensidad() { return densidad; }
-    public TipoEstructuralCiudad getTipoEstructural() { return tipoEstructural; }
-    public int getEnergiaProducida() { return energiaProducida; }
-    public int getConsumoEnergetico() { return consumoEnergetico; }
-    public int getEquilibrioEnergetico() { return equilibrioEnergetico; }
-    public int getDemandaServicios() { return demandaServicios; }
-    public int getCoberturaServicios() { return coberturaServicios; }
-    public int getSoporteTransporte() { return soporteTransporte; }
-    public int getContaminacion() { return contaminacion; }
-    public double getBienestar() { return bienestar; }
-    public double getEstabilidadBasica() { return estabilidadBasica; }
-    public double getRatioCoberturaServicios() { return ratioCoberturaServicios; }
-    public double getRatioEnergetico() { return ratioEnergetico; }
-    public double getIndiceSaturacion() { return indiceSaturacion; }
-    public double getIndiceViabilidadBase() { return indiceViabilidadBase; }
+    public int getBloquesInactivos() {
+        return bloquesInactivos;
+    }
+
+    public double getPorcentajeActivos() {
+        return porcentajeActivos;
+    }
+
+    public double getPorcentajeInactivos() {
+        return porcentajeInactivos;
+    }
+
+    public Map<TipoBloque, Integer> getConteoPorTipo() {
+        return conteoPorTipo;
+    }
+
+    public int getFilas() {
+        return filas;
+    }
+
+    public int getColumnas() {
+        return columnas;
+    }
+
+    public int getCapacidadMaxima() {
+        return capacidadMaxima;
+    }
+
+    public EstadoSimulacion getEstadoSimulacion() {
+        return estadoSimulacion;
+    }
+
+    public double getDensidadOcupacion() {
+        return densidadOcupacion;
+    }
+
+    public double getDiversidadTipos() {
+        return diversidadTipos;
+    }
+
+    public double getRatioEnergia() {
+        return ratioEnergia;
+    }
+
+    public double getRatioServicios() {
+        return ratioServicios;
+    }
+
+    public double getRatioTransporte() {
+        return ratioTransporte;
+    }
+
+    public double getPesoResidencial() {
+        return pesoResidencial;
+    }
+
+    public double getIndiceEquilibrioBase() {
+        return indiceEquilibrioBase;
+    }
+
+    public double getDensidad() {
+        return densidad;
+    }
+
+    public TipoEstructuralCiudad getTipoEstructural() {
+        return tipoEstructural;
+    }
+
+    public int getEnergiaProducida() {
+        return energiaProducida;
+    }
+
+    public int getConsumoEnergetico() {
+        return consumoEnergetico;
+    }
+
+    public int getEquilibrioEnergetico() {
+        return equilibrioEnergetico;
+    }
+
+    public int getDemandaServicios() {
+        return demandaServicios;
+    }
+
+    public int getCoberturaServicios() {
+        return coberturaServicios;
+    }
+
+    public int getPresionIndustrial() {
+        return presionIndustrial;
+    }
+
+    public int getSoporteTransporte() {
+        return soporteTransporte;
+    }
+
+    public int getContaminacion() {
+        return contaminacion;
+    }
+
+    public double getBienestar() {
+        return bienestar;
+    }
+
+    public double getEstabilidadBasica() {
+        return estabilidadBasica;
+    }
+
+    public double getRatioCoberturaServicios() {
+        return ratioCoberturaServicios;
+    }
+
+    public double getRatioEnergetico() {
+        return ratioEnergetico;
+    }
+
+    public double getIndiceSaturacion() {
+        return indiceSaturacion;
+    }
+
+    public double getIndiceViabilidadBase() {
+        return indiceViabilidadBase;
+    }
 
     @Override
     public String toString() {
