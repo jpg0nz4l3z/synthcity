@@ -66,4 +66,9 @@ public abstract class Bloque {
 
 
     public abstract int getContaminacion();
+
+    //todo(stubs): Eliminar cuando se haga el merge
+    public abstract int getRadioInfluencia();
+
+    public abstract boolean esGeneradorDemanda();
 }
