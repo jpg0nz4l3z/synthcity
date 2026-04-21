@@ -28,7 +28,7 @@ public class FormateadorResultado {
         formatearCabecera(sb, resultado);
         formatearMetricas(sb, metrica);
         formatearDistribucion(sb, metrica.getConteoPorTipo());
-        formatearNotaDeAlcance(sb);
+        formatearAnaliticaSprint2(sb, metrica);
 
         sb.append("========================================\n");
         sb.append(" FIN DEL INFORME\n");
@@ -52,6 +52,14 @@ public class FormateadorResultado {
 
         sb.append("Interpretacion:\n")
                 .append(resultado.getMensaje())
+                .append("\n");
+
+        sb.append("Score de viabilidad: ")
+                .append(String.format(Locale.ROOT, "%.2f", resultado.getScoreViabilidad()))
+                .append("\n");
+
+        sb.append("Alertas: ")
+                .append(resultado.getNumeroAlertas())
                 .append("\n");
     }
 
@@ -103,14 +111,38 @@ public class FormateadorResultado {
         }
     }
 
-    private void formatearNotaDeAlcance(StringBuilder sb) {
+    private void formatearAnaliticaSprint2(StringBuilder sb, MetricaCiudad metrica) {
         sb.append("----------------------------------------\n");
-        sb.append("NOTA DE ALCANCE\n");
+        sb.append("VARIABLES URBANAS\n");
         sb.append("----------------------------------------\n");
-        sb.append("Este informe se basa exclusivamente en metricas estructurales\n");
-        sb.append("basicas del sistema.\n");
-        sb.append("No incluye evaluacion de recursos, energia, poblacion ni\n");
-        sb.append("predicciones, que seran incorporadas en fases posteriores.\n");
+        sb.append("Densidad: ")
+                .append(String.format(Locale.ROOT, "%.2f", metrica.getDensidad()))
+                .append("\n");
+        sb.append("Energia producida/consumida: ")
+                .append(metrica.getEnergiaProducida())
+                .append(" / ")
+                .append(metrica.getConsumoEnergetico())
+                .append("\n");
+        sb.append("Ratio energetico: ")
+                .append(String.format(Locale.ROOT, "%.2f", metrica.getRatioEnergetico()))
+                .append("\n");
+        sb.append("Servicios demanda/cobertura: ")
+                .append(metrica.getDemandaServicios())
+                .append(" / ")
+                .append(metrica.getCoberturaServicios())
+                .append("\n");
+        sb.append("Ratio servicios: ")
+                .append(String.format(Locale.ROOT, "%.2f", metrica.getRatioCoberturaServicios()))
+                .append("\n");
+        sb.append("Contaminacion: ")
+                .append(metrica.getContaminacion())
+                .append("\n");
+        sb.append("Bienestar: ")
+                .append(String.format(Locale.ROOT, "%.2f", metrica.getBienestar()))
+                .append("\n");
+        sb.append("Estabilidad: ")
+                .append(String.format(Locale.ROOT, "%.2f", metrica.getEstabilidadBasica()))
+                .append("\n");
     }
 
     private String formatearPorcentaje(double valor) {

@@ -17,9 +17,9 @@ public class VentanaPrincipalTest {
     public void testMontarVentanaPrincipal_CaminoBasico() {
         Platform.runLater(() -> {
             assertDoesNotThrow(() -> {
-                VentanaPrincipal ventana = new VentanaPrincipal();
-                ventana.setPanelResumen(new PanelResumenSistema());
-
+                PanelCiudad panelCiudad = new PanelCiudad();
+                PanelResumenSistema panelResumen = new PanelResumenSistema();
+                VentanaPrincipal ventana = new VentanaPrincipal(panelCiudad, panelResumen);
                 assertNotNull(ventana, "La ventana principal debe instanciarse correctamente");
             }, "La interfaz debe montarse y enlazar sus paneles sin errores");
         });

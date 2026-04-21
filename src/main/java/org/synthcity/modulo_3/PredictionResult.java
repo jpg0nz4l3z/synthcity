@@ -48,6 +48,18 @@ public class PredictionResult {
         return mensajePrediccion;
     }
 
+    public TendenciaPredicha getTendencia() {
+        return tendenciaPredicha;
+    }
+
+    public double getScore() {
+        return scorePredicho;
+    }
+
+    public String getMensaje() {
+        return mensajePrediccion;
+    }
+
     @Override
     public String toString() {
         return "PredictionResult{" +
