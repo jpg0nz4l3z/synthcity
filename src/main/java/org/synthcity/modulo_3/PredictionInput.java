@@ -153,7 +153,7 @@ public class PredictionInput {
         this.tipoEstructural = tipoEstructural;
     }
 
-    public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
+    /*public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
         if (metrica == null) {
             throw new IllegalArgumentException("La metrica no puede ser null.");
         }
@@ -184,7 +184,7 @@ public class PredictionInput {
                 metrica.getIndiceViabilidadBase(),
                 metrica.getTipoEstructural()
         );
-    }
+    }*/
 
     public int getTotalBloques() { return totalBloques; }
     public int getBloquesActivos() { return bloquesActivos; }
