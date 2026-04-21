@@ -1,5 +1,84 @@
 package org.synthcity;
 
+import javafx.application.Application;
+import javafx.stage.Stage;
+
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.Posicion;
+import org.synthcity.modulo_1.BloqueResidencial;
+import org.synthcity.modulo_1.BloqueEnergia;
+import org.synthcity.modulo_1.BloqueIndustrial;
+import org.synthcity.modulo_1.BloqueServicios;
+import org.synthcity.modulo_1.BloqueTransporte;
+
+import org.synthcity.modulo_2.SimuladorCiudad;
+import org.synthcity.modulo_2.ResultadoSimulacion;
+
+import org.synthcity.modulo_3.EvaluadorCiudad;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
+import org.synthcity.modulo_3.PredictorCiudad;
+import org.synthcity.modulo_3.PredictionInput;
+import org.synthcity.modulo_3.PredictionResult;
+
+import org.synthcity.modulo_4.ControladorGUI;
+import org.synthcity.modulo_4.DatabaseManager;
+import org.synthcity.modulo_4.PanelCiudad;
+import org.synthcity.modulo_4.PanelResumenSistema;
+import org.synthcity.modulo_4.ResultadoRepository;
+import org.synthcity.modulo_4.VentanaPrincipal;
+
+public class Main extends Application {
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        // 1. Construir estado inicial del sistema
+        Ciudad ciudad = construirCiudadDemo();
+
+        // 2. Pipeline analítico M1 -> M2 -> M3
+        ResultadoSimulacion resultado  = new SimuladorCiudad().simular(ciudad);
+        ResultadoEvaluacion evaluacion = new EvaluadorCiudad().evaluar(resultado);
+        PredictionInput input          = PredictionInput.desdeMetrica(evaluacion.getMetricaCiudad());
+        PredictionResult prediccion    = new PredictorCiudad().predecir(input);
+
+        // 3. Persistencia
+        DatabaseManager db = new DatabaseManager();
+        db.inicializarTablaResultados();
+        ResultadoRepository repo = new ResultadoRepository(db);
+
+        // 4. Instanciar paneles
+        PanelCiudad panelCiudad = new PanelCiudad();
+        PanelResumenSistema panelRes = new PanelResumenSistema();
+        ControladorGUI controlador = new ControladorGUI(panelCiudad, panelRes, repo);
+
+        VentanaPrincipal ventana = new VentanaPrincipal(panelCiudad, panelRes);
+        ventana.setControlador(controlador);
+
+        // 6. Mostrar la ventana primero (para que los paneles tengan Scene)
+        ventana.mostrar();
+
+        // 7. Cargar estado en los paneles
+        controlador.mostrarSistema(ciudad, evaluacion, prediccion);
+    }
+
+    private Ciudad construirCiudadDemo() {
+        Ciudad c = new Ciudad("NeoMadrid", 10, 10);
+        c.addBloque(new BloqueEnergia(new Posicion(0, 0)));
+        c.addBloque(new BloqueEnergia(new Posicion(0, 1)));
+        c.addBloque(new BloqueResidencial(new Posicion(1, 0)));
+        c.addBloque(new BloqueResidencial(new Posicion(1, 1)));
+        c.addBloque(new BloqueIndustrial(new Posicion(2, 2)));
+        c.addBloque(new BloqueServicios(new Posicion(3, 3)));
+        c.addBloque(new BloqueTransporte(new Posicion(4, 4)));
+        return c;
+    }
+}
+
+
+/*
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -9,7 +88,7 @@ import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.NivelEvaluacion;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
-/*import org.synthcity.modulo_4.PresentadorCiudad;
+import org.synthcity.modulo_4.PresentadorCiudad;
 import org.synthcity.modulo_4.SalidaTexto;
 
 public class Main {
@@ -139,4 +218,6 @@ public class Main {
 
         return conteo;
     }
-}*/
+}
+// Validado Punto de Ejecución Global
+*/

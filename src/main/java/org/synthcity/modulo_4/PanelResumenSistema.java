@@ -1,116 +1,92 @@
 package org.synthcity.modulo_4;
-import javafx.scene.layout.VBox;
+
+import java.util.Locale;
+
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
 
-public class PanelResumenSistema extends VBox{
+public class PanelResumenSistema extends VBox {
 
-    private Label nombreCiudad;
-    private Label tipoEstructural;
-    private Label numeroBloques;
-    private Label densidad;
-    private Label nivelEvaluacion;
-    private Label score;
-    private Label mensajeEvaluacion;
-    private Label tendencia;
-    private Label scorePredicho;
-    private Label mensajePrediccion;
-
+    private final Label nombreCiudad;
+    private final Label tipoEstructural;
+    private final Label numeroBloques;
+    private final Label densidad;
+    private final Label nivelEvaluacion;
+    private final Label score;
+    private final Label mensajeEvaluacion;
+    private final Label tendencia;
+    private final Label scorePredicho;
+    private final Label mensajePrediccion;
 
     public PanelResumenSistema() {
+        setSpacing(10);
 
-            this.setSpacing(10);
+        Label tituloCiudad = new Label("--- CIUDAD ---");
+        VBox infoCiudad = new VBox(5);
+        nombreCiudad = new Label("Nombre: ");
+        tipoEstructural = new Label("Tipo: ");
+        numeroBloques = new Label("Bloques: ");
+        densidad = new Label("Densidad: ");
+        infoCiudad.getChildren().addAll(nombreCiudad, tipoEstructural, numeroBloques, densidad);
 
-            Label tituloCiudad = new Label("--- CIUDAD ---");
+        Label tituloEvaluacion = new Label("--- EVALUACION ---");
+        VBox evaluacionBox = new VBox(5);
+        nivelEvaluacion = new Label("Nivel: ");
+        score = new Label("Score: ");
+        mensajeEvaluacion = new Label("Mensaje evaluacion: ");
+        mensajeEvaluacion.setWrapText(true);
+        evaluacionBox.getChildren().addAll(nivelEvaluacion, score, mensajeEvaluacion);
 
-            VBox infoCiudad = new VBox();
-            infoCiudad.setSpacing(5);
+        Label tituloPrediccion = new Label("--- PREDICCION ---");
+        VBox prediccionBox = new VBox(5);
+        tendencia = new Label("Tendencia: ");
+        scorePredicho = new Label("Score predicho: ");
+        mensajePrediccion = new Label("Mensaje prediccion: ");
+        mensajePrediccion.setWrapText(true);
+        prediccionBox.getChildren().addAll(tendencia, scorePredicho, mensajePrediccion);
 
-            nombreCiudad = new Label("Nombre: ");
-            tipoEstructural = new Label("Tipo: ");
-            numeroBloques = new Label("Bloques: ");
-            densidad = new Label("Densidad: ");
+        getChildren().addAll(tituloCiudad, infoCiudad, tituloEvaluacion, evaluacionBox, tituloPrediccion, prediccionBox);
+    }
 
-            infoCiudad.getChildren().addAll(
-                    nombreCiudad,
-                    tipoEstructural,
-                    numeroBloques,
-                    densidad
-            );
-
-            this.getChildren().addAll(tituloCiudad, infoCiudad);
-
-
-            Label tituloEvaluacion = new Label("--- EVALUACIÓN ---");
-
-            VBox evaluacionBox = new VBox();
-            evaluacionBox.setSpacing(5);
-
-            nivelEvaluacion = new Label("Nivel: ");
-            score = new Label("Score: ");
-            mensajeEvaluacion = new Label("Mensaje evaluación: ");
-
-            evaluacionBox.getChildren().addAll(
-                    nivelEvaluacion,
-                    score,
-                    mensajeEvaluacion
-            );
-
-            this.getChildren().addAll(tituloEvaluacion, evaluacionBox);
-
-
-            Label tituloPrediccion = new Label("--- PREDICCIÓN ---");
-
-            VBox prediccionBox = new VBox();
-            prediccionBox.setSpacing(5);
-
-            tendencia = new Label("Tendencia: ");
-            scorePredicho = new Label("Score predicho: ");
-            mensajePrediccion = new Label("Mensaje predicción: ");
-
-            prediccionBox.getChildren().addAll(
-                    tendencia,
-                    scorePredicho,
-                    mensajePrediccion
-            );
-
-            this.getChildren().addAll(tituloPrediccion, prediccionBox);
+    public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
+        if (ciudad == null || evaluacion == null) {
+            limpiar();
+            return;
         }
 
-   /* public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion){
-
         nombreCiudad.setText("Nombre: " + ciudad.getNombre());
-        tipoEstructural.setText("Tipo: " + ciudad.getTipo());
-        numeroBloques.setText("Bloques: " + ciudad.getBloques());
-        densidad.setText("Densidad: " + ciudad.getDensidad());
+        tipoEstructural.setText("Tipo: " + ciudad.getTipoEstructural());
+        numeroBloques.setText("Bloques: " + ciudad.getOcupacionActual());
+        densidad.setText("Densidad: " + String.format(Locale.ROOT, "%.2f", ciudad.getDensidad()));
 
-        nivelEvaluacion.setText("Nivel: " + evaluacion.getNivel());
-        score.setText("Score: " + evaluacion.getScore());
+        nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
+        score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
         mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
 
         if (prediccion != null) {
-            tendencia.setText("Tendencia: " + prediccion.getTendencia());
-            scorePredicho.setText("Score predicho: " + prediccion.getScore());
-            mensajePrediccion.setText("Mensaje: " + prediccion.getMensaje());
+            tendencia.setText("Tendencia: " + prediccion.getTendenciaPredicha());
+            scorePredicho.setText("Score predicho: " + String.format(Locale.ROOT, "%.2f", prediccion.getScorePredicho()));
+            mensajePrediccion.setText("Mensaje: " + prediccion.getMensajePrediccion());
         } else {
             tendencia.setText("Tendencia: N/A");
             scorePredicho.setText("Score predicho: N/A");
-            mensajePrediccion.setText("Mensaje: Predicción no disponible ");
+            mensajePrediccion.setText("Mensaje: Prediccion no disponible");
         }
     }
 
-    public void limpiar(){
+    public void limpiar() {
         nombreCiudad.setText("Nombre: ");
         tipoEstructural.setText("Tipo: ");
         numeroBloques.setText("Bloques: ");
         densidad.setText("Densidad: ");
-
         nivelEvaluacion.setText("Nivel: ");
         score.setText("Score: ");
-        mensajeEvaluacion.setText("Mensaje evaluación: ");
-
+        mensajeEvaluacion.setText("Mensaje evaluacion: ");
         tendencia.setText("Tendencia: ");
         scorePredicho.setText("Score predicho: ");
-        mensajePrediccion.setText("Mensaje predicción: ");
+        mensajePrediccion.setText("Mensaje prediccion: ");
     }
-*/
 }

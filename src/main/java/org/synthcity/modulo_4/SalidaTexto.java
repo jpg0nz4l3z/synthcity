@@ -7,6 +7,9 @@ public class SalidaTexto {
     private String nombreCiudad;
     private String fechaGeneracion;
 
+    public SalidaTexto(String contenido) {
+        this("Salida SynthCity", contenido, null, null);
+    }
 
     public SalidaTexto(String titulo, String contenido, String nombreCiudad, String fechaGeneracion) {
         this.titulo = titulo;
@@ -36,5 +39,10 @@ public class SalidaTexto {
 
     public String getFechaGeneracion() {
         return fechaGeneracion;
+    }
+
+    @Override
+    public String toString() {
+        return contenido;
     }
 }

@@ -4,6 +4,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
@@ -13,7 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.synthcity.modulo_1.Ciudad;
 
-/*public class VentanaPrincipal {
+public class VentanaPrincipal {
     private Stage stage;
     private BorderPane root;
     private PanelCiudad panelCiudad;
@@ -24,15 +25,15 @@ import org.synthcity.modulo_1.Ciudad;
     private Button btnGuardar;
     private Button btnLimpiar;
 
-    public VentanaPrincipal() {
+    public VentanaPrincipal(PanelCiudad panelCiudad, PanelResumenSistema panelResumen) {
+        this.panelCiudad = panelCiudad;
+        this.panelResumen = panelResumen;
         inicializarComponentes();
         construirLayout();
         configurarEventos();
     }
 
     private void inicializarComponentes() {
-        panelCiudad = new PanelCiudad();
-        panelResumen = null;
 
         btnRefrescar = new Button("Refrescar");
         btnGuardar = new Button("Guardar");
@@ -54,7 +55,12 @@ import org.synthcity.modulo_1.Ciudad;
         gridShadow.setOffsetY(2);
         gridShadow.setColor(Color.rgb(0, 0, 0, 0.3));
         panelCiudad.setEffect(gridShadow);
-        root.setCenter(panelCiudad);
+        ScrollPane scrollCiudad = new ScrollPane(panelCiudad);
+        scrollCiudad.setFitToWidth(true);
+        scrollCiudad.setFitToHeight(true);
+        scrollCiudad.setPannable(true);
+        root.setCenter(scrollCiudad);
+        //root.setCenter(panelCiudad);
 
         // --- BOTTOM: Separador horizontal + botones
         HBox botonera = new HBox(20);
@@ -75,10 +81,14 @@ import org.synthcity.modulo_1.Ciudad;
         panelDerecho.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-background-color: white;");
 
         // Placeholder inicial
-        Label placeholder = new Label("Panel de resumen\n(próximamente)");
-        placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px; -fx-alignment: center;");
-        placeholder.setWrapText(true);
-        panelDerecho.getChildren().add(placeholder);
+        if (panelResumen != null) {
+            panelDerecho.getChildren().add(panelResumen);
+        } else {
+            Label placeholder = new Label("Panel de resumen\n(próximamente)");
+            placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px; -fx-alignment: center;");
+            placeholder.setWrapText(true);
+            panelDerecho.getChildren().add(placeholder);
+        }
 
         // Sombra para el panel derecho
         DropShadow resumenShadow = new DropShadow();
@@ -111,22 +121,7 @@ import org.synthcity.modulo_1.Ciudad;
         this.controlador = controlador;
     }
 
-    public void setPanelResumen(PanelResumenSistema panelResumen) {
-        this.panelResumen = panelResumen;
-        // Accedemos al HBox derecho y dentro a su segundo hijo (el VBox panelDerecho)
-        HBox rightContainer = (HBox) root.getRight();
-        VBox panelDerecho = (VBox) rightContainer.getChildren().get(1);
-        panelDerecho.getChildren().clear();
-        if (panelResumen != null) {
-            panelDerecho.getChildren().add(panelResumen);
-        } else {
-            // Si se asigna null, volvemos a poner el placeholder
-            Label placeholder = new Label("Panel de resumen");
-            placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px; -fx-alignment: center;");
-            placeholder.setWrapText(true);
-            panelDerecho.getChildren().add(placeholder);
-        }
-    }
+
 
     public void actualizarCiudad(Ciudad ciudad) {
         panelCiudad.mostrarCiudad(ciudad);
@@ -140,5 +135,13 @@ import org.synthcity.modulo_1.Ciudad;
             stage.setTitle("SynthCity - Visor de Ciudad");
         }
         stage.show();
+
+        // DEBUG
+        System.out.println("[DEBUG VENTANA] Stage mostrado");
+        System.out.println("[DEBUG VENTANA] root size: " + root.getWidth() + "x" + root.getHeight());
+        System.out.println("[DEBUG VENTANA] root.center: " + root.getCenter());
+        if (root.getCenter() != null) {
+            System.out.println("[DEBUG VENTANA] center class: " + root.getCenter().getClass().getSimpleName());
+        }
     }
-}*/
+}

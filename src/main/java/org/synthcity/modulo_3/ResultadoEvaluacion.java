@@ -70,11 +70,19 @@ public class ResultadoEvaluacion {
         return nivelEvaluacion;
     }
 
+    public NivelEvaluacion getNivel() {
+        return nivelEvaluacion;
+    }
+
     public String getMensaje() {
         return mensaje;
     }
 
     public double getScoreViabilidad() {
+        return scoreViabilidad;
+    }
+
+    public double getScore() {
         return scoreViabilidad;
     }
 

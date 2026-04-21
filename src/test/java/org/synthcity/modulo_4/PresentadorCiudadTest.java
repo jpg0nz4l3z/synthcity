@@ -1,6 +1,23 @@
 package org.synthcity.modulo_4;
 
-/*class PresentadorCiudadTest {
+import org.junit.jupiter.api.Test;
+import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.TipoBloque;
+import org.synthcity.modulo_2.EstadoSimulacion;
+import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.MetricaCiudad;
+import org.synthcity.modulo_3.NivelEvaluacion;
+import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.ResultadoEvaluacion;
+import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
+import org.synthcity.modulo_3.TendenciaPredicha;
+
+import java.util.EnumMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class PresentadorCiudadTest {
 
     @Test
     void presentar_deberia_devolver_salida_valida_si_resultado_es_correcto() {
@@ -121,30 +138,6 @@ package org.synthcity.modulo_4;
                 EstadoSimulacion.EJECUTADA
         );
     }
-    @Test
-    public void testGenerarResumen_FlujoCompleto_CaminoBasico() {
-        PresentadorCiudad presentador = new PresentadorCiudad();
-        Ciudad ciudad = new Ciudad("NeoTokyo", 10, 10);
-
-        ResultadoEvaluacion evaluacionFake = new ResultadoEvaluacion() {
-            @Override public String getNivelEvaluacion() { return "Optimo"; }
-            @Override public double getScoreViabilidad() { return 95.5; }
-        };
-
-        PredictionResult prediccionFake = new PredictionResult() {
-            @Override public String getTendenciaPredicha() { return "Mejora Constante"; }
-        };
-
-        SalidaTexto resultado = presentador.generarResumen(ciudad, evaluacionFake, prediccionFake);
-
-        assertNotNull(resultado);
-        assertEquals("NeoTokyo", resultado.getNombreCiudad());
-        assertEquals("Resumen Breve", resultado.getTitulo());
-        assertTrue(resultado.getContenido().contains("NeoTokyo"));
-        assertTrue(resultado.getContenido().contains("Optimo"));
-        assertTrue(resultado.getContenido().contains("95.5"));
-        assertTrue(resultado.getContenido().contains("Mejora Constante"));
-    }
 
     private Map<TipoBloque, Integer> crearConteoBase() {
         Map<TipoBloque, Integer> conteo = new EnumMap<>(TipoBloque.class);
@@ -153,4 +146,4 @@ package org.synthcity.modulo_4;
         }
         return conteo;
     }
-}*/
+}
