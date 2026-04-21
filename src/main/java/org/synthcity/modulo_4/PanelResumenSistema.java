@@ -5,7 +5,7 @@ import java.util.Locale;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.synthcity.modulo_1.Ciudad;
-import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class PanelResumenSistema extends VBox {
