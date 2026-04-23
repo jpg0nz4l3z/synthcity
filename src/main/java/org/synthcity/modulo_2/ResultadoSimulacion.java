@@ -1,5 +1,7 @@
 package org.synthcity.modulo_2;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.synthcity.modulo_1.TipoBloque;
@@ -31,6 +33,20 @@ public class ResultadoSimulacion {
     private final double estabilidadBasica;
     private final double ratioEnergetico;
     private final double ratioCoberturaServicios;
+    private final List<EstadoCiclo> ciclos;
+    private final int ciclosEjecutados;
+    private final MotivoParadaSimulacion motivoParada;
+    private final int contaminacionAcumulada;
+    private final double coberturaServiciosPonderada;
+    private final double eficienciaTransporte;
+    private final double estabilidadMedia;
+    private final double bienestarMinimo;
+    private final double bienestarMaximo;
+    private final double bienestarUltimo;
+    private final double tendenciaEstabilidad;
+    private final int tendenciaContaminacion;
+    private final boolean necesidadExpansionDetectada;
+    private final boolean historialReiniciadoPorExpansion;
 
     public ResultadoSimulacion(
             String nombreCiudad,
@@ -56,6 +72,81 @@ public class ResultadoSimulacion {
             double estabilidadBasica,
             double ratioEnergetico,
             double ratioCoberturaServicios) {
+        this(
+                nombreCiudad,
+                filas,
+                columnas,
+                capacidadMaxima,
+                bloquesTotales,
+                bloquesActivos,
+                bloquesInactivos,
+                conteoPorTipo,
+                estadoSimulacion,
+                densidad,
+                tipoEstructural,
+                energiaProducida,
+                consumoEnergetico,
+                equilibrioEnergetico,
+                demandaServicios,
+                coberturaServicios,
+                presionIndustrial,
+                soporteTransporte,
+                contaminacion,
+                bienestar,
+                estabilidadBasica,
+                ratioEnergetico,
+                ratioCoberturaServicios,
+                crearHistorialCompatibilidad(
+                        bloquesTotales,
+                        bloquesActivos,
+                        estadoSimulacion,
+                        densidad,
+                        energiaProducida,
+                        consumoEnergetico,
+                        equilibrioEnergetico,
+                        demandaServicios,
+                        coberturaServicios,
+                        presionIndustrial,
+                        soporteTransporte,
+                        contaminacion,
+                        bienestar,
+                        estabilidadBasica,
+                        ratioCoberturaServicios
+                ),
+                inferirMotivoParada(bloquesTotales, bloquesActivos),
+                false,
+                false
+        );
+    }
+
+    public ResultadoSimulacion(
+            String nombreCiudad,
+            int filas,
+            int columnas,
+            int capacidadMaxima,
+            int bloquesTotales,
+            int bloquesActivos,
+            int bloquesInactivos,
+            Map<TipoBloque, Integer> conteoPorTipo,
+            EstadoSimulacion estadoSimulacion,
+            double densidad,
+            TipoEstructuralCiudad tipoEstructural,
+            int energiaProducida,
+            int consumoEnergetico,
+            int equilibrioEnergetico,
+            int demandaServicios,
+            int coberturaServicios,
+            int presionIndustrial,
+            int soporteTransporte,
+            int contaminacion,
+            double bienestar,
+            double estabilidadBasica,
+            double ratioEnergetico,
+            double ratioCoberturaServicios,
+            List<EstadoCiclo> ciclos,
+            MotivoParadaSimulacion motivoParada,
+            boolean necesidadExpansionDetectada,
+            boolean historialReiniciadoPorExpansion) {
 
         if (nombreCiudad == null || nombreCiudad.isBlank()) {
             throw new ResultadoSimulacionInvalidoException("El nombre de la ciudad es obligatorio.");
@@ -141,6 +232,13 @@ public class ResultadoSimulacion {
         if (ratioEnergetico < 0.0 || ratioCoberturaServicios < 0.0) {
             throw new ResultadoSimulacionInvalidoException("Los ratios no pueden ser negativos.");
         }
+        if (ciclos == null) {
+            throw new ResultadoSimulacionInvalidoException("La secuencia de ciclos no puede ser nula.");
+        }
+        if (motivoParada == null) {
+            throw new ResultadoSimulacionInvalidoException("El motivo de parada no puede ser nulo.");
+        }
+        validarCiclos(ciclos);
 
         this.nombreCiudad = nombreCiudad;
         this.filas = filas;
@@ -165,6 +263,160 @@ public class ResultadoSimulacion {
         this.estabilidadBasica = estabilidadBasica;
         this.ratioEnergetico = ratioEnergetico;
         this.ratioCoberturaServicios = ratioCoberturaServicios;
+        this.ciclos = List.copyOf(ciclos);
+        this.ciclosEjecutados = ciclos.size();
+        this.motivoParada = motivoParada;
+        this.contaminacionAcumulada = calcularContaminacionAcumulada(ciclos, contaminacion);
+        this.coberturaServiciosPonderada = obtenerCoberturaPonderada(ciclos, ratioCoberturaServicios);
+        this.eficienciaTransporte = obtenerEficienciaTransporte(ciclos);
+        this.estabilidadMedia = calcularEstabilidadMedia(ciclos, estabilidadBasica);
+        this.bienestarMinimo = calcularBienestarMinimo(ciclos, bienestar);
+        this.bienestarMaximo = calcularBienestarMaximo(ciclos, bienestar);
+        this.bienestarUltimo = obtenerBienestarUltimo(ciclos, bienestar);
+        this.tendenciaEstabilidad = calcularTendenciaEstabilidad(ciclos);
+        this.tendenciaContaminacion = calcularTendenciaContaminacion(ciclos);
+        this.necesidadExpansionDetectada = necesidadExpansionDetectada || ciclos.stream().anyMatch(EstadoCiclo::isNecesidadExpansionDetectada);
+        this.historialReiniciadoPorExpansion = historialReiniciadoPorExpansion;
+    }
+
+    private static List<EstadoCiclo> crearHistorialCompatibilidad(
+            int bloquesTotales,
+            int bloquesActivos,
+            EstadoSimulacion estadoSimulacion,
+            double densidad,
+            int energiaProducida,
+            int consumoEnergetico,
+            int equilibrioEnergetico,
+            int demandaServicios,
+            int coberturaServicios,
+            int presionIndustrial,
+            int soporteTransporte,
+            int contaminacion,
+            double bienestar,
+            double estabilidadBasica,
+            double ratioCoberturaServicios) {
+        if (bloquesTotales == 0 || bloquesActivos == 0) {
+            return List.of();
+        }
+        return List.of(new EstadoCiclo(
+                1,
+                energiaProducida,
+                consumoEnergetico,
+                equilibrioEnergetico,
+                demandaServicios,
+                coberturaServicios,
+                clamp01(ratioCoberturaServicios),
+                soporteTransporte > 0 ? 1.0 : 0.0,
+                presionIndustrial,
+                soporteTransporte,
+                contaminacion,
+                contaminacion,
+                bienestar,
+                estabilidadBasica,
+                densidad,
+                false,
+                estadoSimulacion
+        ));
+    }
+
+    private static MotivoParadaSimulacion inferirMotivoParada(int bloquesTotales, int bloquesActivos) {
+        if (bloquesTotales == 0) {
+            return MotivoParadaSimulacion.CIUDAD_VACIA;
+        }
+        if (bloquesActivos == 0) {
+            return MotivoParadaSimulacion.SIN_BLOQUES_ACTIVOS;
+        }
+        return MotivoParadaSimulacion.CICLOS_COMPLETADOS;
+    }
+
+    private static void validarCiclos(List<EstadoCiclo> ciclos) {
+        int contaminacionAnterior = -1;
+        for (int i = 0; i < ciclos.size(); i++) {
+            EstadoCiclo ciclo = ciclos.get(i);
+            if (ciclo == null) {
+                throw new ResultadoSimulacionInvalidoException("La secuencia de ciclos no puede contener nulos.");
+            }
+            if (ciclo.getNumeroCiclo() != i + 1) {
+                throw new ResultadoSimulacionInvalidoException("Los ciclos deben estar numerados desde 1 sin saltos.");
+            }
+            if (ciclo.getContaminacionAcumulada() < contaminacionAnterior) {
+                throw new ResultadoSimulacionInvalidoException("La contaminacion acumulada debe ser creciente.");
+            }
+            contaminacionAnterior = ciclo.getContaminacionAcumulada();
+        }
+    }
+
+    private static int calcularContaminacionAcumulada(List<EstadoCiclo> ciclos, int valorCompatibilidad) {
+        if (ciclos.isEmpty()) {
+            return valorCompatibilidad;
+        }
+        return ciclos.get(ciclos.size() - 1).getContaminacionAcumulada();
+    }
+
+    private static double obtenerCoberturaPonderada(List<EstadoCiclo> ciclos, double ratioCoberturaServicios) {
+        if (ciclos.isEmpty()) {
+            return clamp01(ratioCoberturaServicios);
+        }
+        return ciclos.get(ciclos.size() - 1).getCoberturaServiciosPonderada();
+    }
+
+    private static double obtenerEficienciaTransporte(List<EstadoCiclo> ciclos) {
+        if (ciclos.isEmpty()) {
+            return 0.0;
+        }
+        return ciclos.get(ciclos.size() - 1).getEficienciaTransporte();
+    }
+
+    private static double calcularEstabilidadMedia(List<EstadoCiclo> ciclos, double valorCompatibilidad) {
+        if (ciclos.isEmpty()) {
+            return valorCompatibilidad;
+        }
+        return ciclos.stream().mapToDouble(EstadoCiclo::getEstabilidad).average().orElse(valorCompatibilidad);
+    }
+
+    private static double calcularBienestarMinimo(List<EstadoCiclo> ciclos, double valorCompatibilidad) {
+        if (ciclos.isEmpty()) {
+            return valorCompatibilidad;
+        }
+        return ciclos.stream().mapToDouble(EstadoCiclo::getBienestar).min().orElse(valorCompatibilidad);
+    }
+
+    private static double calcularBienestarMaximo(List<EstadoCiclo> ciclos, double valorCompatibilidad) {
+        if (ciclos.isEmpty()) {
+            return valorCompatibilidad;
+        }
+        return ciclos.stream().mapToDouble(EstadoCiclo::getBienestar).max().orElse(valorCompatibilidad);
+    }
+
+    private static double obtenerBienestarUltimo(List<EstadoCiclo> ciclos, double valorCompatibilidad) {
+        if (ciclos.isEmpty()) {
+            return valorCompatibilidad;
+        }
+        return ciclos.get(ciclos.size() - 1).getBienestar();
+    }
+
+    private static double calcularTendenciaEstabilidad(List<EstadoCiclo> ciclos) {
+        if (ciclos.size() < 2) {
+            return 0.0;
+        }
+        return ciclos.get(ciclos.size() - 1).getEstabilidad() - ciclos.get(0).getEstabilidad();
+    }
+
+    private static int calcularTendenciaContaminacion(List<EstadoCiclo> ciclos) {
+        if (ciclos.size() < 2) {
+            return 0;
+        }
+        return ciclos.get(ciclos.size() - 1).getContaminacionAcumulada() - ciclos.get(0).getContaminacionAcumulada();
+    }
+
+    private static double clamp01(double valor) {
+        if (valor < 0.0) {
+            return 0.0;
+        }
+        if (valor > 1.0) {
+            return 1.0;
+        }
+        return valor;
     }
 
     public int getCantidadPorTipo(TipoBloque tipo) {
@@ -193,9 +445,11 @@ public class ResultadoSimulacion {
     public String getResumenSimulacion() {
         return String.format(
                 java.util.Locale.ROOT,
-                "Resumen de [%s]: Estado=%s | Bienestar=%.2f | Estabilidad=%.2f | BalanceEnergia=%d",
+                "Resumen de [%s]: Estado=%s | Ciclos=%d | Parada=%s | Bienestar=%.2f | Estabilidad=%.2f | BalanceEnergia=%d",
                 nombreCiudad,
                 estadoSimulacion,
+                ciclosEjecutados,
+                motivoParada,
                 bienestar,
                 estabilidadBasica,
                 equilibrioEnergetico
@@ -220,8 +474,13 @@ public class ResultadoSimulacion {
         sb.append("Presion industrial: ").append(presionIndustrial).append("\n");
         sb.append("Soporte transporte: ").append(soporteTransporte).append("\n");
         sb.append("Contaminacion: ").append(contaminacion).append("\n");
+        sb.append("Contaminacion acumulada: ").append(contaminacionAcumulada).append("\n");
         sb.append("Bienestar: ").append(bienestar).append("\n");
         sb.append("Estabilidad: ").append(estabilidadBasica).append("\n");
+        sb.append("Ciclos ejecutados: ").append(ciclosEjecutados).append("\n");
+        sb.append("Motivo de parada: ").append(motivoParada).append("\n");
+        sb.append("Cobertura ponderada: ").append(coberturaServiciosPonderada).append("\n");
+        sb.append("Eficiencia transporte: ").append(eficienciaTransporte).append("\n");
         sb.append("Ratio energetico: ").append(ratioEnergetico).append("\n");
         sb.append("Ratio servicios: ").append(ratioCoberturaServicios).append("\n");
         sb.append("Estado: ").append(estadoSimulacion).append("\n");
@@ -318,5 +577,61 @@ public class ResultadoSimulacion {
 
     public double getRatioCoberturaServicios() {
         return ratioCoberturaServicios;
+    }
+
+    public List<EstadoCiclo> getCiclos() {
+        return Collections.unmodifiableList(ciclos);
+    }
+
+    public int getCiclosEjecutados() {
+        return ciclosEjecutados;
+    }
+
+    public MotivoParadaSimulacion getMotivoParada() {
+        return motivoParada;
+    }
+
+    public int getContaminacionAcumulada() {
+        return contaminacionAcumulada;
+    }
+
+    public double getCoberturaServiciosPonderada() {
+        return coberturaServiciosPonderada;
+    }
+
+    public double getEficienciaTransporte() {
+        return eficienciaTransporte;
+    }
+
+    public double getEstabilidadMedia() {
+        return estabilidadMedia;
+    }
+
+    public double getBienestarMinimo() {
+        return bienestarMinimo;
+    }
+
+    public double getBienestarMaximo() {
+        return bienestarMaximo;
+    }
+
+    public double getBienestarUltimo() {
+        return bienestarUltimo;
+    }
+
+    public double getTendenciaEstabilidad() {
+        return tendenciaEstabilidad;
+    }
+
+    public int getTendenciaContaminacion() {
+        return tendenciaContaminacion;
+    }
+
+    public boolean isNecesidadExpansionDetectada() {
+        return necesidadExpansionDetectada;
+    }
+
+    public boolean isHistorialReiniciadoPorExpansion() {
+        return historialReiniciadoPorExpansion;
     }
 }
