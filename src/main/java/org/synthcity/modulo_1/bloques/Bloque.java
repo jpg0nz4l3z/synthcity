@@ -69,4 +69,12 @@ public abstract class Bloque {
 
 
     public abstract int getContaminacion();
+
+    public int getRadioInfluencia() {
+        return 0;
+    }
+
+    public boolean esGeneradorDemanda() {
+        return false;
+    }
 }

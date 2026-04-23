@@ -46,6 +46,11 @@ public class BloqueServicios extends Bloque {
     }
 
     @Override
+    public int getRadioInfluencia() {
+        return ReglasSimulacion.RADIO_INFLUENCIA_SERVICIOS;
+    }
+
+    @Override
     public String toString() {
         return "BloqueServicios [posicion=" + getPosicion() +
                 ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";

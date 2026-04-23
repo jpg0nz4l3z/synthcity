@@ -16,6 +16,7 @@ public class Ciudad {
     private int expansionesRealizadas = 0;
     private final int maximoExpansiones = 5;
     private double umbralExpansion = 0.80;
+    private boolean expandidaDesdeUltimaSimulacion;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -38,6 +39,7 @@ public class Ciudad {
         this.tablero = new Bloque[filas][columnas];
         this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas = 0;
+        this.expandidaDesdeUltimaSimulacion = false;
     }
 
     private TipoEstructuralCiudad calcularTipoEstructural() {
@@ -168,6 +170,17 @@ public class Ciudad {
                 .toList();
     }
 
+    public List<Bloque> getBloquesActivosConPosicion() {
+        return listarBloquesActivos()
+                .stream()
+                .filter(bloque -> bloque.getPosicion() != null)
+                .toList();
+    }
+
+    public List<Bloque> listarBloquesActivosConPosicion() {
+        return getBloquesActivosConPosicion();
+    }
+
     public int capacidadMaxima() {
         return filas * columnas;
     }
@@ -295,6 +308,15 @@ public class Ciudad {
         this.columnas = nuevasColumnas;
         this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas++;
+        this.expandidaDesdeUltimaSimulacion = true;
+    }
+
+    public boolean fueExpandidaDesdeUltimaSimulacion() {
+        return expandidaDesdeUltimaSimulacion;
+    }
+
+    public void marcarSimulacionEjecutada() {
+        this.expandidaDesdeUltimaSimulacion = false;
     }
 
     public ResumenEstructuralCiudad getResumenEstructural() {
