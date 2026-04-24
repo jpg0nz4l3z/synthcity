@@ -16,6 +16,7 @@ public class Ciudad {
     private int expansionesRealizadas = 0;
     private final int maximoExpansiones = 5;
     private double umbralExpansion = 0.80;
+    private static final int INCREMENTO_EXPANSION = 10;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -260,41 +261,59 @@ public class Ciudad {
         expandir(nuevasFilas, nuevasColumnas);
     }
 
-    public void expandir(int nuevasFilas, int nuevasColumnas) {
-        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
-            throw new ExpansionCiudadException(
-                    "No se puede expandir la ciudad a " + nuevasFilas + "x" + nuevasColumnas +
-                            " porque las nuevas dimensiones deben ser mayores que las actuales (" +
-                            this.filas + "x" + this.columnas + ").");
+    // 1. EL DISPARADOR
+    // Este metodo llama al de abajo usando tus constantes
+    public void expandir() {
+        if (expansionesRealizadas >= maximoExpansiones) {
+            System.out.println("Límite de expansiones alcanzado.");
+            return;
+        }
+
+        // Usamos las variables para calcular el siguiente paso
+        int nuevasFilas = Math.min(this.filas + INCREMENTO_EXPANSION, MAX_FILAS);
+        int nuevasColumnas = Math.min(this.columnas + INCREMENTO_EXPANSION, MAX_COLUMNAS);
+
+        // Llamamos al metodo de lógica operativa
+        expandir(nuevasFilas, nuevasColumnas);
+    }
+
+    // 2. LA LÓGICA OPERATIVA
+    // Editamos el metodo que ya tenías estructurado
+    public ResultadoExpansion expandir(int nuevasFilas, int nuevasColumnas) {
+        // Guardamos dimensiones actuales para el informe
+        int fAnt = this.filas;
+        int cAnt = this.columnas;
+
+        // Validaciones de seguridad (Invariantes del PDF)
+        if (expansionesRealizadas >= maximoExpansiones) {
+            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Máximo de expansiones alcanzado.");
         }
 
         if (nuevasFilas > MAX_FILAS || nuevasColumnas > MAX_COLUMNAS) {
-            throw new ExpansionCiudadException(
-                    "No se puede expandir la ciudad a " + nuevasFilas + "x" +
-                            nuevasColumnas +
-                            " porque supera los límites globales (max. " + MAX_FILAS + " filas y " +
-                            MAX_COLUMNAS + " columnas).");
+            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Supera el límite global de 100x100.");
         }
 
-        if (expansionesRealizadas >= maximoExpansiones) {
-            throw new ExpansionCiudadException(
-                    "No se puede expandir: se ha alcanzado el máximo de expansiones permitidas (" +
-                            maximoExpansiones + ").");
-        }
-
+        // --- MIGRACIÓN DE DATOS (Tarea de Persona 1) ---
+        // Creamos el nuevo tablero más grande
         Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
 
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
+        // Copiamos los bloques de tu matriz 'tablero' a la nueva
+        for (int i = 0; i < fAnt; i++) {
+            for (int j = 0; j < cAnt; j++) {
                 nuevoTablero[i][j] = this.tablero[i][j];
             }
         }
 
+        // Actualizamos los atributos de tu clase
         this.tablero = nuevoTablero;
         this.filas = nuevasFilas;
         this.columnas = nuevasColumnas;
-        this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas++;
+
+        // Recalculamos el tipo estructural
+        calcularTipoEstructural();
+
+        return new ResultadoExpansion(true, fAnt, cAnt, nuevasFilas, nuevasColumnas, "Expansión exitosa.");
     }
 
     public ResumenEstructuralCiudad getResumenEstructural() {
