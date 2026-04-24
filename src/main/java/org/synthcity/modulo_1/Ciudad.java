@@ -332,5 +332,33 @@ public class Ciudad {
         );
 
     }
+    // === API ESPACIAL (Requisito Sprint 3 para el Módulo 2) ===
+
+    /**
+     * Permite al simulador saber las coordenadas exactas de los bloques que están funcionando.
+     */
+    public List<Posicion> getPosicionesBloquesActivos() {
+        List<Posicion> posicionesActivas = new ArrayList<>();
+
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                // Como ya importaste Bloque correctamente, esto no dará error
+                if (tablero[i][j] != null && tablero[i][j].estaActivo()) {
+                    posicionesActivas.add(new Posicion(i, j));
+                }
+            }
+        }
+        return posicionesActivas;
+    }
+
+    /**
+     * Permite al simulador pedir un bloque concreto sabiendo su posición.
+     */
+    public Bloque getBloque(Posicion pos) {
+        if (pos.getFila() < 0 || pos.getFila() >= filas || pos.getColumna() < 0 || pos.getColumna() >= columnas) {
+            throw new PosicionFueraDeLimitesException("La coordenada consultada está fuera de los límites de la ciudad.");
+        }
+        return tablero[pos.getFila()][pos.getColumna()];
+    }
 }
 
