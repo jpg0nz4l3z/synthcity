@@ -9,11 +9,16 @@ public abstract class Bloque {
     private TipoBloque tipoBloque;
     private Posicion posicion;
     private boolean activo;
+    private int radioInfluencia;
+    private boolean generadorDemanda;
 
-    public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo) {
+
+    public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo, int radioInfluencia, boolean generadorDemanda) {
         this.tipoBloque = tipoBloque;
         this.posicion = posicion;
         this.activo = activo;
+        this.radioInfluencia = radioInfluencia;
+        this.generadorDemanda = generadorDemanda;
     }
 
     public TipoBloque getTipo() {
@@ -40,6 +45,8 @@ public abstract class Bloque {
         this.activo = estado;
     }
 
+
+
     @Override
     public String toString() {
         return "Bloque [" +
@@ -49,6 +56,7 @@ public abstract class Bloque {
                 "]";
     }
 
+    // METODOS ABSTRACTOS
 
     public abstract int getProduccionEnergia();
 
@@ -69,4 +77,9 @@ public abstract class Bloque {
 
 
     public abstract int getContaminacion();
+
+    public abstract int getRadioInfluencia();
+
+    public abstract boolean esGeneradorDemanda();
+
 }

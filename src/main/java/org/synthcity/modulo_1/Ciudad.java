@@ -5,7 +5,7 @@ import org.synthcity.modulo_1.bloques.Bloque;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ciudad {
+public class Ciudad implements  Expansionable {
     private String nombre;
     private int filas;
     private int columnas;
@@ -261,14 +261,12 @@ public class Ciudad {
         expandir(nuevasFilas, nuevasColumnas);
     }
 
-    // 1. EL DISPARADOR
-    // Este metodo llama al de abajo usando tus constantes
+    // Expansión automática (sin parámetros )
     public void expandir() {
         if (expansionesRealizadas >= maximoExpansiones) {
             System.out.println("Límite de expansiones alcanzado.");
             return;
         }
-
         // Usamos las variables para calcular el siguiente paso
         int nuevasFilas = Math.min(this.filas + INCREMENTO_EXPANSION, MAX_FILAS);
         int nuevasColumnas = Math.min(this.columnas + INCREMENTO_EXPANSION, MAX_COLUMNAS);
@@ -278,13 +276,14 @@ public class Ciudad {
     }
 
     // 2. LA LÓGICA OPERATIVA
-    // Editamos el metodo que ya tenías estructurado
+    // Editamos el metodo que ya teníamos estructurado
+    @Override
     public ResultadoExpansion expandir(int nuevasFilas, int nuevasColumnas) {
         // Guardamos dimensiones actuales para el informe
         int fAnt = this.filas;
         int cAnt = this.columnas;
 
-        // Validaciones de seguridad (Invariantes del PDF)
+        // --- VALIDACIONES DE SEGURIDAD ---
         if (expansionesRealizadas >= maximoExpansiones) {
             return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Máximo de expansiones alcanzado.");
         }
@@ -293,7 +292,11 @@ public class Ciudad {
             return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Supera el límite global de 100x100.");
         }
 
-        // --- MIGRACIÓN DE DATOS (Tarea de Persona 1) ---
+        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
+            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Las nuevas dimensiones deben ser estrictamente mayores.");
+        }
+
+        // --- (MIGRACIÓN DE DATOS ) ---
         // Creamos el nuevo tablero más grande
         Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
 
@@ -303,7 +306,6 @@ public class Ciudad {
                 nuevoTablero[i][j] = this.tablero[i][j];
             }
         }
-
         // Actualizamos los atributos de tu clase
         this.tablero = nuevoTablero;
         this.filas = nuevasFilas;
@@ -311,7 +313,7 @@ public class Ciudad {
         this.expansionesRealizadas++;
 
         // Recalculamos el tipo estructural
-        calcularTipoEstructural();
+         this.tipoEstructural=calcularTipoEstructural();
 
         return new ResultadoExpansion(true, fAnt, cAnt, nuevasFilas, nuevasColumnas, "Expansión exitosa.");
     }

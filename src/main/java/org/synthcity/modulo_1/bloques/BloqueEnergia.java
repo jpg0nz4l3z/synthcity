@@ -49,4 +49,15 @@ public class BloqueEnergia extends Bloque {
     public String toString() {
         return "BloqueEnergia [posicion=" + getPosicion() + ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";
     }
+    @Override
+    public int getRadioInfluencia() {
+        // TODO: Persona 2 - Asignar el radio correcto para la simulación
+        return 0;
+    }
+
+    @Override
+    public boolean esGeneradorDemanda() {
+        // TODO: Persona 2 - Definir si este bloque genera demanda
+        return false;
+    }
 }
