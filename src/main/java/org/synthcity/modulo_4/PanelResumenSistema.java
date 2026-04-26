@@ -115,6 +115,50 @@ public class PanelResumenSistema extends VBox {
         }
     }
 
+    public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, ResultadoSimulacion historial) {
+        if (ciudad == null || evaluacion == null) {
+            limpiar();
+            return;
+        }
+
+        nombreCiudad.setText("Nombre: " + ciudad.getNombre());
+        tipoEstructural.setText("Tipo: " + ciudad.getTipoEstructural());
+        numeroBloques.setText("Bloques: " + ciudad.getOcupacionActual());
+        densidad.setText("Densidad: " + String.format(Locale.ROOT, "%.2f", ciudad.getDensidad()));
+
+        nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
+        score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
+        mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
+        
+        if (evaluacion.tieneAlertas()) {
+            String textoAlertas = evaluacion.getAlertas().stream()
+                    .map(AlertaEvaluacion::name)
+                    .collect(Collectors.joining(", "));
+            alertasActivas.setText("Alertas: " + textoAlertas);
+        } else {
+            alertasActivas.setText("Sin alertas");
+        }
+
+        // Simulación — cuando M2 entregue getCiclosEjecutados() y getMotivoParada()
+        // sustituye las siguientes líneas por las llamadas reales
+        if (historial != null) {
+            ciclosEjecutados.setText("Ciclos: (pendiente M2)");
+            motivoParada.setText("Parada: " + historial.getEstadoSimulacion());
+        } else {
+            ciclosEjecutados.setText("Ciclos: Sin datos");
+            motivoParada.setText("Parada: Sin datos");
+        }
+
+        // Tendencia — cuando M3 entregue getTendenciaTemporal()
+        // sustituye por: tendenciaTemporal.setText("Tendencia: " + traducirTendencia(evaluacion.getTendenciaTemporal().name()));
+        tendenciaTemporal.setText("Tendencia: (pendiente M3)");
+
+        // Expansión — cuando M3 entregue fueExpandida() y getResultadoExpansion()
+        // sustituye por el bloque real
+        seccionExpansion.setVisible(false);
+        seccionExpansion.setManaged(false);
+    }
+
     public void limpiar() {
         nombreCiudad.setText("Nombre: ");
         tipoEstructural.setText("Tipo: ");
