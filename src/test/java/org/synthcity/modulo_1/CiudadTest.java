@@ -338,32 +338,32 @@ class CiudadTest {
     }
 
     @Test
-    void expansionConDimensionesMenoresOIguales_lanzaExpansionCiudadException() {
+    void expansionConDimensionesMenoresOIguales_retornaExpansionFallida() {
         Ciudad ciudad = new Ciudad("CiudadB", 20, 20);
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(20, 25));
+        ResultadoExpansion r1 = ciudad.expandir(20, 25);
+        assertFalse(r1.isExitosa());
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(25, 20));
+        ResultadoExpansion r2 = ciudad.expandir(25, 20);
+        assertFalse(r2.isExitosa());
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(10, 10));
+        ResultadoExpansion r3 = ciudad.expandir(10, 10);
+        assertFalse(r3.isExitosa());
     }
 
     @Test
-    void expansionPorEncimaDelLimiteGlobal_lanzaExpansionCiudadException() {
+    void expansionPorEncimaDelLimiteGlobal_retornaExpansionFallida() {
         Ciudad ciudad = new Ciudad("CiudadC", 20, 20);
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(101, 50));
+        ResultadoExpansion r1 = ciudad.expandir(101, 50);
+        assertFalse(r1.isExitosa());
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(50, 101));
+        ResultadoExpansion r2 = ciudad.expandir(50, 101);
+        assertFalse(r2.isExitosa());
     }
 
     @Test
-    void expansionSuperandoElMaximoDeExpansiones_lanzaExpansionCiudadException() {
+    void expansionSuperandoElMaximoDeExpansiones_retornaExpansionFallida() {
         Ciudad ciudad = new Ciudad("CiudadD", 10, 10);
 
         ciudad.expandir(20, 20);
@@ -372,8 +372,9 @@ class CiudadTest {
         ciudad.expandir(50, 50);
         ciudad.expandir(60, 60);
 
-        assertThrows(ExpansionCiudadException.class, () ->
-                ciudad.expandir(70, 70));
+        // La sexta expansión ya no lanza excepción, sino que devuelve 'false'
+        ResultadoExpansion r = ciudad.expandir(70, 70);
+        assertFalse(r.isExitosa());
     }
 
     @Test
