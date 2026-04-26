@@ -17,6 +17,7 @@ public class Ciudad implements  Expansionable {
     private final int maximoExpansiones = 5;
     private double umbralExpansion = 0.80;
     private static final int INCREMENTO_EXPANSION = 10;
+    private boolean expandidaDesdeUltimaSimulacion;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -361,6 +362,18 @@ public class Ciudad implements  Expansionable {
             throw new PosicionFueraDeLimitesException("La coordenada consultada está fuera de los límites de la ciudad.");
         }
         return tablero[pos.getFila()][pos.getColumna()];
+    }
+
+    public boolean fueExpandidaDesdeUltimaSimulacion(){
+        return expandidaDesdeUltimaSimulacion;
+    }
+
+    public void marcarSimulacionEjecutada(){
+        expandidaDesdeUltimaSimulacion = false;
+    }
+
+    public int getExpansionesRealizadas() {
+        return expansionesRealizadas;
     }
 }
 

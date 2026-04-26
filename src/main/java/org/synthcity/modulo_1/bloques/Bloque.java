@@ -21,6 +21,12 @@ public abstract class Bloque {
         this.generadorDemanda = generadorDemanda;
     }
 
+    public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo) {
+        this.tipoBloque = tipoBloque;
+        this.posicion = posicion;
+        this.activo = activo;
+    }
+
     public TipoBloque getTipo() {
         return tipoBloque;
     }
