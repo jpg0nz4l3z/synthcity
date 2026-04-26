@@ -1,11 +1,13 @@
-package org.synthcity.modulo_1;
+package org.synthcity.modulo_1.bloques;
 
+import org.synthcity.modulo_1.Posicion;
+import org.synthcity.modulo_1.TipoBloque;
 import org.synthcity.modulo_2.ReglasSimulacion;
 
-public class BloqueServicios extends Bloque {
+public class BloqueIndustrial extends Bloque {
 
-    public BloqueServicios(Posicion posicion) {
-        super(TipoBloque.SERVICIOS, posicion, true);
+    public BloqueIndustrial(Posicion posicion) {
+        super(TipoBloque.INDUSTRIAL, posicion, true);
     }
 
     @Override
@@ -15,7 +17,7 @@ public class BloqueServicios extends Bloque {
 
     @Override
     public int getConsumoEnergetico() {
-        return ReglasSimulacion.CONSUMO_SERVICIOS;
+        return ReglasSimulacion.CONSUMO_INDUSTRIAL;
     }
 
     @Override
@@ -25,12 +27,12 @@ public class BloqueServicios extends Bloque {
 
     @Override
     public int getCoberturaServicios() {
-        return ReglasSimulacion.COBERTURA_POR_SERVICIO;
+        return 0;
     }
 
     @Override
     public int getPresionIndustrial() {
-        return 0;
+        return ReglasSimulacion.PRESION_POR_INDUSTRIAL;
     }
 
     @Override
@@ -40,12 +42,12 @@ public class BloqueServicios extends Bloque {
 
     @Override
     public int getContaminacion() {
-        return 0;
+        return ReglasSimulacion.CONTAMINACION_POR_INDUSTRIAL;
     }
 
     @Override
     public int getRadioInfluencia(){
-        return ReglasSimulacion.RADIO_COBERTURA_SERVICIOS;
+        return 0;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class BloqueServicios extends Bloque {
 
     @Override
     public String toString() {
-        return "BloqueServicios [posicion=" + getPosicion() +
+        return "BloqueIndustrial [posicion=" + getPosicion() +
                 ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";
     }
 }

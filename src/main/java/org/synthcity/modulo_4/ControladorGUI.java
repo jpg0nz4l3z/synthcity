@@ -1,7 +1,7 @@
 package org.synthcity.modulo_4;
 
 import org.synthcity.modulo_1.Ciudad;
-import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class ControladorGUI {

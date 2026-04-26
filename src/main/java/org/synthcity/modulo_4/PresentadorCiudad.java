@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_3.MetricaCiudad;
-import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
 public class PresentadorCiudad {

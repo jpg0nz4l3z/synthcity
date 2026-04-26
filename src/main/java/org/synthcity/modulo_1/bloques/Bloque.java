@@ -1,5 +1,8 @@
-package org.synthcity.modulo_1;
+package org.synthcity.modulo_1.bloques;
 
+
+import org.synthcity.modulo_1.Posicion;
+import org.synthcity.modulo_1.TipoBloque;
 
 public abstract class Bloque {
 

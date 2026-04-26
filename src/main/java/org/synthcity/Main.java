@@ -5,20 +5,14 @@ import javafx.stage.Stage;
 
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.Posicion;
-import org.synthcity.modulo_1.BloqueResidencial;
-import org.synthcity.modulo_1.BloqueEnergia;
-import org.synthcity.modulo_1.BloqueIndustrial;
-import org.synthcity.modulo_1.BloqueServicios;
-import org.synthcity.modulo_1.BloqueTransporte;
+import org.synthcity.modulo_1.bloques.*;
 
 import org.synthcity.modulo_2.SimuladorCiudad;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 
 import org.synthcity.modulo_3.EvaluadorCiudad;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
-import org.synthcity.modulo_3.PredictorCiudad;
-import org.synthcity.modulo_3.PredictionInput;
-import org.synthcity.modulo_3.PredictionResult;
+import org.synthcity.modulo_3.prediccion.*;
 
 import org.synthcity.modulo_4.ControladorGUI;
 import org.synthcity.modulo_4.DatabaseManager;
@@ -26,6 +20,12 @@ import org.synthcity.modulo_4.PanelCiudad;
 import org.synthcity.modulo_4.PanelResumenSistema;
 import org.synthcity.modulo_4.ResultadoRepository;
 import org.synthcity.modulo_4.VentanaPrincipal;
+
+class Launcher {
+    public static void main(String[]args){
+        Application.launch(Main.class, args);
+    }
+}
 
 public class Main extends Application {
 

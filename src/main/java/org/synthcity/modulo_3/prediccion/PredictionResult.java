@@ -1,4 +1,6 @@
-package org.synthcity.modulo_3;
+package org.synthcity.modulo_3.prediccion;
+
+import org.synthcity.modulo_3.TendenciaPredicha;
 
 public class PredictionResult {
 
