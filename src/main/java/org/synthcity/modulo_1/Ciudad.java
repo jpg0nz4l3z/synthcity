@@ -314,6 +314,8 @@ public class Ciudad implements  Expansionable {
         this.expansionesRealizadas++;
 
         // Recalculamos el tipo estructural
+        this.expandidaDesdeUltimaSimulacion = true;
+
          this.tipoEstructural=calcularTipoEstructural();
 
         return new ResultadoExpansion(true, fAnt, cAnt, nuevasFilas, nuevasColumnas, "Expansión exitosa.");
@@ -369,11 +371,15 @@ public class Ciudad implements  Expansionable {
     }
 
     public void marcarSimulacionEjecutada(){
-        expandidaDesdeUltimaSimulacion = false;
+        this.expandidaDesdeUltimaSimulacion = false;
     }
 
     public int getExpansionesRealizadas() {
         return expansionesRealizadas;
+    }
+
+    public List<Bloque> getBloquesActivosConPosicion() {
+        return listarBloquesActivos();
     }
 }
 
