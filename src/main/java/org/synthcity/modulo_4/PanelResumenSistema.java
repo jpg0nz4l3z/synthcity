@@ -8,6 +8,11 @@ import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_3.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
+import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.AlertaEvaluacion;
+import java.util.stream.Collectors;
+import javafx.scene.control.Separator;
+
 public class PanelResumenSistema extends VBox {
 
     private final Label nombreCiudad;
