@@ -51,6 +51,9 @@ public class PanelResumenSistema extends VBox {
         mensajeEvaluacion = new Label("Mensaje evaluacion: ");
         mensajeEvaluacion.setWrapText(true);
         evaluacionBox.getChildren().addAll(nivelEvaluacion, score, mensajeEvaluacion);
+        alertasActivas = new Label("Alertas: ");
+        alertasActivas.setWrapText(true);
+        evaluacionBox.getChildren().add(alertasActivas);
 
         Label tituloPrediccion = new Label("--- PREDICCION ---");
         VBox prediccionBox = new VBox(5);
