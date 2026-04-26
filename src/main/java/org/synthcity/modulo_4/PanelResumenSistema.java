@@ -59,6 +59,29 @@ public class PanelResumenSistema extends VBox {
         mensajePrediccion = new Label("Mensaje prediccion: ");
         mensajePrediccion.setWrapText(true);
         prediccionBox.getChildren().addAll(tendencia, scorePredicho, mensajePrediccion);
+        // sección simulación
+        Label tituloSimulacion = new Label("--- SIMULACION ---");
+        VBox simulacionBox = new VBox(5);
+        ciclosEjecutados  = new Label("Ciclos: ");
+        motivoParada      = new Label("Parada: ");
+        tendenciaTemporal = new Label("Tendencia: ");
+        simulacionBox.getChildren().addAll(ciclosEjecutados, motivoParada, tendenciaTemporal);
+
+        // sección expansión (oculta por defecto)
+        expansionDimensiones    = new Label();
+        expansionTipoEstructural = new Label();
+        Label expansionTitulo   = new Label("⚡ EXPANSION AUTOMATICA");
+        expansionTitulo.setStyle("-fx-font-weight: bold; -fx-text-fill: #CC6600;");
+        seccionExpansion = new VBox(4);
+        seccionExpansion.setStyle(
+                "-fx-background-color: #FFF3E0; -fx-border-color: #FF8C00;" +
+                        "-fx-border-width: 1; -fx-padding: 8;"
+        );
+        seccionExpansion.getChildren().addAll(
+                expansionTitulo, expansionDimensiones, expansionTipoEstructural
+        );
+        seccionExpansion.setVisible(false);
+        seccionExpansion.setManaged(false);
 
         getChildren().addAll(tituloCiudad, infoCiudad, tituloEvaluacion, evaluacionBox, tituloPrediccion, prediccionBox);
     }
