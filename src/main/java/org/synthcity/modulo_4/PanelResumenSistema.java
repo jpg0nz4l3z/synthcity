@@ -20,6 +20,13 @@ public class PanelResumenSistema extends VBox {
     private final Label tendencia;
     private final Label scorePredicho;
     private final Label mensajePrediccion;
+    private final Label ciclosEjecutados;
+    private final Label motivoParada;
+    private final Label tendenciaTemporal;
+    private final Label alertasActivas;
+    private final VBox seccionExpansion;
+    private final Label expansionDimensiones;
+    private final Label expansionTipoEstructural;
 
     public PanelResumenSistema() {
         setSpacing(10);
