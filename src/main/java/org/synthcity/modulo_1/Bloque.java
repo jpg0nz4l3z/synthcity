@@ -46,6 +46,14 @@ public abstract class Bloque {
                 "]";
     }
 
+    public int getRadioInfluencia() {
+        return 1;
+    }
+
+    public boolean esGeneradorDemanda() {
+        return this.getTipo() == TipoBloque.RESIDENCIAL;
+    }
+
 
     public abstract int getProduccionEnergia();
 
