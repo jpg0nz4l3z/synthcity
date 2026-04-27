@@ -33,9 +33,41 @@ public class DatabaseManager {
                 "ratio_cobertura DOUBLE, " +
                 "contaminacion DOUBLE, " +
                 "estabilidad_basica DOUBLE, " +
+                "fue_expandida BOOLEAN DEFAULT FALSE, " +
                 "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
-
+        ejecutarDDL(sql, "Tabla 'resultados' inicializada.");
+    }
+    public void inicializarTablaHistorial() {
+        String sql = "CREATE TABLE IF NOT EXISTS historial_simulacion (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre_ciudad VARCHAR(100), " +
+                "ciclos_ejecutados INT, " +
+                "motivo_parada VARCHAR(50), " +
+                "estabilidad_media DOUBLE, " +
+                "contaminacion_acumulada DOUBLE, " +
+                "equilibrio_energetico_ultimo INT, " +
+                "tipo_estructural VARCHAR(50), " +
+                "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+        ejecutarDDL(sql, "Tabla 'historial_simulacion' inicializada.");
+    }
+    public void inicializarTablaDataset() {
+        String sql = "CREATE TABLE IF NOT EXISTS dataset (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre_ciudad VARCHAR(100), " +
+                "densidad DOUBLE, " +
+                "ratio_energetico DOUBLE, " +
+                "cobertura_servicios DOUBLE, " +
+                "contaminacion DOUBLE, " +
+                "estabilidad DOUBLE, " +
+                "score_viabilidad DOUBLE, " +
+                "objetivo INT, " +
+                "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+        ejecutarDDL(sql, "Tabla 'dataset' inicializada.");
+    }
+    private void ejecutarDDL(String sql, String mensajeOk) {
         try (Connection conn = getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
