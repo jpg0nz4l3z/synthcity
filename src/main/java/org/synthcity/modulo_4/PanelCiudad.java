@@ -9,7 +9,9 @@ import javafx.scene.text.Text;
 import org.synthcity.modulo_1.Bloque;
 import org.synthcity.modulo_1.Ciudad;
 
+
 public class PanelCiudad extends GridPane {
+
     private Ciudad ciudadActual;
 
     public PanelCiudad() {
@@ -17,14 +19,50 @@ public class PanelCiudad extends GridPane {
         setAlignment(Pos.CENTER);
         setHgap(1);
         setVgap(1);
-        setMinSize(500, 500);  // ← IMPORTANTE: setMinSize, no setPrefSize
+        setMinSize(500, 500);
         setStyle("-fx-background-color: #FAFAFA;");
     }
 
+
     public void mostrarCiudad(Ciudad ciudad) {
+        System.out.println("[PanelCiudad] mostrarCiudad() — "
+                + (ciudad != null ? ciudad.getNombre()
+                + " (" + ciudad.getFilas() + "x" + ciudad.getColumnas() + ")"
+                : "NULL"));
         this.ciudadActual = ciudad;
         refrescar();
     }
+
+
+    public void reconstruirTrasExpansion(Ciudad ciudadExpandida) {
+        if (ciudadExpandida == null) {
+            System.out.println("[PanelCiudad][EXPANSION] ERROR: ciudad expandida es NULL.");
+            return;
+        }
+
+        System.out.println("[PanelCiudad][EXPANSION] *** Reconstrucción completa del grid ***");
+        System.out.println("[PanelCiudad][EXPANSION] Nuevas dimensiones: "
+                + ciudadExpandida.getFilas() + "x" + ciudadExpandida.getColumnas());
+        System.out.println("[PanelCiudad][EXPANSION] Tipo estructural: "
+                + ciudadExpandida.getTipoEstructural());
+        System.out.println("[PanelCiudad][EXPANSION] Capacidad máxima: "
+                + ciudadExpandida.capacidadMaxima());
+
+
+        this.ciudadActual = ciudadExpandida;
+
+
+        limpiar();
+
+
+        refrescar();
+
+        System.out.println("[PanelCiudad][EXPANSION] Grid reconstruido correctamente. "
+                + "Celdas totales: "
+                + (ciudadExpandida.getFilas() * ciudadExpandida.getColumnas()));
+    }
+
+
 
     public void limpiar() {
         getChildren().clear();
@@ -40,7 +78,7 @@ public class PanelCiudad extends GridPane {
 
         limpiar();
 
-        int filas = ciudadActual.getFilas();
+        int filas    = ciudadActual.getFilas();
         int columnas = ciudadActual.getColumnas();
 
         System.out.println("[DEBUG] Ciudad: " + ciudadActual.getNombre()
@@ -56,13 +94,17 @@ public class PanelCiudad extends GridPane {
                 + (getParent() == null ? "NULL" : getParent().getClass().getSimpleName()));
         System.out.println("[DEBUG] Panel en Scene: "
                 + (getScene() == null ? "NO" : "SI"));
-        double tamCelda = 50;
+
+        double tamCelda = calcularTamanoCelda(filas, columnas);
         setPrefSize(columnas * tamCelda, filas * tamCelda);
+
         int contador = 0;
         for (int fila = 0; fila < filas; fila++) {
             for (int col = 0; col < columnas; col++) {
                 Bloque bloque = ciudadActual.getBloque(fila, col);
-                StackPane celda = (bloque == null) ? crearCeldaVacia() : crearCeldaBloque(bloque);
+                StackPane celda = (bloque == null)
+                        ? crearCeldaVacia(tamCelda)
+                        : crearCeldaBloque(bloque, tamCelda);
                 add(celda, col, fila);
                 contador++;
             }
@@ -75,27 +117,39 @@ public class PanelCiudad extends GridPane {
         System.out.println("[DEBUG] ---");
     }
 
-    private StackPane crearCeldaVacia() {
+
+
+
+    private double calcularTamanoCelda(int filas, int columnas) {
+        int maxDimension = Math.max(filas, columnas);
+        if (maxDimension <= 10)  return 50.0;
+        if (maxDimension <= 20)  return 35.0;
+        if (maxDimension <= 40)  return 22.0;
+        return 15.0; // ciudades muy grandes
+    }
+
+
+    private StackPane crearCeldaVacia(double tamCelda) {
         StackPane celda = new StackPane();
-        Rectangle rect = new Rectangle(50, 50);
+        Rectangle rect  = new Rectangle(tamCelda, tamCelda);
         rect.setFill(Color.LIGHTGREEN);
         rect.setStroke(Color.BLACK);
         celda.getChildren().add(rect);
         return celda;
     }
 
-    private StackPane crearCeldaBloque(Bloque bloque) {
+    private StackPane crearCeldaBloque(Bloque bloque, double tamCelda) {
         StackPane celda = new StackPane();
-        Rectangle rect = new Rectangle(50, 50);
+        Rectangle rect  = new Rectangle(tamCelda, tamCelda);
         rect.setStroke(Color.BLACK);
 
         aplicarEstiloSegunTipo(bloque, rect);
 
         Text texto = new Text(obtenerInicial(bloque));
-        texto.setStyle("-fx-font-weight: bold; -fx-font-size: 16;");
+        texto.setStyle("-fx-font-weight: bold; -fx-font-size: "
+                + Math.max(8, (int)(tamCelda * 0.32)) + ";");
 
         celda.getChildren().addAll(rect, texto);
-
         aplicarIndicadorEstado(bloque, celda);
 
         return celda;
