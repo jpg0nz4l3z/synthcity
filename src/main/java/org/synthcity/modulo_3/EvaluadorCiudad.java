@@ -1,15 +1,15 @@
 package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.prediccion.PredictionInput;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictorCiudad;
 
 import java.util.EnumSet;
 import java.util.Set;
 
 public class EvaluadorCiudad {
 
-    // Pesos canónicos del score de viabilidad (Sprint 2, sección 6.3 del PDF).
-    // Esta clase es el único lugar donde se definen: cualquier otro módulo
-    // que necesite ponderar viabilidad debe leerlos desde aquí.
     private static final double PESO_ACTIVIDAD = 25.0;
     private static final double PESO_ENERGIA = 20.0;
     private static final double PESO_SERVICIOS = 20.0;
@@ -62,14 +62,27 @@ public class EvaluadorCiudad {
         if (resultado.getBloquesTotales() < 0 || resultado.getBloquesActivos() < 0 || resultado.getBloquesInactivos() < 0) {
             throw new ResultadoSimulacionInvalidoException("Los contadores de bloques no pueden ser negativos.");
         }
-        if (resultado.getBloquesActivos() > resultado.getBloquesTotales() || resultado.getBloquesInactivos() > resultado.getBloquesTotales()) {
+        if (resultado.getBloquesActivos() > resultado.getBloquesTotales()
+                || resultado.getBloquesInactivos() > resultado.getBloquesTotales()) {
             throw new ResultadoSimulacionInvalidoException("Los bloques activos o inactivos no pueden superar el total.");
         }
         if ((resultado.getBloquesActivos() + resultado.getBloquesInactivos()) != resultado.getBloquesTotales()) {
             throw new ResultadoSimulacionInvalidoException("Incoherencia: Activos + Inactivos no suma el total.");
         }
+        if (resultado.getCapacidadMaxima() < 0) {
+            throw new ResultadoSimulacionInvalidoException("La capacidad máxima no puede ser negativa.");
+        }
         if (resultado.getConteoPorTipo() == null) {
             throw new ResultadoSimulacionInvalidoException("El conteo por tipo no puede ser nulo.");
+        }
+        if (resultado.getEstadoSimulacion() == null) {
+            throw new ResultadoSimulacionInvalidoException("El estado de simulación no puede ser nulo.");
+        }
+        if (resultado.getTipoEstructural() == null) {
+            throw new ResultadoSimulacionInvalidoException("El tipo estructural no puede ser nulo.");
+        }
+        if (resultado.getDensidad() < 0.0 || resultado.getDensidad() > 1.0) {
+            throw new ResultadoSimulacionInvalidoException("La densidad debe estar entre 0.0 y 1.0.");
         }
     }
 
@@ -95,7 +108,7 @@ public class EvaluadorCiudad {
         if (m.getContaminacion() >= UMBRAL_CONTAMINACION_ALTA) {
             score -= PENAL_CONTAMINACION;
         }
-        if (m.getDensidad() > UMBRAL_DENSIDAD_SATURACION) {
+        if (m.getDensidad() >= UMBRAL_DENSIDAD_SATURACION) {
             score -= PENAL_SATURACION;
         }
 
@@ -134,7 +147,6 @@ public class EvaluadorCiudad {
     }
 
     private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad m, double score, Set<AlertaEvaluacion> alertas) {
-        // Cortes duros
         if (m.getTotalBloques() == 0) {
             return NivelEvaluacion.SIN_DATOS;
         }
@@ -174,5 +186,21 @@ public class EvaluadorCiudad {
             primero = false;
         }
         return sb.toString();
+    }
+
+    public PredictionResult predecir(MetricaCiudad metrica) {
+        if (metrica == null) {
+            throw new ResultadoSimulacionInvalidoException("La métrica no puede ser nula.");
+        }
+
+        PredictionInput input = PredictionInput.desdeMetrica(metrica);
+        PredictorCiudad predictor = new PredictorCiudad();
+        return predictor.predecir(input);
+    }
+
+    public PredictionResult predecir(ResultadoSimulacion resultado) {
+        validarEntrada(resultado);
+        MetricaCiudad metrica = construirMetrica(resultado);
+        return predecir(metrica);
     }
 }

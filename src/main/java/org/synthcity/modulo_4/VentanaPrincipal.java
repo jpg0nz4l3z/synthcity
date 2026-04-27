@@ -135,13 +135,5 @@ public class VentanaPrincipal {
             stage.setTitle("SynthCity - Visor de Ciudad");
         }
         stage.show();
-
-        // DEBUG
-        System.out.println("[DEBUG VENTANA] Stage mostrado");
-        System.out.println("[DEBUG VENTANA] root size: " + root.getWidth() + "x" + root.getHeight());
-        System.out.println("[DEBUG VENTANA] root.center: " + root.getCenter());
-        if (root.getCenter() != null) {
-            System.out.println("[DEBUG VENTANA] center class: " + root.getCenter().getClass().getSimpleName());
-        }
     }
 }

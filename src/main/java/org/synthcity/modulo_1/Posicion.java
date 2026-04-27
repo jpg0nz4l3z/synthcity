@@ -10,6 +10,7 @@ public class Posicion {
         if (fila < 0 || columna < 0) {
             throw new IllegalArgumentException("La fila y la columna deben ser >= 0");
         }
+
         this.fila = fila;
         this.columna = columna;
     }
@@ -31,6 +32,7 @@ public class Posicion {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
         Posicion posicion = (Posicion) o;
         return fila == posicion.fila && columna == posicion.columna;
     }
