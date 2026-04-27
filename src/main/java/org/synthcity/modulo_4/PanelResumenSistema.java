@@ -87,6 +87,7 @@ public class PanelResumenSistema extends VBox {
         seccionExpansion.setManaged(false);
 
         getChildren().addAll(tituloCiudad, infoCiudad, tituloEvaluacion, evaluacionBox, tituloPrediccion, prediccionBox);
+        getChildren().addAll(tituloSimulacion, simulacionBox, seccionExpansion);  // ← FALTA ESTA
     }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
@@ -139,24 +140,24 @@ public class PanelResumenSistema extends VBox {
             alertasActivas.setText("Sin alertas");
         }
 
-        // Simulación — cuando M2 entregue getCiclosEjecutados() y getMotivoParada()
-        // sustituye las siguientes líneas por las llamadas reales
         if (historial != null) {
-            ciclosEjecutados.setText("Ciclos: (pendiente M2)");
+            ciclosEjecutados.setText("Ciclos: " + historial.getCiclosEjecutados());
             motivoParada.setText("Parada: " + historial.getEstadoSimulacion());
         } else {
             ciclosEjecutados.setText("Ciclos: Sin datos");
             motivoParada.setText("Parada: Sin datos");
         }
 
-        // Tendencia — cuando M3 entregue getTendenciaTemporal()
-        // sustituye por: tendenciaTemporal.setText("Tendencia: " + traducirTendencia(evaluacion.getTendenciaTemporal().name()));
-        tendenciaTemporal.setText("Tendencia: (pendiente M3)");
+        tendenciaTemporal.setText("Tendencia: " + evaluacion.getTendenciaTemporal().name());
 
-        // Expansión — cuando M3 entregue fueExpandida() y getResultadoExpansion()
-        // sustituye por el bloque real
-        seccionExpansion.setVisible(false);
-        seccionExpansion.setManaged(false);
+        if (evaluacion.fueExpandida()) {
+            mostrarExpansion(
+                    evaluacion.getFilasAntes(), evaluacion.getColumnasAntes(),
+                    ciudad.getFilas(), ciudad.getColumnas(),
+                    evaluacion.getTipoAntes().name(), ciudad.getTipoEstructural().name(),
+                    !evaluacion.getTipoAntes().equals(ciudad.getTipoEstructural())
+            );
+        }
     }
 
     public void limpiar() {
@@ -177,5 +178,25 @@ public class PanelResumenSistema extends VBox {
         alertasActivas.setText("Alertas: ");
         seccionExpansion.setVisible(false);
         seccionExpansion.setManaged(false);
+    }
+
+    public void mostrarExpansion(int filasAntes, int columnasAntes,
+                                 int filasNuevas, int columnasNuevas,
+                                 String tipoAntes, String tipoNuevo,
+                                 boolean cambioTipo) {
+
+        expansionDimensiones.setText(
+                "Dimensiones: " + filasAntes + "×" + columnasAntes +
+                        "  →  " + filasNuevas + "×" + columnasNuevas
+        );
+
+        if (cambioTipo) {
+            expansionTipoEstructural.setText("Tipo: " + tipoAntes + " → " + tipoNuevo);
+        } else {
+            expansionTipoEstructural.setText("Tipo: sin cambio (" + tipoAntes + ")");
+        }
+
+        seccionExpansion.setVisible(true);
+        seccionExpansion.setManaged(true);
     }
 }
