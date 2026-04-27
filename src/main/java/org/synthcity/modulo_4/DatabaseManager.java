@@ -17,7 +17,6 @@ public class DatabaseManager {
     }
 
     public void inicializarTablaResultados() {
-        // La tabla incluye los campos de evaluación, predicción y variables analíticas
         String sql = "CREATE TABLE IF NOT EXISTS resultados (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre_ciudad VARCHAR(100), " +
@@ -40,10 +39,9 @@ public class DatabaseManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.executeUpdate();
-            System.out.println("[JDBC] Base de datos e infraestructura preparadas correctamente.");
 
         } catch (SQLException e) {
-            System.err.println("[JDBC] Error en la inicialización: " + e.getMessage());
+            throw new FormatoSalidaException("Error al inicializar la tabla de resultados.", e);
         }
     }
 }

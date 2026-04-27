@@ -31,10 +31,7 @@ public class PanelCiudad extends GridPane {
     }
 
     public void refrescar() {
-        System.out.println("[DEBUG] refrescar() llamado");
-
         if (ciudadActual == null) {
-            System.out.println("[DEBUG] ciudadActual es NULL, saliendo");
             return;
         }
 
@@ -43,36 +40,20 @@ public class PanelCiudad extends GridPane {
         int filas = ciudadActual.getFilas();
         int columnas = ciudadActual.getColumnas();
 
-        System.out.println("[DEBUG] Ciudad: " + ciudadActual.getNombre()
-                + " | Dimensiones: " + filas + "x" + columnas);
-        System.out.println("[DEBUG] Bloques en ciudad: " + ciudadActual.contarBloques());
-        System.out.println("[DEBUG] Panel tamaño actual: "
-                + getWidth() + "x" + getHeight());
-        System.out.println("[DEBUG] Panel tamaño pref: "
-                + getPrefWidth() + "x" + getPrefHeight());
-        System.out.println("[DEBUG] Panel tamaño min: "
-                + getMinWidth() + "x" + getMinHeight());
-        System.out.println("[DEBUG] Panel padre: "
-                + (getParent() == null ? "NULL" : getParent().getClass().getSimpleName()));
-        System.out.println("[DEBUG] Panel en Scene: "
-                + (getScene() == null ? "NO" : "SI"));
         double tamCelda = 50;
         setPrefSize(columnas * tamCelda, filas * tamCelda);
-        int contador = 0;
+
         for (int fila = 0; fila < filas; fila++) {
             for (int col = 0; col < columnas; col++) {
                 Bloque bloque = ciudadActual.getBloque(fila, col);
-                StackPane celda = (bloque == null) ? crearCeldaVacia() : crearCeldaBloque(bloque);
+                StackPane celda = (bloque == null)
+                        ? crearCeldaVacia()
+                        : crearCeldaBloque(bloque);
+
                 add(celda, col, fila);
-                contador++;
             }
         }
 
-        System.out.println("[DEBUG] Celdas añadidas: " + contador);
-        System.out.println("[DEBUG] Hijos del GridPane tras añadir: " + getChildren().size());
-        System.out.println("[DEBUG] Tamaño final del panel: "
-                + getWidth() + "x" + getHeight());
-        System.out.println("[DEBUG] ---");
     }
 
     private StackPane crearCeldaVacia() {
