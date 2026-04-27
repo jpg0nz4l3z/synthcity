@@ -73,7 +73,7 @@ public class PanelResumenSistema extends VBox {
         // sección expansión (oculta por defecto)
         expansionDimensiones    = new Label();
         expansionTipoEstructural = new Label();
-        Label expansionTitulo   = new Label("⚡ EXPANSION AUTOMATICA");
+        Label expansionTitulo   = new Label("EXPANSION AUTOMATICA");
         expansionTitulo.setStyle("-fx-font-weight: bold; -fx-text-fill: #CC6600;");
         seccionExpansion = new VBox(4);
         seccionExpansion.setStyle(
@@ -129,7 +129,7 @@ public class PanelResumenSistema extends VBox {
         nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
         score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
         mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
-        
+
         if (evaluacion.tieneAlertas()) {
             String textoAlertas = evaluacion.getAlertas().stream()
                     .map(AlertaEvaluacion::name)
@@ -170,5 +170,12 @@ public class PanelResumenSistema extends VBox {
         tendencia.setText("Tendencia: ");
         scorePredicho.setText("Score predicho: ");
         mensajePrediccion.setText("Mensaje prediccion: ");
+
+        ciclosEjecutados.setText("Ciclos: ");
+        motivoParada.setText("Parada: ");
+        tendenciaTemporal.setText("Tendencia: ");
+        alertasActivas.setText("Alertas: ");
+        seccionExpansion.setVisible(false);
+        seccionExpansion.setManaged(false);
     }
 }
