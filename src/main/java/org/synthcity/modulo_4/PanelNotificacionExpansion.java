@@ -40,12 +40,9 @@ public class PanelNotificacionExpansion extends VBox {
                 labelResimulacion
         );
 
-        // Oculto por defecto. setManaged(false) hace que no ocupe
-        // espacio en el layout cuando está invisible.
         setVisible(false);
         setManaged(false);
     }
-
 
     public void mostrarExpansion(
             int filasAntes, int columnasAntes,
@@ -69,7 +66,6 @@ public class PanelNotificacionExpansion extends VBox {
         setVisible(true);
         setManaged(true);
     }
-
 
     public void ocultar() {
         setVisible(false);
