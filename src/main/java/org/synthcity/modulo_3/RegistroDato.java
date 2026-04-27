@@ -2,7 +2,7 @@ package org.synthcity.modulo_3;
 
 public class RegistroDato {
 
-    // Features congeladas
+    // Features obligatorias congeladas
     private final double densidad;
     private final double ratioEnergetico;
     private final double ratioCoberturaServicios;
@@ -13,18 +13,17 @@ public class RegistroDato {
     private final double tendenciaContaminacion;
     private final double bienestar;
     private final double scoreViabilidad;
-    private final int ciclosEjecutados;
     private final boolean colapsoDetectado;
+    private final int ciclosEjecutados;
     private final boolean saturacionDetectada;
 
-    // Variable Objetivo
-    // 0=MUY_DESFAVORABLE, 1=DESFAVORABLE, 2=ACEPTABLE, 3=FAVORABLE, 4=OPTIMO
+    // Variable objetivo codificada (0-4)
     private final String objetivo;
 
     public RegistroDato(double densidad, double ratioEnergetico, double ratioCoberturaServicios,
                         double contaminacion, double contaminacionAcumulada, double estabilidadMedia,
                         double tendenciaEstabilidad, double tendenciaContaminacion, double bienestar,
-                        double scoreViabilidad, int ciclosEjecutados, boolean colapsoDetectado,
+                        double scoreViabilidad, boolean colapsoDetectado, int ciclosEjecutados,
                         boolean saturacionDetectada, int nivelEvaluacionNumerico) {
         this.densidad = densidad;
         this.ratioEnergetico = ratioEnergetico;
@@ -36,16 +35,14 @@ public class RegistroDato {
         this.tendenciaContaminacion = tendenciaContaminacion;
         this.bienestar = bienestar;
         this.scoreViabilidad = scoreViabilidad;
-        this.ciclosEjecutados = ciclosEjecutados;
         this.colapsoDetectado = colapsoDetectado;
+        this.ciclosEjecutados = ciclosEjecutados;
         this.saturacionDetectada = saturacionDetectada;
 
         this.objetivo = String.valueOf(nivelEvaluacionNumerico);
     }
 
-    /**
-     * ¡CRÍTICO PARA EL SPRINT 4! No cambiar el orden.
-     */
+
     public double[] toArray() {
         return new double[]{
                 densidad,
@@ -58,33 +55,78 @@ public class RegistroDato {
                 tendenciaContaminacion,
                 bienestar,
                 scoreViabilidad,
-                (double) ciclosEjecutados,
                 colapsoDetectado ? 1.0 : 0.0,
+                (double) ciclosEjecutados,
                 saturacionDetectada ? 1.0 : 0.0
         };
     }
+
 
     public String getObjetivo() {
         return objetivo;
     }
 
-    // --- Getters de todas las features ---
-    public double getDensidad() { return densidad; }
-    public double getRatioEnergetico() { return ratioEnergetico; }
-    public double getRatioCoberturaServicios() { return ratioCoberturaServicios; }
-    public double getContaminacion() { return contaminacion; }
-    public double getContaminacionAcumulada() { return contaminacionAcumulada; }
-    public double getEstabilidadMedia() { return estabilidadMedia; }
-    public double getTendenciaEstabilidad() { return tendenciaEstabilidad; }
-    public double getTendenciaContaminacion() { return tendenciaContaminacion; }
-    public double getBienestar() { return bienestar; }
-    public double getScoreViabilidad() { return scoreViabilidad; }
-    public int getCiclosEjecutados() { return ciclosEjecutados; }
-    public boolean isColapsoDetectado() { return colapsoDetectado; }
-    public boolean isSaturacionDetectada() { return saturacionDetectada; }
+    public double getDensidad() {
+        return densidad;
+    }
+
+    public double getRatioEnergetico() {
+        return ratioEnergetico;
+    }
+
+    public double getRatioCoberturaServicios() {
+        return ratioCoberturaServicios;
+    }
+
+    public double getContaminacion() {
+        return contaminacion;
+    }
+
+    public double getContaminacionAcumulada() {
+        return contaminacionAcumulada;
+    }
+
+    public double getEstabilidadMedia() {
+        return estabilidadMedia;
+    }
+
+    public double getTendenciaEstabilidad() {
+        return tendenciaEstabilidad;
+    }
+
+    public double getTendenciaContaminacion() {
+        return tendenciaContaminacion;
+    }
+
+    public double getBienestar() {
+        return bienestar;
+    }
+
+    public double getScoreViabilidad() {
+        return scoreViabilidad;
+    }
+
+    public boolean isColapsoDetectado() {
+        return colapsoDetectado;
+    }
+
+    public int getCiclosEjecutados() {
+        return ciclosEjecutados;
+    }
+
+    public boolean isSaturacionDetectada() {
+        return saturacionDetectada;
+    }
+
 
     @Override
     public String toString() {
-        return "Objetivo: " + objetivo;
+        return "RegistroDato{" +
+                "objetivo='" + objetivo + '\'' +
+                ", scoreViabilidad=" + scoreViabilidad +
+                ", ciclosEjecutados=" + ciclosEjecutados +
+                ", colapsoDetectado=" + colapsoDetectado +
+                ", saturacionDetectada=" + saturacionDetectada +
+                '}';
     }
 }
