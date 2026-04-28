@@ -63,6 +63,14 @@ public abstract class Bloque {
     }
 
     // METODOS ABSTRACTOS
+    public int getRadioInfluencia() {
+        return 1;
+    }
+
+    public boolean esGeneradorDemanda() {
+        return this.getTipo() == TipoBloque.RESIDENCIAL;
+    }
+
 
     public abstract int getProduccionEnergia();
 
@@ -83,9 +91,4 @@ public abstract class Bloque {
 
 
     public abstract int getContaminacion();
-
-    public abstract int getRadioInfluencia();
-
-    public abstract boolean esGeneradorDemanda();
-
 }
