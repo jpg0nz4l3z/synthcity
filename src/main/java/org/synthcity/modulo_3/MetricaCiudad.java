@@ -7,8 +7,6 @@ import org.synthcity.modulo_2.ResultadoSimulacion;
 import java.util.Map;
 import java.util.Collections;
 
-import org.synthcity.modulo_2.MotivoParadaSimulacion;
-
 public final class MetricaCiudad {
     private final int totalBloques;
     private final int bloquesActivos;
