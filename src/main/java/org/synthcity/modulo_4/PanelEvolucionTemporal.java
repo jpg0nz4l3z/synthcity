@@ -71,7 +71,6 @@ public class PanelEvolucionTemporal extends VBox {
             return;
         }
 
-        PanelEvolucionTemporal
         if (historial.ciudadEstaVacia() || !historial.hayBloquesActivos()) {
             labelNumeroCiclos.setText("Ciclos ejecutados: 0");
             labelMotivoParada.setText("Motivo de parada: "
