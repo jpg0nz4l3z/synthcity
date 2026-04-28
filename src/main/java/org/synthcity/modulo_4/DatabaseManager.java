@@ -24,9 +24,6 @@ public class DatabaseManager {
                 "nivel_evaluacion VARCHAR(50), " +
                 "score_viabilidad DOUBLE, " +
                 "mensaje_evaluacion TEXT, " +
-                "tendencia_predicha VARCHAR(50), " +
-                "score_predicho DOUBLE, " +
-                "mensaje_prediccion TEXT, " +
                 "densidad DOUBLE, " +
                 "porcentaje_actividad DOUBLE, " +
                 "ratio_energetico DOUBLE, " +
@@ -69,9 +66,9 @@ public class DatabaseManager {
     }
     private void ejecutarDDL(String sql, String mensajeOk) {
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            pstmt.executeUpdate();
+            ps.executeUpdate();
             System.out.println("[JDBC] Base de datos e infraestructura preparadas correctamente.");
 
         } catch (SQLException e) {
