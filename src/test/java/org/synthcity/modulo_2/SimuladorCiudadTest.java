@@ -214,7 +214,9 @@ class SimuladorCiudadTest {
         Ciudad ciudad = crearCiudadEquilibrada();
 
         ResultadoSimulacion antes = simulador.simular(ciudad);
-        ciudad.expandir(20, 20);
+
+        ciudad.expandir();
+
         assertTrue(ciudad.fueExpandidaDesdeUltimaSimulacion());
 
         ResultadoSimulacion despues = simulador.simular(ciudad);

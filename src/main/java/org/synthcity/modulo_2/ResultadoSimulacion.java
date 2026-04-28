@@ -44,80 +44,12 @@ public class ResultadoSimulacion {
     private final double bienestarMaximo;
     private final double bienestarUltimo;
     private final double tendenciaEstabilidad;
-    private final int tendenciaContaminacion;
+    private final double tendenciaContaminacion;
     private final boolean necesidadExpansionDetectada;
     private final boolean historialReiniciadoPorExpansion;
 
-    public ResultadoSimulacion(
-            String nombreCiudad,
-            int filas,
-            int columnas,
-            int capacidadMaxima,
-            int bloquesTotales,
-            int bloquesActivos,
-            int bloquesInactivos,
-            Map<TipoBloque, Integer> conteoPorTipo,
-            EstadoSimulacion estadoSimulacion,
-            double densidad,
-            TipoEstructuralCiudad tipoEstructural,
-            int energiaProducida,
-            int consumoEnergetico,
-            int equilibrioEnergetico,
-            int demandaServicios,
-            int coberturaServicios,
-            int presionIndustrial,
-            int soporteTransporte,
-            int contaminacion,
-            double bienestar,
-            double estabilidadBasica,
-            double ratioEnergetico,
-            double ratioCoberturaServicios) {
-        this(
-                nombreCiudad,
-                filas,
-                columnas,
-                capacidadMaxima,
-                bloquesTotales,
-                bloquesActivos,
-                bloquesInactivos,
-                conteoPorTipo,
-                estadoSimulacion,
-                densidad,
-                tipoEstructural,
-                energiaProducida,
-                consumoEnergetico,
-                equilibrioEnergetico,
-                demandaServicios,
-                coberturaServicios,
-                presionIndustrial,
-                soporteTransporte,
-                contaminacion,
-                bienestar,
-                estabilidadBasica,
-                ratioEnergetico,
-                ratioCoberturaServicios,
-                crearHistorialCompatibilidad(
-                        bloquesTotales,
-                        bloquesActivos,
-                        estadoSimulacion,
-                        densidad,
-                        energiaProducida,
-                        consumoEnergetico,
-                        equilibrioEnergetico,
-                        demandaServicios,
-                        coberturaServicios,
-                        presionIndustrial,
-                        soporteTransporte,
-                        contaminacion,
-                        bienestar,
-                        estabilidadBasica,
-                        ratioCoberturaServicios
-                ),
-                inferirMotivoParada(bloquesTotales, bloquesActivos),
-                false,
-                false
-        );
-    }
+    private final EstadoCiclo estadoAgregado;
+
 
     public ResultadoSimulacion(
             String nombreCiudad,
@@ -277,6 +209,7 @@ public class ResultadoSimulacion {
         this.tendenciaContaminacion = calcularTendenciaContaminacion(ciclos);
         this.necesidadExpansionDetectada = necesidadExpansionDetectada || ciclos.stream().anyMatch(EstadoCiclo::isNecesidadExpansionDetectada);
         this.historialReiniciadoPorExpansion = historialReiniciadoPorExpansion;
+        this.estadoAgregado = ciclos.isEmpty() ? null : ciclos.getLast();
     }
 
     private static List<EstadoCiclo> crearHistorialCompatibilidad(
@@ -402,11 +335,13 @@ public class ResultadoSimulacion {
         return ciclos.get(ciclos.size() - 1).getEstabilidad() - ciclos.get(0).getEstabilidad();
     }
 
-    private static int calcularTendenciaContaminacion(List<EstadoCiclo> ciclos) {
+    private static double calcularTendenciaContaminacion(List<EstadoCiclo> ciclos) {
         if (ciclos.size() < 2) {
-            return 0;
+            return 0.0;
         }
-        return ciclos.get(ciclos.size() - 1).getContaminacionAcumulada() - ciclos.get(0).getContaminacionAcumulada();
+
+        return ciclos.get(ciclos.size() - 1).getContaminacionAcumulada()
+                - ciclos.get(0).getContaminacionAcumulada();
     }
 
     private static double clamp01(double valor) {
@@ -623,7 +558,11 @@ public class ResultadoSimulacion {
         return tendenciaEstabilidad;
     }
 
-    public int getTendenciaContaminacion() {
+    public EstadoCiclo getEstadoAgregado() {
+        return estadoAgregado;
+    }
+
+    public double getTendenciaContaminacion() {
         return tendenciaContaminacion;
     }
 

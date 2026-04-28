@@ -27,16 +27,15 @@ public final class ReglasSimulacion {
     public static final double PENALIZACION_DENSIDAD_ALTA = 0.80; // Umbral (80%)
     public static final int EXTRA_CONTAMINACION_DENSIDAD = 10; // Penalización
 
-    public static final int MAX_CICLOS = 5;
+    public static final int MAX_CICLOS = 10;
     public static final int CICLOS_CONSECUTIVOS_COLAPSO = 3;
     public static final int CICLOS_CONSECUTIVOS_SATURACION = 3;
     public static final double UMBRAL_SATURACION_CRITICA = 0.90;
     public static final double UMBRAL_NECESIDAD_EXPANSION = 0.80;
 
-    public static final int RADIO_INFLUENCIA_SERVICIOS = 3;
-    public static final int RADIO_INFLUENCIA_TRANSPORTE = 4;
-    public static final int RADIO_INFLUENCIA_BASE = 0;
-
+    public static final int RADIO_COBERTURA_SERVICIOS = 5;
+    public static final int RADIO_INFLUENCIA_TRANSPORTE = 3;
+    public static final double FACTOR_PENALIZACION_DISTANCIA = 0.1;
     private ReglasSimulacion() {
         throw new UnsupportedOperationException("Esta clase es un contenedor de constantes.");
     }

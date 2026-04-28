@@ -154,4 +154,33 @@ public final class EstadoCiclo {
     public EstadoSimulacion getEstadoSimulacion() {
         return estadoSimulacion;
     }
+
+    public boolean hayDeficitEnergetico() {
+        return equilibrioEnergetico < 0;
+    }
+
+    public boolean hayDeficitServicios() {
+        return coberturaServicios < demandaServicios;
+    }
+
+    @Override
+    public String toString() {
+        return "EstadoCiclo{" +
+                "numeroCiclo=" + numeroCiclo +
+                ", energiaProducida=" + energiaProducida +
+                ", consumoEnergetico=" + consumoEnergetico +
+                ", equilibrioEnergetico=" + equilibrioEnergetico +
+                ", demandaServicios=" + demandaServicios +
+                ", coberturaServicios=" + coberturaServicios +
+                ", coberturaServiciosPonderada=" + coberturaServiciosPonderada +
+                ", eficienciaTransporte=" + eficienciaTransporte +
+                ", contaminacionCiclo=" + contaminacionCiclo +
+                ", contaminacionAcumulada=" + contaminacionAcumulada +
+                ", bienestar=" + bienestar +
+                ", estabilidad=" + estabilidad +
+                ", densidad=" + densidad +
+                ", necesidadExpansionDetectada=" + necesidadExpansionDetectada +
+                ", estadoSimulacion=" + estadoSimulacion +
+                '}';
+    }
 }

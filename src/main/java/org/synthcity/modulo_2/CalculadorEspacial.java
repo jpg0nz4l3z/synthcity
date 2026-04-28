@@ -29,14 +29,14 @@ public class CalculadorEspacial {
             return 0.0;
         }
 
-        double demandaTotal = 0.0;
-        double coberturaPonderada = 0.0;
+        double coberturaPonderada = generadoresDemanda.stream()
+                .mapToDouble(generador -> Math.max(1, generador.getDemandaServicios())
+                        * mejorInfluencia(generador, proveedoresCobertura))
+                .sum();
 
-        for (Bloque generador : generadoresDemanda) {
-            double demanda = Math.max(1, generador.getDemandaServicios());
-            demandaTotal += demanda;
-            coberturaPonderada += demanda * mejorInfluencia(generador, proveedoresCobertura);
-        }
+        double demandaTotal = generadoresDemanda.stream()
+                .mapToDouble(generador -> Math.max(1, generador.getDemandaServicios()))
+                .sum();
 
         if (demandaTotal <= 0.0) {
             return 1.0;
@@ -74,16 +74,19 @@ public class CalculadorEspacial {
     }
 
     private double mejorInfluencia(Bloque origen, List<Bloque> candidatos) {
-        double mejor = 0.0;
-        for (Bloque candidato : candidatos) {
-            int distancia = distanciaManhattan(origen.getPosicion(), candidato.getPosicion());
-            int radio = candidato.getRadioInfluencia();
-            if (distancia <= radio) {
-                double influencia = (double) (radio - distancia + 1) / (radio + 1);
-                mejor = Math.max(mejor, influencia);
-            }
-        }
-        return clamp01(mejor);
+        return candidatos.stream()
+                .mapToDouble(candidato -> {
+                    int distancia = distanciaManhattan(origen.getPosicion(), candidato.getPosicion());
+                    int radio = candidato.getRadioInfluencia();
+
+                    if (distancia <= radio) {
+                        return (double) (radio - distancia + 1) / (radio + 1);
+                    }
+
+                    return 0.0;
+                })
+                .max()
+                .orElse(0.0);
     }
 
     private int distanciaManhattan(Posicion a, Posicion b) {
@@ -101,5 +104,17 @@ public class CalculadorEspacial {
             return 1.0;
         }
         return valor;
+    }
+
+    public double calcularDistanciaMedia(List<Bloque> grupo1, List<Bloque> grupo2) {
+        if (grupo1 == null || grupo2 == null || grupo1.isEmpty() || grupo2.isEmpty()) {
+            return 0.0;
+        }
+
+        return grupo1.stream()
+                .flatMapToInt(b1 -> grupo2.stream()
+                        .mapToInt(b2 -> distanciaManhattan(b1.getPosicion(), b2.getPosicion())))
+                .average()
+                .orElse(0.0);
     }
 }

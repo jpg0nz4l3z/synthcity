@@ -26,10 +26,14 @@ public class SimuladorCiudad implements Simulable {
 
     @Override
     public ResultadoSimulacion simular(Ciudad ciudad) {
-        validarEntrada(ciudad);
+        if (ciudad == null) {
+            throw new CiudadInvalidaParaSimulacionException("La ciudad no puede ser nula.");
+        }
 
         boolean historialReiniciadoPorExpansion = ciudad.fueExpandidaDesdeUltimaSimulacion();
         ciudad.marcarSimulacionEjecutada();
+
+        validarEntrada(ciudad);
 
         List<Bloque> bloques = ciudad.listarBloques();
         List<Bloque> activos = ciudad.getBloquesActivosConPosicion();
@@ -59,9 +63,6 @@ public class SimuladorCiudad implements Simulable {
     }
 
     private void validarEntrada(Ciudad ciudad) {
-        if (ciudad == null) {
-            throw new CiudadInvalidaParaSimulacionException("La ciudad no puede ser nula.");
-        }
 
         if (ciudad.getFilas() <= 0 || ciudad.getColumnas() <= 0) {
             throw new CiudadInvalidaParaSimulacionException("La ciudad tiene dimensiones invalidas.");
