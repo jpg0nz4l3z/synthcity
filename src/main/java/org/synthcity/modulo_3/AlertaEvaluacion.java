@@ -1,11 +1,6 @@
 package org.synthcity.modulo_3;
 
 public enum AlertaEvaluacion {
-    DEFICIT_ENERGETICO,
     DEFICIT_SERVICIOS,
-    RIESGO_SATURACION,
     CONTAMINACION_ALTA,
-    ACTIVIDAD_BAJA,
-    ESTABILIDAD_INSUFICIENTE,
-    RIESGO_COLAPSO_POTENCIAL
 }

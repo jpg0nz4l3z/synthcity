@@ -2,58 +2,36 @@ package org.synthcity.modulo_3;
 
 import org.synthcity.modulo_2.ResultadoSimulacion;
 
-import java.util.EnumSet;
-import java.util.Set;
-
+/**
+ * Persona 1: Orquestador del Módulo 3.
+ * Transforma la simulación en una evaluación formal aplicando reglas deterministas.
+ */
 public class EvaluadorCiudad {
 
-    // Pesos canónicos del score de viabilidad (Sprint 2, sección 6.3 del PDF).
-    // Esta clase es el único lugar donde se definen: cualquier otro módulo
-    // que necesite ponderar viabilidad debe leerlos desde aquí.
-    private static final double PESO_ACTIVIDAD = 25.0;
-    private static final double PESO_ENERGIA = 20.0;
-    private static final double PESO_SERVICIOS = 20.0;
-    private static final double PESO_ESTABILIDAD = 15.0;
-    private static final double PESO_BIENESTAR = 20.0;
-    private static final double PENAL_CONTAMINACION = 10.0;
-    private static final double PENAL_SATURACION = 10.0;
-
-    private static final double UMBRAL_SCORE_OPTIMO = 85.0;
-    private static final double UMBRAL_SCORE_FUNCIONAL = 65.0;
-    private static final double UMBRAL_SCORE_INESTABLE = 40.0;
-
-    private static final double UMBRAL_DENSIDAD_SATURACION = 0.85;
-    private static final double UMBRAL_ACTIVIDAD_BAJA = 0.40;
-    private static final double UMBRAL_ESTABILIDAD_INSUFICIENTE = 0.35;
-    private static final int UMBRAL_CONTAMINACION_ALTA = 60;
-    private static final int UMBRAL_ALERTAS_COLAPSO = 4;
-
+    // =========================================================================
+    // MeTODO EVALUAR (EL CORAZÓN DEL MÓDULO)
+    // =========================================================================
     public ResultadoEvaluacion evaluar(ResultadoSimulacion resultado) {
 
+        // 1. Validar la entrada (Persona 1)
         validarEntrada(resultado);
 
+        // 2. Construir la métrica (Persona 2)
         MetricaCiudad metrica = construirMetrica(resultado);
 
-        double score = calcularScoreViabilidad(metrica);
+        // 3. Determinar el nivel de evaluación (Persona 3 integrada en Evaluador)
+        NivelEvaluacion nivel = determinarNivelEvaluacion(metrica);
 
-        Set<AlertaEvaluacion> alertas = detectarAlertas(metrica);
+        // 4. Generar un mensaje explicativo (Persona 4)
+        String mensaje = generarMensaje(metrica, nivel);
 
-        NivelEvaluacion nivel = determinarNivelEvaluacion(metrica, score, alertas);
-
-        String mensaje = generarMensaje(nivel, metrica, score, alertas);
-
-        String resumenRiesgo = generarResumenRiesgo(alertas);
-
-        return new ResultadoEvaluacion(
-                resultado.getNombreCiudad(),
-                metrica,
-                nivel,
-                mensaje,
-                score,
-                alertas,
-                resumenRiesgo
-        );
+        // 5. Construir y devolver el resultado final (Persona 4)
+        return construirResultado(resultado.getNombreCiudad(), metrica, nivel, mensaje);
     }
+
+    // =========================================================================
+    // MÉTODOS AUXILIARES OBLIGATORIOS
+    // =========================================================================
 
     private void validarEntrada(ResultadoSimulacion resultado) {
         if (resultado == null) {
@@ -74,105 +52,47 @@ public class EvaluadorCiudad {
     }
 
     private MetricaCiudad construirMetrica(ResultadoSimulacion resultado) {
+        // La Persona 2 calcula los porcentajes en su constructor [cite: 1025-1033]
         return new MetricaCiudad(resultado);
     }
 
-    private double calcularScoreViabilidad(MetricaCiudad m) {
-        if (m.getTotalBloques() <= 0) {
-            return 0.0;
-        }
+    private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad m) {
 
-        double energia = Math.min(1.0, m.getRatioEnergetico());
-        double servicios = Math.min(1.0, m.getRatioCoberturaServicios());
+        int total = m.getTotalBloques();
+        int activos = m.getBloquesActivos();
+        double porcentaje = m.getPorcentajeActivos();
 
-        double score = 0.0;
-        score += m.getPorcentajeActivos() * PESO_ACTIVIDAD;
-        score += energia * PESO_ENERGIA;
-        score += servicios * PESO_SERVICIOS;
-        score += m.getEstabilidadBasica() * PESO_ESTABILIDAD;
-        score += m.getBienestar() * PESO_BIENESTAR;
-
-        if (m.getContaminacion() >= UMBRAL_CONTAMINACION_ALTA) {
-            score -= PENAL_CONTAMINACION;
-        }
-        if (m.getDensidad() > UMBRAL_DENSIDAD_SATURACION) {
-            score -= PENAL_SATURACION;
-        }
-
-        if (score < 0.0) return 0.0;
-        if (score > 100.0) return 100.0;
-        return score;
-    }
-
-    private Set<AlertaEvaluacion> detectarAlertas(MetricaCiudad m) {
-        Set<AlertaEvaluacion> alertas = EnumSet.noneOf(AlertaEvaluacion.class);
-        if (m.getTotalBloques() <= 0) {
-            return alertas;
-        }
-        if (m.hayDeficitEnergetico()) {
-            alertas.add(AlertaEvaluacion.DEFICIT_ENERGETICO);
-        }
-        if (m.hayDeficitServicios()) {
-            alertas.add(AlertaEvaluacion.DEFICIT_SERVICIOS);
-        }
-        if (m.tieneRiesgoPorDensidad()) {
-            alertas.add(AlertaEvaluacion.RIESGO_SATURACION);
-        }
-        if (m.tieneContaminacionAlta()) {
-            alertas.add(AlertaEvaluacion.CONTAMINACION_ALTA);
-        }
-        if (m.getPorcentajeActivos() < UMBRAL_ACTIVIDAD_BAJA) {
-            alertas.add(AlertaEvaluacion.ACTIVIDAD_BAJA);
-        }
-        if (m.getEstabilidadBasica() < UMBRAL_ESTABILIDAD_INSUFICIENTE) {
-            alertas.add(AlertaEvaluacion.ESTABILIDAD_INSUFICIENTE);
-        }
-        if (alertas.size() >= UMBRAL_ALERTAS_COLAPSO) {
-            alertas.add(AlertaEvaluacion.RIESGO_COLAPSO_POTENCIAL);
-        }
-        return alertas;
-    }
-
-    private NivelEvaluacion determinarNivelEvaluacion(MetricaCiudad m, double score, Set<AlertaEvaluacion> alertas) {
-        // Cortes duros
-        if (m.getTotalBloques() == 0) {
+        // 1. SIN_DATOS
+        if (total == 0) {
             return NivelEvaluacion.SIN_DATOS;
         }
-        if (m.getBloquesActivos() == 0) {
-            return NivelEvaluacion.CRITICO;
-        }
-        if (alertas.contains(AlertaEvaluacion.RIESGO_COLAPSO_POTENCIAL)) {
+
+        // 2. CRITICO
+        if (activos == 0) {
             return NivelEvaluacion.CRITICO;
         }
 
-        // Reglas por score
-        if (score >= UMBRAL_SCORE_OPTIMO) {
+        // 3. OPTIMO
+        if (activos == total) {
             return NivelEvaluacion.OPTIMO;
         }
-        if (score >= UMBRAL_SCORE_FUNCIONAL) {
+
+        // 4. FUNCIONAL (>= 60%)
+        if (porcentaje >= 0.6) {
             return NivelEvaluacion.FUNCIONAL;
         }
-        if (score >= UMBRAL_SCORE_INESTABLE) {
-            return NivelEvaluacion.INESTABLE;
-        }
-        return NivelEvaluacion.CRITICO;
+
+        // 5. INESTABLE (resto)
+        return NivelEvaluacion.INESTABLE;
     }
 
-    private String generarMensaje(NivelEvaluacion nivel, MetricaCiudad m, double score, Set<AlertaEvaluacion> alertas) {
-        return GeneradorMensajes.generarMensaje(nivel, m, score, alertas);
+    private String generarMensaje(MetricaCiudad metrica, NivelEvaluacion nivel) {
+        // Conectamos con la clase Generar Mensaje
+        return GeneradorMensajes.generarMensaje(nivel);
     }
 
-    private String generarResumenRiesgo(Set<AlertaEvaluacion> alertas) {
-        if (alertas.isEmpty()) {
-            return "Sin riesgos relevantes detectados.";
-        }
-        StringBuilder sb = new StringBuilder("Riesgos detectados: ");
-        boolean primero = true;
-        for (AlertaEvaluacion alerta : alertas) {
-            if (!primero) sb.append(", ");
-            sb.append(alerta.name());
-            primero = false;
-        }
-        return sb.toString();
+    private ResultadoEvaluacion construirResultado(String nombre, MetricaCiudad metrica, NivelEvaluacion nivel, String mensaje) {
+        // Ensamblamos el objeto final para el Módulo 4
+        return new ResultadoEvaluacion(nombre, metrica, nivel, mensaje);
     }
 }
