@@ -5,7 +5,7 @@ import org.synthcity.modulo_1.bloques.Bloque;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ciudad implements  Expansionable {
+public class Ciudad implements Expansionable {
     private String nombre;
     private int filas;
     private int columnas;
@@ -40,6 +40,7 @@ public class Ciudad implements  Expansionable {
         this.tablero = new Bloque[filas][columnas];
         this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas = 0;
+        this.expandidaDesdeUltimaSimulacion = false;
     }
 
     private TipoEstructuralCiudad calcularTipoEstructural() {
@@ -248,81 +249,69 @@ public class Ciudad implements  Expansionable {
 
 
     public boolean puedeExpandirse() {
-        boolean cabenMasFilasColumnas = (filas + 10 <= MAX_FILAS) && (columnas + 10 <= MAX_COLUMNAS);
+        boolean cabenMasFilasColumnas =
+                (filas + INCREMENTO_EXPANSION <= MAX_FILAS)
+                        && (columnas + INCREMENTO_EXPANSION <= MAX_COLUMNAS);
+
         return expansionesRealizadas < maximoExpansiones && cabenMasFilasColumnas;
-
     }
 
-    public void expandirSegunPolitica() {
-        if (!puedeExpandirse()) {
-            throw new ExpansionCiudadException("La ciudad no puede expandirse según la política actual.");
-        }
-        int nuevasFilas = this.filas + 10;
-        int nuevasColumnas = this.columnas + 10;
-        expandir(nuevasFilas, nuevasColumnas);
+    public ResultadoExpansion expandirSegunPolitica() {
+        return expandir();
     }
 
-    // Expansión automática (sin parámetros )
-    public void expandir() {
-        if (expansionesRealizadas >= maximoExpansiones) {
-            System.out.println("Límite de expansiones alcanzado.");
-            return;
-        }
-        // Usamos las variables para calcular el siguiente paso
-        int nuevasFilas = Math.min(this.filas + INCREMENTO_EXPANSION, MAX_FILAS);
-        int nuevasColumnas = Math.min(this.columnas + INCREMENTO_EXPANSION, MAX_COLUMNAS);
-
-        // Llamamos al metodo de lógica operativa
-        expandir(nuevasFilas, nuevasColumnas);
-    }
-
-    // 2. LA LÓGICA OPERATIVA
-    // Editamos el metodo que ya teníamos estructurado
     @Override
-    public ResultadoExpansion expandir(int nuevasFilas, int nuevasColumnas) {
-        // Guardamos dimensiones actuales para el informe
-        int fAnt = this.filas;
-        int cAnt = this.columnas;
+    public ResultadoExpansion expandir() {
+        int filasAnteriores = this.filas;
+        int columnasAnteriores = this.columnas;
+        TipoEstructuralCiudad tipoAnterior = this.tipoEstructural;
 
-        // --- VALIDACIONES DE SEGURIDAD ---
-        if (expansionesRealizadas >= maximoExpansiones) {
-            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Máximo de expansiones alcanzado.");
+        if (!puedeExpandirse()) {
+            throw new ExpansionCiudadException(
+                    "La ciudad no puede expandirse: se ha alcanzado el máximo de expansiones o los límites globales."
+            );
         }
+
+        int nuevasFilas = this.filas + INCREMENTO_EXPANSION;
+        int nuevasColumnas = this.columnas + INCREMENTO_EXPANSION;
 
         if (nuevasFilas > MAX_FILAS || nuevasColumnas > MAX_COLUMNAS) {
-            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Supera el límite global de 100x100.");
+            throw new ExpansionCiudadException(
+                    "No se puede expandir porque supera los límites globales de "
+                            + MAX_FILAS + " filas y " + MAX_COLUMNAS + " columnas."
+            );
         }
 
-        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
-            return new ResultadoExpansion(false, fAnt, cAnt, fAnt, cAnt, "Las nuevas dimensiones deben ser estrictamente mayores.");
-        }
-
-        // --- (MIGRACIÓN DE DATOS ) ---
-        // Creamos el nuevo tablero más grande
         Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
 
-        // Copiamos los bloques de tu matriz 'tablero' a la nueva
-        for (int i = 0; i < fAnt; i++) {
-            for (int j = 0; j < cAnt; j++) {
+        for (int i = 0; i < this.filas; i++) {
+            for (int j = 0; j < this.columnas; j++) {
                 nuevoTablero[i][j] = this.tablero[i][j];
             }
         }
-        // Actualizamos los atributos de tu clase
+
         this.tablero = nuevoTablero;
         this.filas = nuevasFilas;
         this.columnas = nuevasColumnas;
+        this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas++;
-
-        // Recalculamos el tipo estructural
         this.expandidaDesdeUltimaSimulacion = true;
 
-         this.tipoEstructural=calcularTipoEstructural();
-
-        return new ResultadoExpansion(true, fAnt, cAnt, nuevasFilas, nuevasColumnas, "Expansión exitosa.");
+        return new ResultadoExpansion(
+                true,
+                filasAnteriores,
+                columnasAnteriores,
+                this.filas,
+                this.columnas,
+                tipoAnterior,
+                this.tipoEstructural,
+                null
+        );
     }
 
     public ResumenEstructuralCiudad getResumenEstructural() {
-        int bloquesInactivos = getOcupacionActual() - listarBloquesActivos().size();
+        int bloquesActivos = listarBloquesActivos().size();
+        int bloquesInactivos = getOcupacionActual() - bloquesActivos;
 
         return new ResumenEstructuralCiudad(
                 this.nombre,
@@ -332,45 +321,29 @@ public class Ciudad implements  Expansionable {
                 getOcupacionActual(),
                 getDensidad(),
                 getTipoEstructural(),
-                listarBloquesActivos().size(),
+                bloquesActivos,
                 bloquesInactivos
         );
-
     }
     // === API ESPACIAL (Requisito Sprint 3 para el Módulo 2) ===
-
-    /**
-     * Permite al simulador saber las coordenadas exactas de los bloques que están funcionando.
-     */
-    public List<Posicion> getPosicionesBloquesActivos() {
-        List<Posicion> posicionesActivas = new ArrayList<>();
-
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                // Como ya importaste Bloque correctamente, esto no dará error
-                if (tablero[i][j] != null && tablero[i][j].estaActivo()) {
-                    posicionesActivas.add(new Posicion(i, j));
-                }
-            }
-        }
-        return posicionesActivas;
-    }
 
     /**
      * Permite al simulador pedir un bloque concreto sabiendo su posición.
      */
     public Bloque getBloque(Posicion pos) {
-        if (pos.getFila() < 0 || pos.getFila() >= filas || pos.getColumna() < 0 || pos.getColumna() >= columnas) {
-            throw new PosicionFueraDeLimitesException("La coordenada consultada está fuera de los límites de la ciudad.");
+        if (pos == null) {
+            throw new IllegalArgumentException("La posición no puede ser nula.");
         }
+
+        validarPosicion(pos.getFila(), pos.getColumna());
         return tablero[pos.getFila()][pos.getColumna()];
     }
 
-    public boolean fueExpandidaDesdeUltimaSimulacion(){
+    public boolean fueExpandidaDesdeUltimaSimulacion() {
         return expandidaDesdeUltimaSimulacion;
     }
 
-    public void marcarSimulacionEjecutada(){
+    public void marcarSimulacionEjecutada() {
         this.expandidaDesdeUltimaSimulacion = false;
     }
 

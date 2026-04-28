@@ -360,7 +360,7 @@ class SimuladorCiudadTest {
 
         ResultadoSimulacion antes = simulador.simular(ciudad);
 
-        ciudad.expandir(10, 10);
+        ciudad.expandir();
 
         ResultadoSimulacion despues = simulador.simular(ciudad);
 

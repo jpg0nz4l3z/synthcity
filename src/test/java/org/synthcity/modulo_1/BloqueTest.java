@@ -131,4 +131,40 @@ class BloqueTest {
         assertEquals(ReglasSimulacion.TRANSPORTE_SOPORTE, bloque.getSoporteTransporte());
         assertEquals(0, bloque.getContaminacion());
     }
+
+    @Test
+    void bloqueResidencial_esGeneradorDemanda() {
+        BloqueResidencial bloque = new BloqueResidencial(new Posicion(0, 0));
+
+        assertTrue(bloque.esGeneradorDemanda());
+    }
+
+    @Test
+    void bloquesNoResidenciales_noSonGeneradoresDemanda() {
+        assertFalse(new BloqueEnergia(new Posicion(0, 0)).esGeneradorDemanda());
+        assertFalse(new BloqueIndustrial(new Posicion(0, 1)).esGeneradorDemanda());
+        assertFalse(new BloqueServicios(new Posicion(1, 0)).esGeneradorDemanda());
+        assertFalse(new BloqueTransporte(new Posicion(1, 1)).esGeneradorDemanda());
+    }
+
+    @Test
+    void bloquesSinInfluenciaEspacial_devuelvenRadioCero() {
+        assertEquals(0, new BloqueEnergia(new Posicion(0, 0)).getRadioInfluencia());
+        assertEquals(0, new BloqueIndustrial(new Posicion(0, 1)).getRadioInfluencia());
+        assertEquals(0, new BloqueResidencial(new Posicion(1, 0)).getRadioInfluencia());
+    }
+
+    @Test
+    void bloqueServicios_devuelveRadioCoberturaServicios() {
+        BloqueServicios bloque = new BloqueServicios(new Posicion(0, 0));
+
+        assertEquals(ReglasSimulacion.RADIO_COBERTURA_SERVICIOS, bloque.getRadioInfluencia());
+    }
+
+    @Test
+    void bloqueTransporte_devuelveRadioInfluenciaTransporte() {
+        BloqueTransporte bloque = new BloqueTransporte(new Posicion(0, 0));
+
+        assertEquals(ReglasSimulacion.RADIO_INFLUENCIA_TRANSPORTE, bloque.getRadioInfluencia());
+    }
 }

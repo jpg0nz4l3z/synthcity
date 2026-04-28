@@ -6,6 +6,6 @@ package org.synthcity.modulo_1;
  */
 
 public interface Expansionable {
-    ResultadoExpansion expandir(int nuevasFilas, int nuevasColumnas);
+    ResultadoExpansion expandir();
     boolean puedeExpandirse();
 }

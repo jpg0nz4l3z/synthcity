@@ -327,59 +327,26 @@ class CiudadTest {
         assertTrue(activos.contains(industrial));
     }
 
+
     @Test
-    void expansionValidaADimensionesMayores() {
+    void expansionValidaSegunPoliticaAumentaDimensionesEnDiez() {
         Ciudad ciudad = new Ciudad("CiudadA", 10, 10);
 
-        ciudad.expandir(20, 20);
+        ResultadoExpansion resultado = ciudad.expandir();
+
+        assertTrue(resultado.isAprobada());
+        assertEquals(10, resultado.getFilasAnteriores());
+        assertEquals(10, resultado.getColumnasAnteriores());
+        assertEquals(20, resultado.getFilasNuevas());
+        assertEquals(20, resultado.getColumnasNuevas());
 
         assertEquals(20, ciudad.getFilas());
         assertEquals(20, ciudad.getColumnas());
     }
 
     @Test
-    void expansionConDimensionesMenoresOIguales_retornaExpansionFallida() {
-        Ciudad ciudad = new Ciudad("CiudadB", 20, 20);
-
-        ResultadoExpansion r1 = ciudad.expandir(20, 25);
-        assertFalse(r1.isExitosa());
-
-        ResultadoExpansion r2 = ciudad.expandir(25, 20);
-        assertFalse(r2.isExitosa());
-
-        ResultadoExpansion r3 = ciudad.expandir(10, 10);
-        assertFalse(r3.isExitosa());
-    }
-
-    @Test
-    void expansionPorEncimaDelLimiteGlobal_retornaExpansionFallida() {
-        Ciudad ciudad = new Ciudad("CiudadC", 20, 20);
-
-        ResultadoExpansion r1 = ciudad.expandir(101, 50);
-        assertFalse(r1.isExitosa());
-
-        ResultadoExpansion r2 = ciudad.expandir(50, 101);
-        assertFalse(r2.isExitosa());
-    }
-
-    @Test
-    void expansionSuperandoElMaximoDeExpansiones_retornaExpansionFallida() {
-        Ciudad ciudad = new Ciudad("CiudadD", 10, 10);
-
-        ciudad.expandir(20, 20);
-        ciudad.expandir(30, 30);
-        ciudad.expandir(40, 40);
-        ciudad.expandir(50, 50);
-        ciudad.expandir(60, 60);
-
-        // La sexta expansión ya no lanza excepción, sino que devuelve 'false'
-        ResultadoExpansion r = ciudad.expandir(70, 70);
-        assertFalse(r.isExitosa());
-    }
-
-    @Test
-    void trasExpandir_losBloquesAnterioresSeConservanEnSusPosiciones() {
-        Ciudad ciudad = new Ciudad("CiudadE", 10, 10);
+    void expansionConservaBloquesEnSusPosiciones() {
+        Ciudad ciudad = new Ciudad("CiudadB", 10, 10);
 
         BloqueResidencial b1 = new BloqueResidencial(new Posicion(0, 0));
         BloqueEnergia b2 = new BloqueEnergia(new Posicion(2, 3));
@@ -389,7 +356,7 @@ class CiudadTest {
         ciudad.addBloque(b2);
         ciudad.addBloque(b3);
 
-        ciudad.expandir(20, 20);
+        ciudad.expandir();
 
         assertSame(b1, ciudad.getBloque(0, 0));
         assertSame(b2, ciudad.getBloque(2, 3));
@@ -397,8 +364,8 @@ class CiudadTest {
     }
 
     @Test
-    void trasExpandir_contarBloquesDevuelveElMismoValor() {
-        Ciudad ciudad = new Ciudad("CiudadF", 10, 10);
+    void expansionMantieneMismoConteoDeBloques() {
+        Ciudad ciudad = new Ciudad("CiudadC", 10, 10);
 
         ciudad.addBloque(new BloqueResidencial(new Posicion(0, 0)));
         ciudad.addBloque(new BloqueEnergia(new Posicion(1, 1)));
@@ -406,41 +373,107 @@ class CiudadTest {
 
         int bloquesAntes = ciudad.contarBloques();
 
-        ciudad.expandir(20, 20);
+        ciudad.expandir();
 
         assertEquals(bloquesAntes, ciudad.contarBloques());
     }
 
     @Test
-    void trasExpandir_capacidadMaximaEsMayor() {
-        Ciudad ciudad = new Ciudad("CiudadG", 10, 10);
+    void expansionAumentaCapacidadMaxima() {
+        Ciudad ciudad = new Ciudad("CiudadD", 10, 10);
 
         int capacidadAntes = ciudad.getCapacidadMaxima();
 
-        ciudad.expandir(20, 30);
+        ciudad.expandir();
 
         assertTrue(ciudad.getCapacidadMaxima() > capacidadAntes);
-        assertEquals(600, ciudad.getCapacidadMaxima());
+        assertEquals(400, ciudad.getCapacidadMaxima());
     }
 
     @Test
-    void trasExpandir_tipoEstructuralRecalculadoCorrectamente() {
-        Ciudad ciudad = new Ciudad("CiudadH", 10, 10);
+    void expansionRecalculaTipoEstructural() {
+        Ciudad ciudad = new Ciudad("CiudadE", 10, 10);
 
         assertEquals(TipoEstructuralCiudad.PEQUENA, ciudad.getTipoEstructural());
 
-        ciudad.expandir(30, 30);
+        ResultadoExpansion resultado = ciudad.expandir();
+
+        assertEquals(TipoEstructuralCiudad.PEQUENA, resultado.getTipoEstructuralAnterior());
+        assertEquals(TipoEstructuralCiudad.PEQUENA, resultado.getTipoEstructuralNuevo());
+        assertEquals(TipoEstructuralCiudad.PEQUENA, ciudad.getTipoEstructural());
+
+        ciudad.expandir(); // 30x30 = 900
 
         assertEquals(TipoEstructuralCiudad.MEDIANA, ciudad.getTipoEstructural());
-
-        ciudad.expandir(50, 50);
-
-        assertEquals(TipoEstructuralCiudad.GRANDE, ciudad.getTipoEstructural());
     }
 
     @Test
-    void noApareceNingunBloqueDuplicadoTrasCopiarTablero() {
+    void expansionMarcaFlagDesdeUltimaSimulacion() {
+        Ciudad ciudad = new Ciudad("CiudadF", 10, 10);
+
+        assertFalse(ciudad.fueExpandidaDesdeUltimaSimulacion());
+
+        ciudad.expandir();
+
+        assertTrue(ciudad.fueExpandidaDesdeUltimaSimulacion());
+    }
+
+    @Test
+    void marcarSimulacionEjecutadaReseteaFlagExpansion() {
+        Ciudad ciudad = new Ciudad("CiudadG", 10, 10);
+
+        ciudad.expandir();
+
+        assertTrue(ciudad.fueExpandidaDesdeUltimaSimulacion());
+
+        ciudad.marcarSimulacionEjecutada();
+
+        assertFalse(ciudad.fueExpandidaDesdeUltimaSimulacion());
+    }
+
+    @Test
+    void expansionIncrementaContadorDeExpansiones() {
+        Ciudad ciudad = new Ciudad("CiudadH", 10, 10);
+
+        assertEquals(0, ciudad.getExpansionesRealizadas());
+
+        ciudad.expandir();
+
+        assertEquals(1, ciudad.getExpansionesRealizadas());
+
+        ciudad.expandir();
+
+        assertEquals(2, ciudad.getExpansionesRealizadas());
+    }
+
+    @Test
+    void noPuedeExpandirseAlSuperarMaximoDeExpansiones() {
         Ciudad ciudad = new Ciudad("CiudadI", 10, 10);
+
+        ciudad.expandir(); // 20x20
+        ciudad.expandir(); // 30x30
+        ciudad.expandir(); // 40x40
+        ciudad.expandir(); // 50x50
+        ciudad.expandir(); // 60x60
+
+        assertEquals(5, ciudad.getExpansionesRealizadas());
+        assertFalse(ciudad.puedeExpandirse());
+
+        assertThrows(ExpansionCiudadException.class, ciudad::expandir);
+    }
+
+    @Test
+    void noPuedeExpandirseSiSuperaLimiteGlobal() {
+        Ciudad ciudad = new Ciudad("CiudadJ", 95, 95);
+
+        assertFalse(ciudad.puedeExpandirse());
+
+        assertThrows(ExpansionCiudadException.class, ciudad::expandir);
+    }
+
+    @Test
+    void noApareceNingunBloqueDuplicadoTrasExpandir() {
+        Ciudad ciudad = new Ciudad("CiudadK", 10, 10);
 
         BloqueResidencial b1 = new BloqueResidencial(new Posicion(0, 0));
         BloqueEnergia b2 = new BloqueEnergia(new Posicion(1, 1));
@@ -450,7 +483,7 @@ class CiudadTest {
         ciudad.addBloque(b2);
         ciudad.addBloque(b3);
 
-        ciudad.expandir(20, 20);
+        ciudad.expandir();
 
         List<Bloque> bloques = ciudad.listarBloques();
 
@@ -461,13 +494,13 @@ class CiudadTest {
     }
 
     @Test
-    void elModeloSigueFuncionandoTrasExpansionEInsercionesPosteriores() {
-        Ciudad ciudad = new Ciudad("CiudadJ", 10, 10);
+    void modeloSigueFuncionandoTrasExpansionEInsercionesPosteriores() {
+        Ciudad ciudad = new Ciudad("CiudadL", 10, 10);
 
         ciudad.addBloque(new BloqueResidencial(new Posicion(0, 0)));
         ciudad.addBloque(new BloqueEnergia(new Posicion(1, 1)));
 
-        ciudad.expandir(20, 20);
+        ciudad.expandir();
 
         ciudad.addBloque(new BloqueIndustrial(new Posicion(15, 15)));
         ciudad.addBloque(new BloqueTransporte(new Posicion(19, 19)));
@@ -477,9 +510,6 @@ class CiudadTest {
         assertTrue(ciudad.estaOcupada(1, 1));
         assertTrue(ciudad.estaOcupada(15, 15));
         assertTrue(ciudad.estaOcupada(19, 19));
-
-        assertNotNull(ciudad.getBloque(15, 15));
-        assertNotNull(ciudad.getBloque(19, 19));
     }
 
     @Test
@@ -529,5 +559,49 @@ class CiudadTest {
         ciudad.addBloque(new BloqueResidencial(new Posicion(2, 2)));
 
         assertEquals(3, ciudad.contarBloques());
+    }
+
+
+
+    @Test
+    void getBloquesActivosConPosicionDevuelveSoloBloquesActivos() {
+        Ciudad ciudad = new Ciudad("CiudadM", 10, 10);
+
+        BloqueResidencial residencial = new BloqueResidencial(new Posicion(0, 0));
+        BloqueEnergia energia = new BloqueEnergia(new Posicion(1, 1));
+        BloqueServicios servicios = new BloqueServicios(new Posicion(2, 2));
+
+        ciudad.addBloque(residencial);
+        ciudad.addBloque(energia);
+        ciudad.addBloque(servicios);
+
+        ciudad.desactivarBloque(new Posicion(1, 1));
+
+        List<Bloque> activos = ciudad.getBloquesActivosConPosicion();
+
+        assertEquals(2, activos.size());
+        assertTrue(activos.contains(residencial));
+        assertTrue(activos.contains(servicios));
+        assertFalse(activos.contains(energia));
+
+        assertEquals(new Posicion(0, 0), residencial.getPosicion());
+        assertEquals(new Posicion(2, 2), servicios.getPosicion());
+    }
+
+    @Test
+    void getBloquePorPosicionDevuelveBloqueCorrecto() {
+        Ciudad ciudad = new Ciudad("CiudadN", 10, 10);
+
+        BloqueTransporte bloque = new BloqueTransporte(new Posicion(3, 4));
+        ciudad.addBloque(bloque);
+
+        assertSame(bloque, ciudad.getBloque(new Posicion(3, 4)));
+    }
+
+    @Test
+    void getBloqueConPosicionNulaLanzaIllegalArgumentException() {
+        Ciudad ciudad = new Ciudad("CiudadO", 10, 10);
+
+        assertThrows(IllegalArgumentException.class, () -> ciudad.getBloque(null));
     }
 }

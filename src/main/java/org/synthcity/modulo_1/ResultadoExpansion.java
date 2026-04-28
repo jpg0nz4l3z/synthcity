@@ -1,32 +1,94 @@
 package org.synthcity.modulo_1;
 
-/**
- * DTO que encapsula el resultado de una operación de expansión.
- * Requisito obligatorio del Sprint 3 para la integración.
- */
 public class ResultadoExpansion {
-    private final boolean exitosa;
+
+    private final boolean aprobada;
     private final int filasAnteriores;
     private final int columnasAnteriores;
-    private final int nuevasFilas;
-    private final int nuevasColumnas;
-    private final String mensaje;
+    private final int filasNuevas;
+    private final int columnasNuevas;
+    private final TipoEstructuralCiudad tipoEstructuralAnterior;
+    private final TipoEstructuralCiudad tipoEstructuralNuevo;
+    private final String motivoRechazo;
 
-    public ResultadoExpansion(boolean exitosa, int filasAnt, int colAnt,
-                              int filasNuevas, int colNuevas, String mensaje) {
-        this.exitosa = exitosa;
-        this.filasAnteriores = filasAnt;
-        this.columnasAnteriores = colAnt;
-        this.nuevasFilas = filasNuevas;
-        this.nuevasColumnas = colNuevas;
-        this.mensaje = mensaje;
+    public ResultadoExpansion(boolean aprobada,
+                              int filasAnteriores,
+                              int columnasAnteriores,
+                              int filasNuevas,
+                              int columnasNuevas,
+                              TipoEstructuralCiudad tipoEstructuralAnterior,
+                              TipoEstructuralCiudad tipoEstructuralNuevo,
+                              String motivoRechazo) {
+        this.aprobada = aprobada;
+        this.filasAnteriores = filasAnteriores;
+        this.columnasAnteriores = columnasAnteriores;
+        this.filasNuevas = filasNuevas;
+        this.columnasNuevas = columnasNuevas;
+        this.tipoEstructuralAnterior = tipoEstructuralAnterior;
+        this.tipoEstructuralNuevo = tipoEstructuralNuevo;
+        this.motivoRechazo = motivoRechazo;
     }
 
-    // Getters obligatorios para que M3 pueda leer el resultado
-    public boolean isExitosa() { return exitosa; }
-    public int getFilasAnteriores() { return filasAnteriores; }
-    public int getColumnasAnteriores() { return columnasAnteriores; }
-    public int getNuevasFilas() { return nuevasFilas; }
-    public int getNuevasColumnas() { return nuevasColumnas; }
-    public String getMensaje() { return mensaje; }
+    public boolean isAprobada() {
+        return aprobada;
+    }
+
+    public boolean isExitosa() {
+        return aprobada;
+    }
+
+    public int getFilasAnteriores() {
+        return filasAnteriores;
+    }
+
+    public int getColumnasAnteriores() {
+        return columnasAnteriores;
+    }
+
+    public int getFilasNuevas() {
+        return filasNuevas;
+    }
+
+    public int getColumnasNuevas() {
+        return columnasNuevas;
+    }
+
+    public int getNuevasFilas() {
+        return filasNuevas;
+    }
+
+    public int getNuevasColumnas() {
+        return columnasNuevas;
+    }
+
+    public TipoEstructuralCiudad getTipoEstructuralAnterior() {
+        return tipoEstructuralAnterior;
+    }
+
+    public TipoEstructuralCiudad getTipoEstructuralNuevo() {
+        return tipoEstructuralNuevo;
+    }
+
+    public String getMotivoRechazo() {
+        return motivoRechazo;
+    }
+
+    public String getMensaje() {
+        return motivoRechazo;
+    }
+
+    public boolean cambioTipoEstructural() {
+        return tipoEstructuralAnterior != tipoEstructuralNuevo;
+    }
+
+    @Override
+    public String toString() {
+        return "ResultadoExpansion{" +
+                "aprobada=" + aprobada +
+                ", dimensiones=" + filasAnteriores + "x" + columnasAnteriores +
+                " -> " + filasNuevas + "x" + columnasNuevas +
+                ", tipo=" + tipoEstructuralAnterior + " -> " + tipoEstructuralNuevo +
+                ", motivo='" + motivoRechazo + '\'' +
+                '}';
+    }
 }
