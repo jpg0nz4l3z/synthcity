@@ -5,22 +5,26 @@ import org.junit.jupiter.api.BeforeAll;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 abstract class JavaFxTestBase {
 
+    private static final AtomicBoolean iniciado = new AtomicBoolean(false);
+
     @BeforeAll
     static void iniciarJavaFx() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
+        if (iniciado.compareAndSet(false, true)) {
+            CountDownLatch latch = new CountDownLatch(1);
 
-        try {
-            Platform.startup(latch::countDown);
-        } catch (IllegalStateException e) {
-            latch.countDown();
-        }
+            Platform.startup(() -> {
+                Platform.setImplicitExit(false);
+                latch.countDown();
+            });
 
-        if (!latch.await(5, TimeUnit.SECONDS)) {
-            throw new IllegalStateException("No se pudo iniciar JavaFX para los tests.");
+            if (!latch.await(10, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Timeout iniciando JavaFX.");
+            }
         }
     }
 
@@ -44,7 +48,7 @@ abstract class JavaFxTestBase {
         });
 
         try {
-            if (!latch.await(5, TimeUnit.SECONDS)) {
+            if (!latch.await(10, TimeUnit.SECONDS)) {
                 throw new IllegalStateException("Timeout ejecutando acción JavaFX.");
             }
         } catch (InterruptedException e) {
