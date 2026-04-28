@@ -75,4 +75,30 @@ public class DatabaseManager {
             System.err.println("[JDBC] Error en la inicialización: " + e.getMessage());
         }
     }
+    public void inicializarTablaDataset() {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS dataset (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre_ciudad VARCHAR(100) NOT NULL,
+                densidad DOUBLE NOT NULL,
+                ratio_energetico DOUBLE NOT NULL,
+                cobertura_servicios DOUBLE NOT NULL,
+                contaminacion DOUBLE NOT NULL,
+                estabilidad DOUBLE NOT NULL,
+                score_viabilidad DOUBLE NOT NULL,
+                objetivo INT NOT NULL,
+                fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """;
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.executeUpdate();
+            System.out.println("[DatabaseManager] Tabla 'dataset' inicializada correctamente.");
+
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al inicializar la tabla de dataset.", e);
+        }
+    }
 }
