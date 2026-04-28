@@ -46,6 +46,16 @@ public class BloqueResidencial extends Bloque {
     }
 
     @Override
+    public int getRadioInfluencia() {
+        return 0;
+    }
+
+    @Override
+    public boolean esGeneradorDemanda(){
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "BloqueResidencial [posicion=" + getPosicion() +
                 ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";

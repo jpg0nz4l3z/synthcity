@@ -52,15 +52,16 @@ public class PanelResumenSistema extends VBox {
     }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
-        if (ciudad == null || evaluacion == null) {
+        if (ciudad == null || evaluacion == null || evaluacion.getMetricaCiudad() == null) {
             limpiar();
             return;
         }
 
         nombreCiudad.setText("Nombre: " + ciudad.getNombre());
-        tipoEstructural.setText("Tipo: " + ciudad.getTipoEstructural());
-        numeroBloques.setText("Bloques: " + ciudad.getOcupacionActual());
-        densidad.setText("Densidad: " + String.format(Locale.ROOT, "%.2f", ciudad.getDensidad()));
+        tipoEstructural.setText("Tipo: " + evaluacion.getMetricaCiudad().getTipoEstructural());
+        numeroBloques.setText("Bloques: " + evaluacion.getMetricaCiudad().getTotalBloques());
+        densidad.setText("Densidad: " + String.format(Locale.ROOT, "%.2f",
+                evaluacion.getMetricaCiudad().getDensidad()));
 
         nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
         score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
@@ -68,12 +69,13 @@ public class PanelResumenSistema extends VBox {
 
         if (prediccion != null) {
             tendencia.setText("Tendencia: " + prediccion.getTendenciaPredicha());
-            scorePredicho.setText("Score predicho: " + String.format(Locale.ROOT, "%.2f", prediccion.getScorePredicho()));
+            scorePredicho.setText("Score predicho: " + String.format(Locale.ROOT, "%.2f",
+                    prediccion.getScorePredicho()));
             mensajePrediccion.setText("Mensaje: " + prediccion.getMensajePrediccion());
         } else {
             tendencia.setText("Tendencia: N/A");
             scorePredicho.setText("Score predicho: N/A");
-            mensajePrediccion.setText("Mensaje: Prediccion no disponible");
+            mensajePrediccion.setText("Mensaje: Predicción no disponible");
         }
     }
 

@@ -5,7 +5,7 @@ import org.synthcity.modulo_1.bloques.Bloque;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Ciudad {
+public class Ciudad implements Expansionable {
     private String nombre;
     private int filas;
     private int columnas;
@@ -16,6 +16,8 @@ public class Ciudad {
     private int expansionesRealizadas = 0;
     private final int maximoExpansiones = 5;
     private double umbralExpansion = 0.80;
+    private static final int INCREMENTO_EXPANSION = 10;
+    private boolean expandidaDesdeUltimaSimulacion;
 
     public Ciudad(String nombre, int filas, int columnas) {
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -38,6 +40,7 @@ public class Ciudad {
         this.tablero = new Bloque[filas][columnas];
         this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas = 0;
+        this.expandidaDesdeUltimaSimulacion = false;
     }
 
     private TipoEstructuralCiudad calcularTipoEstructural() {
@@ -246,46 +249,43 @@ public class Ciudad {
 
 
     public boolean puedeExpandirse() {
-        boolean cabenMasFilasColumnas = (filas + 10 <= MAX_FILAS) && (columnas + 10 <= MAX_COLUMNAS);
+        boolean cabenMasFilasColumnas =
+                (filas + INCREMENTO_EXPANSION <= MAX_FILAS)
+                        && (columnas + INCREMENTO_EXPANSION <= MAX_COLUMNAS);
+
         return expansionesRealizadas < maximoExpansiones && cabenMasFilasColumnas;
-
     }
 
-    public void expandirSegunPolitica() {
+    public ResultadoExpansion expandirSegunPolitica() {
+        return expandir();
+    }
+
+    @Override
+    public ResultadoExpansion expandir() {
+        int filasAnteriores = this.filas;
+        int columnasAnteriores = this.columnas;
+        TipoEstructuralCiudad tipoAnterior = this.tipoEstructural;
+
         if (!puedeExpandirse()) {
-            throw new ExpansionCiudadException("La ciudad no puede expandirse según la política actual.");
-        }
-        int nuevasFilas = this.filas + 10;
-        int nuevasColumnas = this.columnas + 10;
-        expandir(nuevasFilas, nuevasColumnas);
-    }
-
-    public void expandir(int nuevasFilas, int nuevasColumnas) {
-        if (nuevasFilas <= this.filas || nuevasColumnas <= this.columnas) {
             throw new ExpansionCiudadException(
-                    "No se puede expandir la ciudad a " + nuevasFilas + "x" + nuevasColumnas +
-                            " porque las nuevas dimensiones deben ser mayores que las actuales (" +
-                            this.filas + "x" + this.columnas + ").");
+                    "La ciudad no puede expandirse: se ha alcanzado el máximo de expansiones o los límites globales."
+            );
         }
+
+        int nuevasFilas = this.filas + INCREMENTO_EXPANSION;
+        int nuevasColumnas = this.columnas + INCREMENTO_EXPANSION;
 
         if (nuevasFilas > MAX_FILAS || nuevasColumnas > MAX_COLUMNAS) {
             throw new ExpansionCiudadException(
-                    "No se puede expandir la ciudad a " + nuevasFilas + "x" +
-                            nuevasColumnas +
-                            " porque supera los límites globales (max. " + MAX_FILAS + " filas y " +
-                            MAX_COLUMNAS + " columnas).");
-        }
-
-        if (expansionesRealizadas >= maximoExpansiones) {
-            throw new ExpansionCiudadException(
-                    "No se puede expandir: se ha alcanzado el máximo de expansiones permitidas (" +
-                            maximoExpansiones + ").");
+                    "No se puede expandir porque supera los límites globales de "
+                            + MAX_FILAS + " filas y " + MAX_COLUMNAS + " columnas."
+            );
         }
 
         Bloque[][] nuevoTablero = new Bloque[nuevasFilas][nuevasColumnas];
 
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
+        for (int i = 0; i < this.filas; i++) {
+            for (int j = 0; j < this.columnas; j++) {
                 nuevoTablero[i][j] = this.tablero[i][j];
             }
         }
@@ -295,10 +295,23 @@ public class Ciudad {
         this.columnas = nuevasColumnas;
         this.tipoEstructural = calcularTipoEstructural();
         this.expansionesRealizadas++;
+        this.expandidaDesdeUltimaSimulacion = true;
+
+        return new ResultadoExpansion(
+                true,
+                filasAnteriores,
+                columnasAnteriores,
+                this.filas,
+                this.columnas,
+                tipoAnterior,
+                this.tipoEstructural,
+                null
+        );
     }
 
     public ResumenEstructuralCiudad getResumenEstructural() {
-        int bloquesInactivos = getOcupacionActual() - listarBloquesActivos().size();
+        int bloquesActivos = listarBloquesActivos().size();
+        int bloquesInactivos = getOcupacionActual() - bloquesActivos;
 
         return new ResumenEstructuralCiudad(
                 this.nombre,
@@ -308,10 +321,38 @@ public class Ciudad {
                 getOcupacionActual(),
                 getDensidad(),
                 getTipoEstructural(),
-                listarBloquesActivos().size(),
+                bloquesActivos,
                 bloquesInactivos
         );
+    }
+    // === API ESPACIAL (Requisito Sprint 3 para el Módulo 2) ===
 
+    /**
+     * Permite al simulador pedir un bloque concreto sabiendo su posición.
+     */
+    public Bloque getBloque(Posicion pos) {
+        if (pos == null) {
+            throw new IllegalArgumentException("La posición no puede ser nula.");
+        }
+
+        validarPosicion(pos.getFila(), pos.getColumna());
+        return tablero[pos.getFila()][pos.getColumna()];
+    }
+
+    public boolean fueExpandidaDesdeUltimaSimulacion() {
+        return expandidaDesdeUltimaSimulacion;
+    }
+
+    public void marcarSimulacionEjecutada() {
+        this.expandidaDesdeUltimaSimulacion = false;
+    }
+
+    public int getExpansionesRealizadas() {
+        return expansionesRealizadas;
+    }
+
+    public List<Bloque> getBloquesActivosConPosicion() {
+        return listarBloquesActivos();
     }
 }
 

@@ -27,6 +27,11 @@ public class ResultadoRepository {
         }
 
         MetricaCiudad metrica = evaluacion.getMetricaCiudad();
+
+        if (metrica == null) {
+            throw new IllegalArgumentException("La evaluación no contiene métricas para persistir.");
+        }
+
         String sql = "INSERT INTO resultados (nombre_ciudad, nivel_evaluacion, score_viabilidad, "
                 + "mensaje_evaluacion, tendencia_predicha, score_predicho, mensaje_prediccion, "
                 + "densidad, porcentaje_actividad, ratio_energetico, ratio_cobertura, "
@@ -35,7 +40,7 @@ public class ResultadoRepository {
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, ciudad.getNombre());
+            ps.setString(1, evaluacion.getNombreCiudad());
             ps.setString(2, evaluacion.getNivelEvaluacion().name());
             ps.setDouble(3, evaluacion.getScoreViabilidad());
             ps.setString(4, evaluacion.getMensaje());
@@ -50,54 +55,83 @@ public class ResultadoRepository {
             ps.setDouble(13, metrica.getEstabilidadBasica());
 
             ps.executeUpdate();
-            System.out.println("[JDBC] Resultado persistido correctamente.");
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al guardar el resultado en base de datos.", e);
         }
     }
 
-    public void obtenerUltimoResultado() {
+    public String obtenerUltimoResultado() {
         if (dbManager == null) {
             throw new IllegalStateException("DatabaseManager no puede ser null para consultar resultados.");
         }
 
         String sql = "SELECT * FROM resultados ORDER BY id DESC LIMIT 1";
+
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
-                System.out.println("=== ULTIMO RESULTADO RECUPERADO ===");
-                System.out.println("Ciudad: " + rs.getString("nombre_ciudad"));
-                System.out.println("Score: " + rs.getDouble("score_viabilidad"));
-                System.out.println("Tendencia: " + rs.getString("tendencia_predicha"));
-                System.out.println("Densidad guardada: " + rs.getDouble("densidad"));
-                System.out.println("===================================");
-            } else {
-                System.out.println("No hay registros previos en la base de datos.");
+                return "=== ULTIMO RESULTADO RECUPERADO ===\n"
+                        + "Ciudad: " + rs.getString("nombre_ciudad") + "\n"
+                        + "Nivel: " + rs.getString("nivel_evaluacion") + "\n"
+                        + "Score: " + rs.getDouble("score_viabilidad") + "\n"
+                        + "Tendencia: " + rs.getString("tendencia_predicha") + "\n"
+                        + "Score predicho: " + rs.getDouble("score_predicho") + "\n"
+                        + "Densidad guardada: " + rs.getDouble("densidad") + "\n"
+                        + "Actividad guardada: " + rs.getDouble("porcentaje_actividad") + "\n"
+                        + "Ratio energetico: " + rs.getDouble("ratio_energetico") + "\n"
+                        + "Ratio cobertura: " + rs.getDouble("ratio_cobertura") + "\n"
+                        + "Contaminacion: " + rs.getDouble("contaminacion") + "\n"
+                        + "Estabilidad: " + rs.getDouble("estabilidad_basica") + "\n"
+                        + "Fecha: " + rs.getTimestamp("fecha_registro") + "\n"
+                        + "===================================";
             }
+
+            return "No hay registros previos en la base de datos.";
+
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al recuperar el ultimo resultado.", e);
         }
     }
 
-    public void listarResultadosBasicos() {
+    public String listarResultadosBasicos() {
         if (dbManager == null) {
             throw new IllegalStateException("DatabaseManager no puede ser null para listar resultados.");
         }
 
-        String sql = "SELECT nombre_ciudad, nivel_evaluacion, score_viabilidad, fecha_registro FROM resultados";
+        String sql = "SELECT nombre_ciudad, nivel_evaluacion, score_viabilidad, tendencia_predicha, fecha_registro "
+                + "FROM resultados ORDER BY fecha_registro DESC";
+
+        StringBuilder sb = new StringBuilder("HISTORIAL DE SIMULACIONES:\n");
+
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
-            System.out.println("HISTORIAL DE SIMULACIONES:");
+            boolean hayResultados = false;
+
             while (rs.next()) {
-                System.out.println("- " + rs.getString("nombre_ciudad")
-                        + " | Nivel: " + rs.getString("nivel_evaluacion")
-                        + " | Score: " + rs.getDouble("score_viabilidad")
-                        + " | Fecha: " + rs.getTimestamp("fecha_registro"));
+                hayResultados = true;
+                sb.append("- ")
+                        .append(rs.getString("nombre_ciudad"))
+                        .append(" | Nivel: ")
+                        .append(rs.getString("nivel_evaluacion"))
+                        .append(" | Score: ")
+                        .append(rs.getDouble("score_viabilidad"))
+                        .append(" | Tendencia: ")
+                        .append(rs.getString("tendencia_predicha"))
+                        .append(" | Fecha: ")
+                        .append(rs.getTimestamp("fecha_registro"))
+                        .append("\n");
             }
+
+            if (!hayResultados) {
+                sb.append("No hay registros guardados.\n");
+            }
+
+            return sb.toString();
+
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al listar resultados.", e);
         }

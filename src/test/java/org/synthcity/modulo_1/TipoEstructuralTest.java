@@ -48,8 +48,10 @@ class TipoEstructuralTest {
 
         assertEquals(TipoEstructuralCiudad.PEQUENA, ciudad.getTipoEstructural());
 
-        ciudad.expandir(30, 30);
+        ciudad.expandir(); // 20x20 = 400, sigue PEQUENA
+        assertEquals(TipoEstructuralCiudad.PEQUENA, ciudad.getTipoEstructural());
 
+        ciudad.expandir(); // 30x30 = 900, pasa a MEDIANA
         assertEquals(TipoEstructuralCiudad.MEDIANA, ciudad.getTipoEstructural());
     }
 
@@ -59,8 +61,10 @@ class TipoEstructuralTest {
 
         assertEquals(TipoEstructuralCiudad.MEDIANA, ciudad.getTipoEstructural());
 
-        ciudad.expandir(50, 50);
+        ciudad.expandir(); // 40x40 = 1600, sigue MEDIANA
+        assertEquals(TipoEstructuralCiudad.MEDIANA, ciudad.getTipoEstructural());
 
+        ciudad.expandir(); // 50x50 = 2500, pasa a GRANDE
         assertEquals(TipoEstructuralCiudad.GRANDE, ciudad.getTipoEstructural());
     }
 }

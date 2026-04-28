@@ -46,6 +46,16 @@ public class BloqueTransporte extends Bloque {
     }
 
     @Override
+    public int getRadioInfluencia(){
+        return ReglasSimulacion.RADIO_INFLUENCIA_TRANSPORTE;
+    }
+
+    @Override
+    public boolean esGeneradorDemanda(){
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "BloqueTransporte [posicion=" + getPosicion() +
                 ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";

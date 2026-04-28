@@ -46,6 +46,16 @@ public class BloqueEnergia extends Bloque {
     }
 
     @Override
+    public int getRadioInfluencia(){
+        return 0;
+    }
+
+    @Override
+    public boolean esGeneradorDemanda(){
+        return false;
+    }
+
+    @Override
     public String toString() {
         return "BloqueEnergia [posicion=" + getPosicion() + ", estado=" + (estaActivo() ? "activo" : "inactivo") + "]";
     }

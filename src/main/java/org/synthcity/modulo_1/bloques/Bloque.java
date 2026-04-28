@@ -10,6 +10,7 @@ public abstract class Bloque {
     private Posicion posicion;
     private boolean activo;
 
+
     public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo) {
         this.tipoBloque = tipoBloque;
         this.posicion = posicion;
@@ -40,6 +41,8 @@ public abstract class Bloque {
         this.activo = estado;
     }
 
+
+
     @Override
     public String toString() {
         return "Bloque [" +
@@ -48,6 +51,11 @@ public abstract class Bloque {
                 ", estado=" + (activo ? "activo" : "inactivo") +
                 "]";
     }
+
+    // METODOS ABSTRACTOS
+    public abstract int getRadioInfluencia();
+
+    public abstract boolean esGeneradorDemanda();
 
 
     public abstract int getProduccionEnergia();
@@ -69,4 +77,5 @@ public abstract class Bloque {
 
 
     public abstract int getContaminacion();
+
 }

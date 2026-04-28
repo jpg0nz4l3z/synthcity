@@ -55,11 +55,29 @@ public class ControladorGUI {
     }
 
     public void guardarResultadoActual() {
-        if (resultadoRepository != null
-                && ciudadActual != null
-                && evaluacionActual != null
-                && prediccionActual != null) {
-            resultadoRepository.guardarResultado(ciudadActual, evaluacionActual, prediccionActual);
+        if (resultadoRepository == null) {
+            throw new FormatoSalidaException("No hay repositorio disponible para guardar.");
         }
+        if (ciudadActual == null || evaluacionActual == null || prediccionActual == null) {
+            throw new FormatoSalidaException("No hay un resultado completo para guardar.");
+        }
+
+        resultadoRepository.guardarResultado(ciudadActual, evaluacionActual, prediccionActual);
+    }
+
+    public String obtenerUltimoResultadoGuardado() {
+        if (resultadoRepository == null) {
+            return "Repositorio no disponible.";
+        }
+
+        return resultadoRepository.obtenerUltimoResultado();
+    }
+
+    public String listarResultadosGuardados() {
+        if (resultadoRepository == null) {
+            return "Repositorio no disponible.";
+        }
+
+        return resultadoRepository.listarResultadosBasicos();
     }
 }
