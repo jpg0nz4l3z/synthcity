@@ -14,23 +14,37 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.synthcity.modulo_1.Ciudad;
 
+import javafx.stage.FileChooser;
+import java.io.File;
+import javafx.scene.control.TitledPane;
+
 public class VentanaPrincipal {
     private Stage stage;
     private BorderPane root;
     private PanelCiudad panelCiudad;
     private PanelResumenSistema panelResumen;
     private ControladorGUI controlador;
+    private final PanelEvolucionTemporal panelEvolucion;
+    private final PanelNotificacionExpansion panelNotificacion;
 
     private Button btnRefrescar;
     private Button btnGuardar;
     private Button btnLimpiar;
+    private Button btnGuardarHistorial;
+    private Button btnGuardarDataset;
+    private Button btnExportarCSV;
 
-    public VentanaPrincipal(PanelCiudad panelCiudad, PanelResumenSistema panelResumen) {
+    public VentanaPrincipal(PanelCiudad panelCiudad, PanelResumenSistema panelResumen, PanelEvolucionTemporal panelEvolucion) {
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
+        this.panelEvolucion = panelEvolucion;
+        this.panelNotificacion = new PanelNotificacionExpansion();
         inicializarComponentes();
         construirLayout();
         configurarEventos();
+    }
+    public VentanaPrincipal(PanelCiudad panelCiudad, PanelResumenSistema panelResumen) {
+        this(panelCiudad, panelResumen, null);
     }
 
     private void inicializarComponentes() {
@@ -38,11 +52,17 @@ public class VentanaPrincipal {
         btnRefrescar = new Button("Refrescar");
         btnGuardar = new Button("Guardar");
         btnLimpiar = new Button("Limpiar");
+        btnGuardarHistorial = new Button("Guardar historial");
+        btnGuardarDataset   = new Button("Guardar dataset");
+        btnExportarCSV      = new Button("Exportar CSV");
 
         String estiloBoton = "-fx-font-size: 18px; -fx-padding: 12 24; -fx-background-radius: 8;";
         btnRefrescar.setStyle(estiloBoton);
         btnGuardar.setStyle(estiloBoton);
         btnLimpiar.setStyle(estiloBoton);
+        btnExportarCSV.setStyle(estiloBoton + "-fx-background-color: #27ae60; -fx-text-fill: white;");
+        btnGuardarHistorial.setStyle(estiloBoton);
+        btnGuardarDataset.setStyle(estiloBoton);
     }
 
     private void construirLayout() {
@@ -64,7 +84,11 @@ public class VentanaPrincipal {
 
         // --- BOTTOM: Separador horizontal + botones
         HBox botonera = new HBox(20);
-        botonera.getChildren().addAll(btnRefrescar, btnGuardar, btnLimpiar);
+        botonera.getChildren().addAll(
+                btnRefrescar, btnGuardar, btnLimpiar,
+                new Separator(Orientation.VERTICAL),
+                btnGuardarHistorial, btnGuardarDataset, btnExportarCSV
+        );
         botonera.setStyle("-fx-padding: 20; -fx-alignment: center; -fx-background-color: #f5f5f5;");
         botonera.setPrefHeight(100);
 
@@ -72,6 +96,11 @@ public class VentanaPrincipal {
         horizontalSep.setOrientation(Orientation.HORIZONTAL);
 
         VBox bottomContainer = new VBox();
+        if (panelEvolucion != null) {
+            TitledPane tp = new TitledPane("Evolución temporal", panelEvolucion);
+            tp.setExpanded(true);
+            bottomContainer.getChildren().add(tp);
+        }
         bottomContainer.getChildren().addAll(horizontalSep, botonera);
         bottomContainer.setStyle("-fx-padding: 0;");
         root.setBottom(bottomContainer);
@@ -81,6 +110,7 @@ public class VentanaPrincipal {
         panelDerecho.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-background-color: white;");
 
         // Placeholder inicial
+        if (panelNotificacion != null) panelDerecho.getChildren().add(panelNotificacion);
         if (panelResumen != null) {
             panelDerecho.getChildren().add(panelResumen);
         } else {
@@ -115,10 +145,37 @@ public class VentanaPrincipal {
         btnLimpiar.setOnAction(e -> {
             if (controlador != null) controlador.limpiarVista();
         });
+        btnGuardarHistorial.setOnAction(e -> {
+            if (controlador != null) controlador.guardarHistorialActual();
+        });
+        btnGuardarDataset.setOnAction(e -> {
+            if (controlador != null) controlador.guardarDatasetActual();
+        });
+        btnExportarCSV.setOnAction(e -> {
+            if (controlador == null) return;
+            FileChooser fc = new FileChooser();
+            fc.setTitle("Exportar dataset a CSV");
+            fc.setInitialFileName("dataset_synthcity.csv");
+            fc.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("CSV", "*.csv"));
+            File archivo = stage != null ? fc.showSaveDialog(stage) : null;
+            if (archivo != null) {
+                try {
+                    controlador.exportarDatasetCSV(archivo.getAbsolutePath());
+                    new Alert(Alert.AlertType.INFORMATION,
+                            "CSV exportado:\n" + archivo.getAbsolutePath()).showAndWait();
+                } catch (Exception ex) {
+                    new Alert(Alert.AlertType.ERROR, ex.getMessage()).showAndWait();
+                }
+            }
+        });
     }
 
     public void setControlador(ControladorGUI controlador) {
         this.controlador = controlador;
+        if (controlador != null && panelNotificacion != null) {
+            controlador.setPanelNotificacion(panelNotificacion);
+        }
     }
 
 
