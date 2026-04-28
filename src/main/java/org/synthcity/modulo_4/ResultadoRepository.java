@@ -136,4 +136,35 @@ public class ResultadoRepository {
             throw new FormatoSalidaException("Error al listar resultados.", e);
         }
     }
+
+    public void guardarHistorial(ResultadoSimulacion historial, String nombreCiudad) {
+        if (historial == null) {
+            throw new IllegalArgumentException("El historial no puede ser null.");
+        }
+
+        String sql = "INSERT INTO historial_simulacion (" +
+                "nombre_ciudad, ciclos_ejecutados, motivo_parada, " +
+                "estabilidad_media, contaminacion_acumulada, " +
+                "equilibrio_energetico_ultimo, tipo_estructural" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nombreCiudad);
+            ps.setInt(2, 1);
+            ps.setString(3, historial.getEstadoSimulacion().name());
+            ps.setDouble(4, historial.getEstabilidadBasica());
+            ps.setInt(5, historial.getContaminacion());
+            ps.setInt(6, historial.getEquilibrioEnergetico());
+            ps.setString(7, historial.getTipoEstructural().name());
+
+            ps.executeUpdate();
+            System.out.println("[JDBC] Historial guardado para: " + nombreCiudad);
+
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al guardar historial.", e);
+        }
+    }
 }
+
