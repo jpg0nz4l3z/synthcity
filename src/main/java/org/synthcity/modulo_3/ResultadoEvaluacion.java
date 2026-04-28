@@ -111,6 +111,10 @@ public class ResultadoEvaluacion {
                 || nivelEvaluacion == NivelEvaluacion.OPTIMO;
     }
 
+    public boolean fueExpandida() {
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Ciudad: " + nombreCiudad +
