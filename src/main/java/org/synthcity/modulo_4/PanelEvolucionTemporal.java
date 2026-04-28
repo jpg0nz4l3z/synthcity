@@ -19,6 +19,7 @@ import org.synthcity.modulo_2.ResultadoSimulacion;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class PanelEvolucionTemporal extends VBox {
 
     private final Label labelTitulo;
@@ -38,10 +39,10 @@ public class PanelEvolucionTemporal extends VBox {
         labelTitulo = new Label("EVOLUCIÓN TEMPORAL");
         labelTitulo.setStyle("-fx-font-weight: bold; -fx-font-size: 13;");
 
-        labelNumeroCiclos      = new Label("Ciclos ejecutados: —");
-        labelMotivoParada      = new Label("Motivo de parada: —");
-        labelTendencia         = new Label("Tendencia general: —");
-        labelEstabilidadMedia  = new Label("Estabilidad media: —");
+        labelNumeroCiclos     = new Label("Ciclos ejecutados: —");
+        labelMotivoParada     = new Label("Motivo de parada: —");
+        labelTendencia        = new Label("Tendencia general: —");
+        labelEstabilidadMedia = new Label("Estabilidad media: —");
         labelDeficitEnergetico = new Label("Ciclos con déficit energético: —");
 
         tabla = construirTabla();
@@ -61,6 +62,7 @@ public class PanelEvolucionTemporal extends VBox {
         );
     }
 
+
     public void mostrarHistorial(ResultadoSimulacion historial) {
         limpiar();
 
@@ -69,6 +71,7 @@ public class PanelEvolucionTemporal extends VBox {
             return;
         }
 
+        PanelEvolucionTemporal
         if (historial.ciudadEstaVacia() || !historial.hayBloquesActivos()) {
             labelNumeroCiclos.setText("Ciclos ejecutados: 0");
             labelMotivoParada.setText("Motivo de parada: "
@@ -81,19 +84,25 @@ public class PanelEvolucionTemporal extends VBox {
 
         List<EstadoCiclo> ciclos = historial.getCiclos();
 
+
         ObservableList<FilaCiclo> filas = ciclos.stream()
                 .map(FilaCiclo::new)
                 .collect(Collectors.toCollection(FXCollections::observableArrayList));
 
         tabla.setItems(filas);
 
+
         long ciclosConDeficit = ciclos.stream()
                 .filter(c -> c.getEquilibrioEnergetico() < 0)
                 .count();
 
+
         String tendencia = calcularTendencia(ciclos);
 
-        labelNumeroCiclos.setText("Ciclos ejecutados: " + historial.getCiclosEjecutados());
+
+
+        labelNumeroCiclos.setText("Ciclos ejecutados: "
+                + historial.getCiclosEjecutados());
         labelMotivoParada.setText("Motivo de parada: "
                 + formatearMotivo(historial.getMotivoParada()));
         labelTendencia.setText("Tendencia general: " + tendencia);
@@ -102,6 +111,7 @@ public class PanelEvolucionTemporal extends VBox {
         labelDeficitEnergetico.setText("Ciclos con déficit energético: "
                 + ciclosConDeficit + " de " + ciclos.size());
     }
+
 
     public void limpiar() {
         tabla.getItems().clear();
@@ -112,13 +122,17 @@ public class PanelEvolucionTemporal extends VBox {
         labelDeficitEnergetico.setText("Ciclos con déficit energético: —");
     }
 
+
+
     private String calcularTendencia(List<EstadoCiclo> ciclos) {
         if (ciclos.size() < 2) return "INDETERMINADA (un solo ciclo)";
+
 
         double estabilidadInicio = ciclos.stream()
                 .mapToDouble(EstadoCiclo::getEstabilidad)
                 .findFirst()
                 .orElse(0.0);
+
 
         double estabilidadFin = ciclos.stream()
                 .mapToDouble(EstadoCiclo::getEstabilidad)
@@ -127,13 +141,11 @@ public class PanelEvolucionTemporal extends VBox {
 
         double diferencia = estabilidadFin - estabilidadInicio;
 
-        if (diferencia > 0.05)
-            return "MEJORANDO ↑  (+" + String.format("%.3f", diferencia) + ")";
-        else if (diferencia < -0.05)
-            return "DETERIORANDO ↓  (" + String.format("%.3f", diferencia) + ")";
-        else
-            return "ESTABLE →  (Δ" + String.format("%.3f", diferencia) + ")";
+        if (diferencia > 0.05)       return "MEJORANDO ↑  (+" + String.format("%.3f", diferencia) + ")";
+        else if (diferencia < -0.05) return "DETERIORANDO ↓  (" + String.format("%.3f", diferencia) + ")";
+        else                          return "ESTABLE →  (Δ" + String.format("%.3f", diferencia) + ")";
     }
+
 
     private String formatearMotivo(MotivoParadaSimulacion motivo) {
         if (motivo == null) return "Desconocido";
@@ -146,10 +158,12 @@ public class PanelEvolucionTemporal extends VBox {
         };
     }
 
+
     private TableView<FilaCiclo> construirTabla() {
         TableView<FilaCiclo> tv = new TableView<>();
         tv.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         tv.setPlaceholder(new Label("Sin datos de simulación"));
+
 
         TableColumn<FilaCiclo, Integer> colCiclo = new TableColumn<>("Ciclo");
         colCiclo.setCellValueFactory(d -> d.getValue().numeroCicloProperty().asObject());
@@ -188,6 +202,8 @@ public class PanelEvolucionTemporal extends VBox {
         return tv;
     }
 
+
+
     public static class FilaCiclo {
 
         private final SimpleIntegerProperty numeroCiclo;
@@ -201,14 +217,15 @@ public class PanelEvolucionTemporal extends VBox {
         private final SimpleDoubleProperty  eficienciaTransporte;
 
         public FilaCiclo(EstadoCiclo ciclo) {
-            this.numeroCiclo            = new SimpleIntegerProperty(ciclo.getNumeroCiclo());
-            this.energiaProducida       = new SimpleIntegerProperty(ciclo.getEnergiaProducida());
-            this.consumoEnergetico      = new SimpleIntegerProperty(ciclo.getConsumoEnergetico());
+            this.numeroCiclo           = new SimpleIntegerProperty(ciclo.getNumeroCiclo());
+            this.energiaProducida      = new SimpleIntegerProperty(ciclo.getEnergiaProducida());
+            this.consumoEnergetico     = new SimpleIntegerProperty(ciclo.getConsumoEnergetico());
             this.contaminacionAcumulada = new SimpleIntegerProperty(ciclo.getContaminacionAcumulada());
-            this.estabilidad            = new SimpleDoubleProperty(redondear(ciclo.getEstabilidad()));
-            this.bienestar              = new SimpleDoubleProperty(redondear(ciclo.getBienestar()));
-            this.cobertura              = new SimpleDoubleProperty(redondear(ciclo.getCoberturaServiciosPonderada()));
-            this.eficienciaTransporte   = new SimpleDoubleProperty(redondear(ciclo.getEficienciaTransporte()));
+            this.estabilidad           = new SimpleDoubleProperty(redondear(ciclo.getEstabilidad()));
+            this.bienestar             = new SimpleDoubleProperty(redondear(ciclo.getBienestar()));
+            this.cobertura             = new SimpleDoubleProperty(redondear(ciclo.getCoberturaServiciosPonderada()));
+            this.eficienciaTransporte  = new SimpleDoubleProperty(redondear(ciclo.getEficienciaTransporte()));
+
 
             int bal = ciclo.getEquilibrioEnergetico();
             this.balance = new SimpleStringProperty(bal >= 0 ? "✓ +" + bal : "✗ " + bal);
