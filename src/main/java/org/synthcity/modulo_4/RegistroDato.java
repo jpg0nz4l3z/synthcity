@@ -11,6 +11,8 @@ public class RegistroDato {
     private final double scoreViabilidad;
     private final int objetivo;
 
+
+
     public RegistroDato(String nombreCiudad,
                         double densidad,
                         double ratioEnergetico,
@@ -52,6 +54,7 @@ public class RegistroDato {
         };
     }
 
+    public double getCoberturaServicios() { return coberturaServicios; }
     public String getNombreCiudad()    { return nombreCiudad; }
     public double getDensidad()        { return densidad; }
     public double getRatioEnergetico() { return ratioEnergetico; }
