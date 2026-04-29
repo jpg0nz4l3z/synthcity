@@ -4,26 +4,66 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
-import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
-public class ResultadoRepository {
+
+public class ResultadoRepository implements Persistible {
 
     private final DatabaseManager dbManager;
 
     public ResultadoRepository(DatabaseManager dbManager) {
         this.dbManager = dbManager;
     }
+    @Override
+    public void guardar(Object dato) {
+        if (dato instanceof ResultadoSimulacion rs) {
+            guardarHistorial(rs, rs.getNombreCiudad());
+        } else if (dato instanceof Object[] arr
+                && arr.length >= 2
+                && arr[0] instanceof Ciudad c
+                && arr[1] instanceof ResultadoEvaluacion e) {
+            guardarResultado(c, e);
+        } else {
+            throw new IllegalArgumentException(
+                    "ResultadoRepository.guardar() recibió un tipo no soportado.");
+        }
+    }
 
-    public void guardarResultado(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
+    @Override
+    public List<String> listar() {
+        List<String> lista = new ArrayList<>();
+        if (dbManager == null) return lista;
+        String sql = "SELECT nombre_ciudad, nivel_evaluacion, score_viabilidad, " +
+                "fue_expandida, fecha_registro " +
+                "FROM resultados ORDER BY id DESC LIMIT 50";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(rs.getString("nombre_ciudad") +
+                        " | Nivel: " + rs.getString("nivel_evaluacion") +
+                        " | Score: " + rs.getDouble("score_viabilidad") +
+                        " | Expandida: " + rs.getBoolean("fue_expandida") +
+                        " | " + rs.getTimestamp("fecha_registro"));
+            }
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al listar resultados.", e);
+        }
+        return lista;
+    }
+
+    public void guardarResultado(Ciudad ciudad, ResultadoEvaluacion evaluacion ) {
         if (dbManager == null) {
             throw new IllegalStateException("DatabaseManager no puede ser null para guardar resultados.");
         }
-        if (ciudad == null || evaluacion == null || prediccion == null) {
-            throw new IllegalArgumentException("Ciudad, evaluacion y prediccion son obligatorias para persistir.");
+        if (ciudad == null || evaluacion == null ) {
+            throw new IllegalArgumentException("Ciudad y evaluacion son obligatorias para persistir.");
         }
 
         MetricaCiudad metrica = evaluacion.getMetricaCiudad();
@@ -40,19 +80,17 @@ public class ResultadoRepository {
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, evaluacion.getNombreCiudad());
+            ps.setString(1, ciudad.getNombre());
             ps.setString(2, evaluacion.getNivelEvaluacion().name());
             ps.setDouble(3, evaluacion.getScoreViabilidad());
             ps.setString(4, evaluacion.getMensaje());
-            ps.setString(5, prediccion.getTendenciaPredicha().name());
-            ps.setDouble(6, prediccion.getScorePredicho());
-            ps.setString(7, prediccion.getMensajePrediccion());
-            ps.setDouble(8, metrica.getDensidad());
-            ps.setDouble(9, metrica.getPorcentajeActivos());
-            ps.setDouble(10, metrica.getRatioEnergetico());
-            ps.setDouble(11, metrica.getRatioCoberturaServicios());
-            ps.setDouble(12, metrica.getContaminacion());
-            ps.setDouble(13, metrica.getEstabilidadBasica());
+            ps.setDouble(5, metrica.getDensidad());
+            ps.setDouble(6, metrica.getPorcentajeActivos());
+            ps.setDouble(7, metrica.getRatioEnergetico());
+            ps.setDouble(8, metrica.getRatioCoberturaServicios());
+            ps.setDouble(9, metrica.getContaminacion());
+            ps.setDouble(10, metrica.getEstabilidadBasica());
+            ps.setBoolean(11, evaluacion.fueExpandida());
 
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -95,6 +133,7 @@ public class ResultadoRepository {
         }
     }
 
+
     public String listarResultadosBasicos() {
         if (dbManager == null) {
             throw new IllegalStateException("DatabaseManager no puede ser null para listar resultados.");
@@ -136,4 +175,38 @@ public class ResultadoRepository {
             throw new FormatoSalidaException("Error al listar resultados.", e);
         }
     }
+
+    public void guardarHistorial(ResultadoSimulacion historial, String nombreCiudad) {
+        if (historial == null) {
+            throw new IllegalArgumentException("El historial no puede ser null.");
+        }
+        if (nombreCiudad == null || nombreCiudad.isBlank()) {
+            throw new IllegalArgumentException("El nombre de la ciudad es obligatorio.");
+        }
+
+        String sql = "INSERT INTO historial_simulacion (" +
+                "nombre_ciudad, ciclos_ejecutados, motivo_parada, " +
+                "estabilidad_media, contaminacion_acumulada, " +
+                "equilibrio_energetico_ultimo, tipo_estructural" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nombreCiudad);
+            ps.setInt(2, 1); // Sprint 3: 1 ciclo. Sprint 4 usará getCiclos().size()
+            ps.setString(3, historial.getEstadoSimulacion().name());
+            ps.setDouble(4, historial.getEstabilidadBasica());
+            ps.setInt(5, historial.getContaminacion());
+            ps.setInt(6, historial.getEquilibrioEnergetico());
+            ps.setString(7, historial.getTipoEstructural().name());
+
+            ps.executeUpdate();
+            System.out.println("[JDBC] Historial guardado para: " + nombreCiudad);
+
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al guardar historial.", e);
+        }
+    }
 }
+
