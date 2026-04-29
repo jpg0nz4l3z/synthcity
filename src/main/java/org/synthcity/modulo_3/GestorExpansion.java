@@ -5,24 +5,25 @@ import org.synthcity.modulo_1.Ciudad;
 public class GestorExpansion {
 
     public boolean necesitaExpansion(MetricaCiudad metrica) {
-        return
-                metrica.getDensidad() >= 0.80 ||
-                        metrica.getIndiceSaturacion() >= 0.75 ||
-                        (metrica.getDensidad() >= 0.70 && metrica.getRatioCoberturaServicios() < 1.0) ||
-                        metrica.isNecesidadExpansionDetectada();
+        if (metrica == null) {
+            throw new ResultadoSimulacionInvalidoException("La métrica no puede ser nula.");
+        }
+
+        return metrica.getDensidad() >= 0.80
+                || metrica.getIndiceSaturacion() >= 0.75
+                || (metrica.getDensidad() >= 0.70 && metrica.getRatioCoberturaServicios() < 1.0)
+                || metrica.isNecesidadExpansionDetectada()
+                || metrica.saturacionDetectada();
     }
 
     public boolean puedeExpandirseAhora(Ciudad ciudad, MetricaCiudad metrica) {
-        if (!ciudad.puedeExpandirse()) {
-            return false;
+        if (ciudad == null) {
+            throw new ResultadoSimulacionInvalidoException("La ciudad no puede ser nula.");
+        }
+        if (metrica == null) {
+            throw new ResultadoSimulacionInvalidoException("La métrica no puede ser nula.");
         }
 
-        int nuevasFilas = ciudad.getFilas() + 1;
-        int nuevasColumnas = ciudad.getColumnas() + 1;
-
-        if (nuevasFilas > Ciudad.MAX_FILAS || nuevasColumnas > Ciudad.MAX_COLUMNAS) {
-            return false;
-        }
-        return true;
+        return necesitaExpansion(metrica) && ciudad.puedeExpandirse();
     }
 }

@@ -3,6 +3,7 @@ package org.synthcity.modulo_3;
 import org.synthcity.modulo_1.TipoBloque;
 import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
+import org.synthcity.modulo_2.MotivoParadaSimulacion;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 
 import java.util.Collections;
@@ -57,6 +58,17 @@ public final class MetricaCiudad {
     private final double ratioEnergetico;
     private final double indiceSaturacion;
     private final double indiceViabilidadBase;
+
+    // Sprint 3 - métricas temporales y dinámicas
+    private final double tendenciaEstabilidad;
+    private final double tendenciaContaminacion;
+    private final double contaminacionAcumulada;
+    private final int ciclosEjecutados;
+    private final MotivoParadaSimulacion motivoParada;
+    private final boolean necesidadExpansionDetectada;
+    private final double coberturaServiciosPonderada;
+    private final double eficienciaTransporte;
+    private final double estabilidadMedia;
 
     public MetricaCiudad(ResultadoSimulacion resultado) {
         if (resultado == null) {
@@ -134,6 +146,13 @@ public final class MetricaCiudad {
         this.contaminacion = resultado.getContaminacion();
         this.bienestar = resultado.getBienestar();
         this.estabilidadBasica = resultado.getEstabilidadBasica();
+        this.estabilidadMedia = resultado.getEstabilidadMedia();
+
+        if (this.estabilidadMedia < 0.0 || this.estabilidadMedia > 1.0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "La estabilidad media debe estar entre 0.0 y 1.0."
+            );
+        }
 
         if (this.densidad < 0.0 || this.densidad > 1.0) {
             throw new ResultadoSimulacionInvalidoException(
@@ -183,6 +202,34 @@ public final class MetricaCiudad {
         this.indiceEquilibrioBase = calcularIndiceEquilibrioBase();
         this.indiceSaturacion = calcularIndiceSaturacion();
         this.indiceViabilidadBase = calcularIndiceViabilidad();
+
+        this.tendenciaEstabilidad = resultado.getTendenciaEstabilidad();
+        this.tendenciaContaminacion = resultado.getTendenciaContaminacion();
+        this.contaminacionAcumulada = resultado.getContaminacionAcumulada();
+        this.ciclosEjecutados = resultado.getCiclosEjecutados();
+        this.motivoParada = resultado.getMotivoParada();
+        this.necesidadExpansionDetectada = resultado.isNecesidadExpansionDetectada();
+        this.coberturaServiciosPonderada = resultado.getCoberturaServiciosPonderada();
+        this.eficienciaTransporte = resultado.getEficienciaTransporte();
+
+        if (this.contaminacionAcumulada < 0.0 || this.ciclosEjecutados < 0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "Las métricas temporales no pueden ser negativas."
+            );
+        }
+
+        if (this.motivoParada == null) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "El motivo de parada no puede ser nulo."
+            );
+        }
+
+        if (this.coberturaServiciosPonderada < 0.0 || this.coberturaServiciosPonderada > 1.0
+                || this.eficienciaTransporte < 0.0 || this.eficienciaTransporte > 1.0) {
+            throw new ResultadoSimulacionInvalidoException(
+                    "Las métricas espaciales deben estar entre 0.0 y 1.0."
+            );
+        }
     }
 
     private double ratioPorTipo(TipoBloque tipo) {
@@ -277,6 +324,30 @@ public final class MetricaCiudad {
 
     public boolean tieneContaminacionAlta() {
         return this.contaminacion >= UMBRAL_CONTAMINACION_ALTA;
+    }
+
+    public boolean estaEnTendenciaNegativa() {
+        return this.tendenciaEstabilidad < 0.0;
+    }
+
+    public boolean estaEnTendenciaPositiva() {
+        return this.tendenciaEstabilidad > 0.0;
+    }
+
+    public boolean tieneContaminacionCreciente() {
+        return this.tendenciaContaminacion > 0.0;
+    }
+
+    public boolean colapsoDetectado() {
+        return this.motivoParada == MotivoParadaSimulacion.COLAPSO_ENERGETICO;
+    }
+
+    public boolean saturacionDetectada() {
+        return this.motivoParada == MotivoParadaSimulacion.SATURACION_CRITICA;
+    }
+
+    public boolean isNecesidadExpansionDetectada() {
+        return necesidadExpansionDetectada;
     }
 
     public String resumenMetrico() {
@@ -421,6 +492,38 @@ public final class MetricaCiudad {
 
     public double getIndiceViabilidadBase() {
         return indiceViabilidadBase;
+    }
+
+    public double getTendenciaEstabilidad() {
+        return tendenciaEstabilidad;
+    }
+
+    public double getTendenciaContaminacion() {
+        return tendenciaContaminacion;
+    }
+
+    public double getContaminacionAcumulada() {
+        return contaminacionAcumulada;
+    }
+
+    public int getCiclosEjecutados() {
+        return ciclosEjecutados;
+    }
+
+    public MotivoParadaSimulacion getMotivoParada() {
+        return motivoParada;
+    }
+
+    public double getCoberturaServiciosPonderada() {
+        return coberturaServiciosPonderada;
+    }
+
+    public double getEficienciaTransporte() {
+        return eficienciaTransporte;
+    }
+
+    public double getEstabilidadMedia() {
+        return estabilidadMedia;
     }
 
     @Override

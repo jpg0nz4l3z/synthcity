@@ -18,13 +18,39 @@ public class RegistroDato {
     private final boolean saturacionDetectada;
 
     // Variable objetivo codificada (0-4)
-    private final String objetivo;
+    private final int objetivo;
 
     public RegistroDato(double densidad, double ratioEnergetico, double ratioCoberturaServicios,
                         double contaminacion, double contaminacionAcumulada, double estabilidadMedia,
                         double tendenciaEstabilidad, double tendenciaContaminacion, double bienestar,
                         double scoreViabilidad, boolean colapsoDetectado, int ciclosEjecutados,
                         boolean saturacionDetectada, int nivelEvaluacionNumerico) {
+        if (densidad < 0.0 || densidad > 1.0) {
+            throw new ResultadoSimulacionInvalidoException("densidad inválida");
+        }
+        if (ratioEnergetico < 0.0 || ratioCoberturaServicios < 0.0) {
+            throw new ResultadoSimulacionInvalidoException("ratios no pueden ser negativos");
+        }
+        if (estabilidadMedia < 0.0 || estabilidadMedia > 1.0) {
+            throw new ResultadoSimulacionInvalidoException("estabilidadMedia inválida");
+        }
+        if (bienestar < 0.0 || bienestar > 1.0) {
+            throw new ResultadoSimulacionInvalidoException("bienestar inválido");
+        }
+        if (scoreViabilidad < 0.0 || scoreViabilidad > 100.0) {
+            throw new ResultadoSimulacionInvalidoException("scoreViabilidad inválido");
+        }
+        if (ciclosEjecutados < 0) {
+            throw new ResultadoSimulacionInvalidoException("ciclosEjecutados no puede ser negativo");
+        }
+        if (contaminacion < 0.0 || contaminacionAcumulada < 0.0) {
+            throw new ResultadoSimulacionInvalidoException("contaminación no puede ser negativa");
+        }
+        if (nivelEvaluacionNumerico < 0 || nivelEvaluacionNumerico > 4) {
+            throw new ResultadoSimulacionInvalidoException("objetivo inválido");
+        }
+
+
         this.densidad = densidad;
         this.ratioEnergetico = ratioEnergetico;
         this.ratioCoberturaServicios = ratioCoberturaServicios;
@@ -39,7 +65,7 @@ public class RegistroDato {
         this.ciclosEjecutados = ciclosEjecutados;
         this.saturacionDetectada = saturacionDetectada;
 
-        this.objetivo = String.valueOf(nivelEvaluacionNumerico);
+        this.objetivo = nivelEvaluacionNumerico;
     }
 
 
@@ -62,7 +88,7 @@ public class RegistroDato {
     }
 
 
-    public String getObjetivo() {
+    public int getObjetivo() {
         return objetivo;
     }
 

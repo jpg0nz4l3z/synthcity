@@ -1,5 +1,6 @@
 package org.synthcity.modulo_3.prediccion;
 
+import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
 import org.synthcity.modulo_3.TendenciaPredicha;
 
 public class PredictorCiudad {
@@ -20,7 +21,7 @@ public class PredictorCiudad {
 
     public PredictionResult predecir(PredictionInput input) {
         if (input == null) {
-            throw new IllegalArgumentException("PredictionInput no puede ser null.");
+            throw new ResultadoSimulacionInvalidoException("PredictionInput no puede ser null.");
         }
 
         if (esCasoSinBase(input)) {

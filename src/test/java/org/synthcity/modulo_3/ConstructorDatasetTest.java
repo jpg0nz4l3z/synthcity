@@ -1,28 +1,127 @@
 package org.synthcity.modulo_3;
 
 import org.junit.jupiter.api.Test;
-import java.io.File;
+import org.junit.jupiter.api.io.TempDir;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ConstructorDatasetTest {
+class ConstructorDatasetTest {
+
+    @TempDir
+    Path tempDir;
 
     @Test
-    public void testGenerarCSVConEscenariosObligatorios() {
-        System.out.println("--- INICIANDO GENERACIÓN DEL DATASET (TEST DE INTEGRACIÓN) ---");
+    void datasetInicial_estaVacio() {
+        ConstructorDataset dataset = new ConstructorDataset();
 
-        ConstructorDataset datasetFinal = new ConstructorDataset();
+        assertTrue(dataset.estaVacio());
+        assertEquals(0, dataset.getTamano());
+        assertTrue(dataset.getDataset().isEmpty());
+    }
 
-        datasetFinal.agregarRegistro(new RegistroDato(0.4, 0.9, 1.0, 0.1, 0.5, 0.8, 0.2, -0.1, 0.9, 90.0, false, 15, false, 4));
-        datasetFinal.agregarRegistro(new RegistroDato(0.9, 0.2, 0.4, 0.8, 5.0, 0.2, -0.5, 0.3, 0.1, 10.0, true, 8, false, 1));
-        datasetFinal.agregarRegistro(new RegistroDato(0.85, 0.7, 0.6, 0.6, 3.0, 0.5, -0.1, 0.1, 0.5, 50.0, false, 20, true, 2));
+    @Test
+    void agregarRegistro_validoIncrementaTamano() {
+        ConstructorDataset dataset = new ConstructorDataset();
 
-        String rutaArchivo = "dataset_sprint3_pruebas.csv";
-        datasetFinal.exportarCSV(rutaArchivo);
+        dataset.agregarRegistro(crearRegistro());
 
-        File archivoGenerado = new File(rutaArchivo);
-        assertTrue(archivoGenerado.exists(), "El archivo CSV no se ha generado correctamente");
-        assertTrue(archivoGenerado.length() > 0, "El archivo CSV está vacío");
+        assertFalse(dataset.estaVacio());
+        assertEquals(1, dataset.getTamano());
+        assertEquals(1, dataset.getDataset().size());
+    }
 
-        System.out.println("¡CSV validado correctamente por el Test!");
+    @Test
+    void agregarRegistroNulo_lanzaExcepcion() {
+        ConstructorDataset dataset = new ConstructorDataset();
+
+        assertThrows(ResultadoSimulacionInvalidoException.class, () ->
+                dataset.agregarRegistro(null)
+        );
+    }
+
+    @Test
+    void getDataset_devuelveCopiaInmodificable() {
+        ConstructorDataset dataset = new ConstructorDataset();
+        dataset.agregarRegistro(crearRegistro());
+
+        List<RegistroDato> registros = dataset.getDataset();
+
+        assertThrows(UnsupportedOperationException.class, () ->
+                registros.add(crearRegistro())
+        );
+    }
+
+    @Test
+    void limpiar_vaciaDataset() {
+        ConstructorDataset dataset = new ConstructorDataset();
+        dataset.agregarRegistro(crearRegistro());
+
+        dataset.limpiar();
+
+        assertTrue(dataset.estaVacio());
+        assertEquals(0, dataset.getTamano());
+    }
+
+    @Test
+    void exportarCSV_creaArchivoConCabeceraYRegistro() throws Exception {
+        ConstructorDataset dataset = new ConstructorDataset();
+        dataset.agregarRegistro(crearRegistro());
+
+        Path archivo = tempDir.resolve("dataset.csv");
+
+        dataset.exportarCSV(archivo.toString());
+
+        List<String> lineas = Files.readAllLines(archivo);
+
+        assertEquals(2, lineas.size());
+        assertEquals(
+                "densidad,ratioEnergetico,ratioCoberturaServicios,contaminacion,contaminacionAcumulada,estabilidadMedia,tendenciaEstabilidad,tendenciaContaminacion,bienestar,scoreViabilidad,colapsoDetectado,ciclosEjecutados,saturacionDetectada,objetivo",
+                lineas.get(0)
+        );
+        assertTrue(lineas.get(1).endsWith(",3"));
+    }
+
+    @Test
+    void exportarCSV_conDatasetVacio_lanzaExcepcion() {
+        ConstructorDataset dataset = new ConstructorDataset();
+
+        Path archivo = tempDir.resolve("vacio.csv");
+
+        assertThrows(ResultadoSimulacionInvalidoException.class, () ->
+                dataset.exportarCSV(archivo.toString())
+        );
+    }
+
+    @Test
+    void exportarCSV_conRutaInvalida_lanzaExcepcion() {
+        ConstructorDataset dataset = new ConstructorDataset();
+        dataset.agregarRegistro(crearRegistro());
+
+        assertThrows(ResultadoSimulacionInvalidoException.class, () ->
+                dataset.exportarCSV(" ")
+        );
+    }
+
+    private RegistroDato crearRegistro() {
+        return new RegistroDato(
+                0.7,
+                1.0,
+                0.9,
+                10,
+                30,
+                0.8,
+                -0.05,
+                10,
+                0.75,
+                70.0,
+                false,
+                5,
+                false,
+                3
+        );
     }
 }

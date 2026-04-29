@@ -16,14 +16,19 @@ public class ConstructorDataset {
     }
 
     public void agregarRegistro(RegistroDato dato) {
-        if (dato != null) {
-            this.registros.add(dato);
+        if (dato == null) {
+            throw new ResultadoSimulacionInvalidoException("No se puede agregar un registro nulo.");
         }
+        this.registros.add(dato);
     }
+
     public void exportarCSV(String rutaArchivo) {
+        if (rutaArchivo == null || rutaArchivo.isBlank()) {
+            throw new ResultadoSimulacionInvalidoException("La ruta del archivo no puede ser nula o vacía.");
+        }
+
         if (registros.isEmpty()) {
-            System.out.println("El dataset está vacío, no hay nada que exportar.");
-            return;
+            throw new ResultadoSimulacionInvalidoException("El dataset está vacío, no se puede exportar.");
         }
 
         try (PrintWriter writer = new PrintWriter(new FileWriter(rutaArchivo))) {
@@ -36,24 +41,21 @@ public class ConstructorDataset {
 
                 // Features numéricas
                 double[] features = registro.toArray();
-                for (double feature : features) {
-                    linea.append(feature).append(",");
+                for (int i = 0; i < features.length; i++) {
+                    linea.append(features[i]).append(",");
                 }
-
-                // Variable objetivo al final y línea
                 linea.append(registro.getObjetivo());
                 writer.println(linea.toString());
             }
-            System.out.println("Dataset exportado correctamente a: " + rutaArchivo);
 
         } catch (IOException e) {
-            System.err.println("Error al exportar el CSV: " + e.getMessage());
+            throw new RuntimeException("Error al exportar el CSV.", e);
         }
     }
 
 
     public List<RegistroDato> getDataset() {
-        return this.registros;
+        return List.copyOf(this.registros);
     }
 
     public int getTamano() {
