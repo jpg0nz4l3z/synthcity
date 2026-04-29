@@ -1,5 +1,7 @@
 package org.synthcity.modulo_4;
 
+import org.synthcity.modulo_3.RegistroDato;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,13 +9,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatasetRepository implements Persistible {
+public class DatasetRepository implements Persistible<RegistroDato> {
 
     private final DatabaseManager dbManager;
 
     public DatasetRepository(DatabaseManager dbManager) {
         if (dbManager == null) {
-            throw new IllegalArgumentException("DatabaseManager no puede ser null.");
+            throw new FormatoSalidaException("DatabaseManager no puede ser null.");
         }
         this.dbManager = dbManager;
     }
@@ -21,18 +23,49 @@ public class DatasetRepository implements Persistible {
     //  Implementación de Persistible
 
     @Override
-    public void guardar(Object dato) {
-        if (!(dato instanceof RegistroDato rd)) {
-            throw new IllegalArgumentException(
-                    "DatasetRepository.guardar() solo acepta RegistroDato.");
-        }
-        guardarRegistro(rd, rd.getNombreCiudad());
+    public void guardar(RegistroDato dato) {
+        guardarRegistro(dato, null);
     }
 
     @Override
-    public List<String> listar() {
-        return listarRegistrosBasicos();
+    public List<RegistroDato> listar() {
+        return listarRegistros();
     }
+
+    public List<RegistroDato> listarRegistros() {
+        String sql = "SELECT * FROM dataset_registros ORDER BY id DESC LIMIT 100";
+        List<RegistroDato> registros = new ArrayList<>();
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                registros.add(new RegistroDato(
+                        rs.getDouble("densidad"),
+                        rs.getDouble("ratio_energetico"),
+                        rs.getDouble("ratio_cobertura_servicios"),
+                        rs.getDouble("contaminacion"),
+                        rs.getDouble("contaminacion_acumulada"),
+                        rs.getDouble("estabilidad_media"),
+                        rs.getDouble("tendencia_estabilidad"),
+                        rs.getDouble("tendencia_contaminacion"),
+                        rs.getDouble("bienestar"),
+                        rs.getDouble("score_viabilidad"),
+                        rs.getBoolean("colapso_detectado"),
+                        rs.getInt("ciclos_ejecutados"),
+                        rs.getBoolean("saturacion_detectada"),
+                        Integer.parseInt(rs.getString("objetivo"))
+                ));
+            }
+
+            return registros;
+
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al listar registros del dataset.", e);
+        }
+    }
+
 
     //Operaciones de escritura
 
@@ -44,84 +77,72 @@ public class DatasetRepository implements Persistible {
             throw new IllegalArgumentException("El nombre de la ciudad es obligatorio.");
         }
 
-        String sql = "INSERT INTO dataset " +
-                "(nombre_ciudad, densidad, ratio_energetico, cobertura_servicios, " +
-                "contaminacion, estabilidad, score_viabilidad, objetivo) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
-        double[] v = dato.toArray();
+        String sql = "INSERT INTO dataset_registros (" +
+                "nombre_ciudad, densidad, ratio_energetico, ratio_cobertura_servicios, " +
+                "contaminacion, contaminacion_acumulada, estabilidad_media, " +
+                "tendencia_estabilidad, tendencia_contaminacion, bienestar, score_viabilidad, " +
+                "colapso_detectado, ciclos_ejecutados, saturacion_detectada, objetivo" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, nombreCiudad);
-            ps.setDouble(2, v[0]); // densidad
-            ps.setDouble(3, v[1]); // ratio_energetico
-            ps.setDouble(4, v[2]); // cobertura_servicios
-            ps.setDouble(5, v[3]); // contaminacion
-            ps.setDouble(6, v[4]); // estabilidad
-            ps.setDouble(7, v[5]); // score_viabilidad
-            ps.setInt(8, dato.getObjetivo());
-
+            rellenarStatement(ps, dato, nombreCiudad);
             ps.executeUpdate();
-            System.out.println("[JDBC] RegistroDato guardado para: " + nombreCiudad);
 
         } catch (SQLException e) {
-            throw new FormatoSalidaException("Error al guardar RegistroDato.", e);
+            throw new FormatoSalidaException("Error al guardar el registro del dataset.", e);
         }
     }
 
 
     public void guardarDataset(List<RegistroDato> registros, String nombreCiudad) {
-        if (registros == null || registros.isEmpty()) {
-            System.out.println("[JDBC] Lista vacía — no se guarda nada.");
+        if (registros == null) {
+            throw new FormatoSalidaException("La lista de registros no puede ser null.");
+        }
+        if (registros.isEmpty()) {
             return;
         }
 
-        String sql = "INSERT INTO dataset " +
-                "(nombre_ciudad, densidad, ratio_energetico, cobertura_servicios, " +
-                "contaminacion, estabilidad, score_viabilidad, objetivo) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO dataset_registros (" +
+                "nombre_ciudad, densidad, ratio_energetico, ratio_cobertura_servicios, " +
+                "contaminacion, contaminacion_acumulada, estabilidad_media, " +
+                "tendencia_estabilidad, tendencia_contaminacion, bienestar, score_viabilidad, " +
+                "colapso_detectado, ciclos_ejecutados, saturacion_detectada, objetivo" +
+                ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        Connection conn = null;
-        try {
-            conn = dbManager.getConnection();
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                for (RegistroDato dato : registros) {
-                    double[] v = dato.toArray();
-                    ps.setString(1, nombreCiudad);
-                    ps.setDouble(2, v[0]); ps.setDouble(3, v[1]);
-                    ps.setDouble(4, v[2]); ps.setDouble(5, v[3]);
-                    ps.setDouble(6, v[4]); ps.setDouble(7, v[5]);
-                    ps.setInt(8, dato.getObjetivo());
-                    ps.addBatch();
+            for (RegistroDato registro : registros) {
+                if (registro == null) {
+                    throw new FormatoSalidaException("El dataset no puede contener registros nulos.");
                 }
-                ps.executeBatch();
+                rellenarStatement(ps, registro, nombreCiudad);
+                ps.addBatch();
             }
 
+            ps.executeBatch();
             conn.commit();
-            System.out.println("[JDBC] Dataset guardado en transacción: "
-                    + registros.size() + " registros.");
 
         } catch (SQLException e) {
-            try { if (conn != null) conn.rollback(); } catch (SQLException ex) { /* ignorar */ }
-            throw new FormatoSalidaException("Error en transacción dataset. Rollback ejecutado.", e);
-        } finally {
-            try {
-                if (conn != null) { conn.setAutoCommit(true); conn.close(); }
-            } catch (SQLException ex) { /* ignorar */ }
+            throw new FormatoSalidaException("Error al guardar el dataset.", e);
         }
     }
 
     // Consultas
 
     public int contarRegistros() {
+        String sql = "SELECT COUNT(*) FROM dataset_registros";
+
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) FROM dataset");
+             PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             return rs.next() ? rs.getInt(1) : 0;
+
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al contar registros del dataset.", e);
         }
@@ -131,7 +152,7 @@ public class DatasetRepository implements Persistible {
     public List<String> listarRegistrosBasicos() {
         List<String> lista = new ArrayList<>();
         String sql = "SELECT nombre_ciudad, score_viabilidad, objetivo, fecha_registro " +
-                "FROM dataset ORDER BY id DESC LIMIT 50";
+                "FROM dataset_registros ORDER BY id DESC LIMIT 50";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -145,5 +166,23 @@ public class DatasetRepository implements Persistible {
             throw new FormatoSalidaException("Error al listar dataset.", e);
         }
         return lista;
+    }
+
+    private void rellenarStatement(PreparedStatement ps, RegistroDato registro, String nombreCiudad) throws SQLException {
+        ps.setString(1, nombreCiudad);
+        ps.setDouble(2, registro.getDensidad());
+        ps.setDouble(3, registro.getRatioEnergetico());
+        ps.setDouble(4, registro.getRatioCoberturaServicios());
+        ps.setDouble(5, registro.getContaminacion());
+        ps.setDouble(6, registro.getContaminacionAcumulada());
+        ps.setDouble(7, registro.getEstabilidadMedia());
+        ps.setDouble(8, registro.getTendenciaEstabilidad());
+        ps.setDouble(9, registro.getTendenciaContaminacion());
+        ps.setDouble(10, registro.getBienestar());
+        ps.setDouble(11, registro.getScoreViabilidad());
+        ps.setBoolean(12, registro.isColapsoDetectado());
+        ps.setInt(13, registro.getCiclosEjecutados());
+        ps.setBoolean(14, registro.isSaturacionDetectada());
+        ps.setString(15, String.valueOf(registro.getObjetivo()));
     }
 }

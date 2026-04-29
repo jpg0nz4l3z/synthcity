@@ -145,6 +145,7 @@ public class RegistroDato {
     }
 
 
+
     @Override
     public String toString() {
         return "RegistroDato{" +

@@ -24,6 +24,11 @@ public class DatabaseManager {
                 "nivel_evaluacion VARCHAR(50), " +
                 "score_viabilidad DOUBLE, " +
                 "mensaje_evaluacion TEXT, " +
+
+                "tendencia_predicha VARCHAR(50), " +
+                "score_predicho DOUBLE, " +
+                "mensaje_prediccion TEXT, " +
+
                 "densidad DOUBLE, " +
                 "porcentaje_actividad DOUBLE, " +
                 "ratio_energetico DOUBLE, " +
@@ -50,20 +55,36 @@ public class DatabaseManager {
         ejecutarDDL(sql, "Tabla 'historial_simulacion' inicializada.");
     }
     public void inicializarTablaDataset() {
-        String sql = "CREATE TABLE IF NOT EXISTS dataset (" +
+        String sql = "CREATE TABLE IF NOT EXISTS dataset_registros (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre_ciudad VARCHAR(100), " +
                 "densidad DOUBLE, " +
                 "ratio_energetico DOUBLE, " +
-                "cobertura_servicios DOUBLE, " +
+                "ratio_cobertura_servicios DOUBLE, " +
                 "contaminacion DOUBLE, " +
-                "estabilidad DOUBLE, " +
+                "contaminacion_acumulada DOUBLE, " +
+                "estabilidad_media DOUBLE, " +
+                "tendencia_estabilidad DOUBLE, " +
+                "tendencia_contaminacion DOUBLE, " +
+                "bienestar DOUBLE, " +
                 "score_viabilidad DOUBLE, " +
-                "objetivo INT, " +
+                "colapso_detectado BOOLEAN, " +
+                "ciclos_ejecutados INT, " +
+                "saturacion_detectada BOOLEAN, " +
+                "objetivo VARCHAR(20), " +
                 "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
-        ejecutarDDL(sql, "Tabla 'dataset' inicializada.");
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al inicializar la tabla del dataset.", e);
+        }
     }
+
     private void ejecutarDDL(String sql, String mensajeOk) {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

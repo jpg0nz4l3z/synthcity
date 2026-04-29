@@ -25,13 +25,10 @@ public class PanelResumenSistema extends VBox {
     private final Label tendencia;
     private final Label scorePredicho;
     private final Label mensajePrediccion;
-    private final Label ciclosEjecutados;
-    private final Label motivoParada;
+
     private final Label tendenciaTemporal;
-    private final Label alertasActivas;
-    private final VBox seccionExpansion;
-    private final Label expansionDimensiones;
-    private final Label expansionTipoEstructural;
+    private final Label alertas;
+    private final Label expansion;
 
     public PanelResumenSistema() {
         setSpacing(10);
@@ -50,10 +47,19 @@ public class PanelResumenSistema extends VBox {
         score = new Label("Score: ");
         mensajeEvaluacion = new Label("Mensaje evaluacion: ");
         mensajeEvaluacion.setWrapText(true);
-        evaluacionBox.getChildren().addAll(nivelEvaluacion, score, mensajeEvaluacion);
-        alertasActivas = new Label("Alertas: ");
-        alertasActivas.setWrapText(true);
-        evaluacionBox.getChildren().add(alertasActivas);
+
+        tendenciaTemporal = new Label("Tendencia temporal: ");
+        alertas = new Label("Alertas: ");
+        expansion = new Label("Expansión: ");
+
+        evaluacionBox.getChildren().addAll(
+                nivelEvaluacion,
+                score,
+                mensajeEvaluacion,
+                tendenciaTemporal,
+                alertas,
+                expansion
+        );
 
         Label tituloPrediccion = new Label("--- PREDICCION ---");
         VBox prediccionBox = new VBox(5);
@@ -61,33 +67,10 @@ public class PanelResumenSistema extends VBox {
         scorePredicho = new Label("Score predicho: ");
         mensajePrediccion = new Label("Mensaje prediccion: ");
         mensajePrediccion.setWrapText(true);
-        prediccionBox.getChildren().addAll(tendencia, scorePredicho, mensajePrediccion);
-        // sección simulación
-        Label tituloSimulacion = new Label("--- SIMULACION ---");
-        VBox simulacionBox = new VBox(5);
-        ciclosEjecutados  = new Label("Ciclos: ");
-        motivoParada      = new Label("Parada: ");
-        tendenciaTemporal = new Label("Tendencia: ");
-        simulacionBox.getChildren().addAll(ciclosEjecutados, motivoParada, tendenciaTemporal);
-
-        // sección expansión (oculta por defecto)
-        expansionDimensiones    = new Label();
-        expansionTipoEstructural = new Label();
-        Label expansionTitulo   = new Label("EXPANSION AUTOMATICA");
-        expansionTitulo.setStyle("-fx-font-weight: bold; -fx-text-fill: #CC6600;");
-        seccionExpansion = new VBox(4);
-        seccionExpansion.setStyle(
-                "-fx-background-color: #FFF3E0; -fx-border-color: #FF8C00;" +
-                        "-fx-border-width: 1; -fx-padding: 8;"
-        );
-        seccionExpansion.getChildren().addAll(
-                expansionTitulo, expansionDimensiones, expansionTipoEstructural
-        );
-        seccionExpansion.setVisible(false);
-        seccionExpansion.setManaged(false);
+        prediccionBox.getChildren().addAll(tendencia,   scorePredicho, mensajePrediccion);
 
         getChildren().addAll(tituloCiudad, infoCiudad, tituloEvaluacion, evaluacionBox, tituloPrediccion, prediccionBox);
-        getChildren().addAll(tituloSimulacion, simulacionBox, seccionExpansion);  // ← FALTA ESTA
+
     }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
@@ -106,6 +89,20 @@ public class PanelResumenSistema extends VBox {
         score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
         mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
 
+
+        //sprint 3
+        tendenciaTemporal.setText("Tendencia temporal: " + evaluacion.getTendenciaTemporal());
+        alertas.setText("Alertas: " + evaluacion.getNumeroAlertas());
+
+        if (evaluacion.isExpansionEjecutada()) {
+            expansion.setText("Expansión: ejecutada");
+        } else if (evaluacion.getAlertas().contains(org.synthcity.modulo_3.AlertaEvaluacion.NECESIDAD_EXPANSION)) {
+            expansion.setText("Expansión: recomendada");
+        } else {
+            expansion.setText("Expansión: no necesaria");
+        }
+
+
         if (prediccion != null) {
             tendencia.setText("Tendencia: " + prediccion.getTendenciaPredicha());
             scorePredicho.setText("Score predicho: " + String.format(Locale.ROOT, "%.2f",
@@ -115,50 +112,6 @@ public class PanelResumenSistema extends VBox {
             tendencia.setText("Tendencia: N/A");
             scorePredicho.setText("Score predicho: N/A");
             mensajePrediccion.setText("Mensaje: Predicción no disponible");
-        }
-    }
-
-    public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, ResultadoSimulacion historial) {
-        if (ciudad == null || evaluacion == null) {
-            limpiar();
-            return;
-        }
-
-        nombreCiudad.setText("Nombre: " + ciudad.getNombre());
-        tipoEstructural.setText("Tipo: " + ciudad.getTipoEstructural());
-        numeroBloques.setText("Bloques: " + ciudad.getOcupacionActual());
-        densidad.setText("Densidad: " + String.format(Locale.ROOT, "%.2f", ciudad.getDensidad()));
-
-        nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
-        score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
-        mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
-
-        if (evaluacion.tieneAlertas()) {
-            String textoAlertas = evaluacion.getAlertas().stream()
-                    .map(AlertaEvaluacion::name)
-                    .collect(Collectors.joining(", "));
-            alertasActivas.setText("Alertas: " + textoAlertas);
-        } else {
-            alertasActivas.setText("Sin alertas");
-        }
-
-        if (historial != null) {
-            ciclosEjecutados.setText("Ciclos: " + historial.getCiclosEjecutados());
-            motivoParada.setText("Parada: " + historial.getEstadoSimulacion());
-        } else {
-            ciclosEjecutados.setText("Ciclos: Sin datos");
-            motivoParada.setText("Parada: Sin datos");
-        }
-
-        tendenciaTemporal.setText("Tendencia: " + evaluacion.getTendenciaTemporal().name());
-
-        if (evaluacion.fueExpandida()) {
-            mostrarExpansion(
-                    evaluacion.getFilasAntes(), evaluacion.getColumnasAntes(),
-                    ciudad.getFilas(), ciudad.getColumnas(),
-                    evaluacion.getTipoAntes().name(), ciudad.getTipoEstructural().name(),
-                    !evaluacion.getTipoAntes().equals(ciudad.getTipoEstructural())
-            );
         }
     }
 
@@ -174,31 +127,10 @@ public class PanelResumenSistema extends VBox {
         scorePredicho.setText("Score predicho: ");
         mensajePrediccion.setText("Mensaje prediccion: ");
 
-        ciclosEjecutados.setText("Ciclos: ");
-        motivoParada.setText("Parada: ");
-        tendenciaTemporal.setText("Tendencia: ");
-        alertasActivas.setText("Alertas: ");
-        seccionExpansion.setVisible(false);
-        seccionExpansion.setManaged(false);
+        tendenciaTemporal.setText("Tendencia temporal: ");
+        alertas.setText("Alertas: ");
+        expansion.setText("Expansión: ");
+
     }
 
-    public void mostrarExpansion(int filasAntes, int columnasAntes,
-                                 int filasNuevas, int columnasNuevas,
-                                 String tipoAntes, String tipoNuevo,
-                                 boolean cambioTipo) {
-
-        expansionDimensiones.setText(
-                "Dimensiones: " + filasAntes + "×" + columnasAntes +
-                        "  →  " + filasNuevas + "×" + columnasNuevas
-        );
-
-        if (cambioTipo) {
-            expansionTipoEstructural.setText("Tipo: " + tipoAntes + " → " + tipoNuevo);
-        } else {
-            expansionTipoEstructural.setText("Tipo: sin cambio (" + tipoAntes + ")");
-        }
-
-        seccionExpansion.setVisible(true);
-        seccionExpansion.setManaged(true);
-    }
 }

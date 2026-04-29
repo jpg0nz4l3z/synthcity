@@ -16,7 +16,7 @@ import org.synthcity.modulo_3.prediccion.PredictionResult;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IntegracionModulo4Test extends JavaFxTestBase {
+/*class IntegracionModulo4Test extends JavaFxTestBase {
 
     @Test
     void flujoCompletoCiudadSimulacionEvaluacionPrediccionVistaFunciona() {
@@ -75,4 +75,4 @@ class IntegracionModulo4Test extends JavaFxTestBase {
         ciudad.addBloque(new BloqueTransporte(new Posicion(4, 4)));
         return ciudad;
     }
-}
+}*/

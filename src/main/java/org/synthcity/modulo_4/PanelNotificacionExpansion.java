@@ -5,69 +5,41 @@ import javafx.scene.layout.VBox;
 
 public class PanelNotificacionExpansion extends VBox {
 
-    private final Label labelTitulo;
-    private final Label labelDimensiones;
-    private final Label labelTipoEstructural;
-    private final Label labelResimulacion;
+    private final Label mensaje;
 
     public PanelNotificacionExpansion() {
-        setSpacing(6);
-        setStyle(
-                "-fx-background-color: #FF8C00;" +
-                        "-fx-padding: 12;" +
-                        "-fx-border-color: #CC6600;" +
-                        "-fx-border-width: 2;" +
-                        "-fx-border-radius: 4;" +
-                        "-fx-background-radius: 4;"
-        );
-
-        labelTitulo = new Label("CIUDAD EXPANDIDA AUTOMÁTICAMENTE");
-        labelTitulo.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: white;");
-
-        labelDimensiones = new Label();
-        labelDimensiones.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
-
-        labelTipoEstructural = new Label();
-        labelTipoEstructural.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
-
-        labelResimulacion = new Label("El sistema resimuló automáticamente sobre la nueva configuración.");
-        labelResimulacion.setStyle("-fx-font-style: italic; -fx-font-size: 11px; -fx-text-fill: #FFF0D0;");
-
-        getChildren().addAll(
-                labelTitulo,
-                labelDimensiones,
-                labelTipoEstructural,
-                labelResimulacion
-        );
-
-        setVisible(false);
-        setManaged(false);
+        setSpacing(5);
+        mensaje = new Label();
+        mensaje.setWrapText(true);
+        getChildren().add(mensaje);
+        ocultar();
     }
 
     public void mostrarExpansion(
             int filasAntes, int columnasAntes,
-            int filasNuevas, int columnasNuevas,
-            String tipoAntes, String tipoNuevo,
+            int filasDespues,
+            int columnasDespues,
+            String tipoAntes,
+            String tipoDespues,
             boolean cambioTipo) {
-
-        labelDimensiones.setText(
-                "Dimensiones: " + filasAntes + "×" + columnasAntes +
-                        "  →  " + filasNuevas + "×" + columnasNuevas
-        );
-
-        if (cambioTipo) {
-            labelTipoEstructural.setText(
-                    "Tipo estructural: " + tipoAntes + " → " + tipoNuevo
-            );
-        } else {
-            labelTipoEstructural.setText("Tipo estructural: sin cambio (" + tipoAntes + ")");
-        }
 
         setVisible(true);
         setManaged(true);
+
+        String texto = "Expansión ejecutada: "
+                + filasAntes + "x" + columnasAntes
+                + " -> "
+                + filasDespues + "x" + columnasDespues;
+
+        if (cambioTipo) {
+            texto += ". Cambio estructural: " + tipoAntes + " -> " + tipoDespues;
+        }
+
+        mensaje.setText(texto);
     }
 
     public void ocultar() {
+        mensaje.setText("");
         setVisible(false);
         setManaged(false);
     }

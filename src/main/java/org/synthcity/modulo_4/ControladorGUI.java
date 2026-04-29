@@ -1,6 +1,7 @@
 package org.synthcity.modulo_4;
 
 import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_3.RegistroDato;
 import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 import org.synthcity.modulo_2.ResultadoSimulacion;
@@ -17,79 +18,99 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ControladorGUI {
-
     private Ciudad ciudadActual;
+    private ResultadoSimulacion historialActual;
     private ResultadoEvaluacion evaluacionActual;
     private PredictionResult prediccionActual;
-    private ResultadoSimulacion historialActual;
-    private final List<RegistroDato> datasetActual = new ArrayList<>();
-
-    private final PanelCiudad panelCiudad;
-    private final PanelResumenSistema panelResumen;
-    private final ResultadoRepository resultadoRepository;
-    private final DatasetRepository datasetRepository;
-    private PanelEvolucionTemporal panelEvolucion;
-    private PanelNotificacionExpansion panelNotificacion;
 
     private final SimuladorCiudad simulador;
     private final EvaluadorCiudad evaluador;
+
+    private final PanelCiudad panelCiudad;
+    private final PanelResumenSistema panelResumen;
+    private final PanelEvolucionTemporal panelEvolucion;
+    private PanelNotificacionExpansion panelNotificacion;
+
+    private final ResultadoRepository resultadoRepository;
+    private final DatasetRepository datasetRepository;
 
 
     public ControladorGUI(SimuladorCiudad simulador,
                           EvaluadorCiudad evaluador,
                           PanelCiudad panelCiudad,
                           PanelResumenSistema panelResumen,
+                          PanelEvolucionTemporal panelEvolucion,
                           ResultadoRepository resultadoRepository,
-                          DatasetRepository datasetRepository,
-                          PanelEvolucionTemporal panelEvolucion) {
-        this.simulador           = simulador;
-        this.evaluador           = evaluador;
+                          DatasetRepository datasetRepository
+    ) {
+
+
+        if (simulador == null || evaluador == null) {
+            throw new FormatoSalidaException("Simulador y evaluador son obligatorios.");
+        }
+
+
+        this.simulador = simulador;
+        this.evaluador = evaluador;
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
+        this.panelEvolucion = panelEvolucion;
         this.resultadoRepository = resultadoRepository;
-        this.datasetRepository   = datasetRepository;
-        this.panelEvolucion      = panelEvolucion;
+        this.datasetRepository = datasetRepository;
+
     }
+
     // Sistema Completo
     public void ejecutarSistemaCompleto(Ciudad ciudad) {
         if (ciudad == null) {
-            System.err.println("[CONTROLADOR] Ciudad nula, cancelando.");
-            return;
+            throw new FormatoSalidaException("La ciudad no puede ser null.");
         }
-        System.out.println("[CONTROLADOR] Iniciando flujo completo: " + ciudad.getNombre());
+        //System.out.println("[CONTROLADOR] Iniciando flujo completo: " + ciudad.getNombre());
+
+        /*ResultadoSimulacion historial = simulador.simular(ciudad);
+        ResultadoEvaluacion evaluacion = evaluador.evaluar(historial,ciudad);
+
+        int filasAntes = ciudad.getFilas();
+        int columnasAntes = ciudad.getColumnas();
+        String tipoAntes = ciudad.getTipoEstructural().name();
+
+        if (evaluacion.isExpansionEjecutada()) {
+            historial = simulador.simular(ciudad);
+            evaluacion = evaluador.evaluar(historial,ciudad);
+        }*/
 
         ResultadoSimulacion historial = simulador.simular(ciudad);
-        ResultadoEvaluacion evaluacion = evaluador.evaluar(historial);
 
-        int filasAntes    = ciudad.getFilas();
+        int filasAntes = ciudad.getFilas();
         int columnasAntes = ciudad.getColumnas();
-        String tipoAntes  = ciudad.getTipoEstructural().name();
-        boolean fueExpandida = necesitaYPuedeExpandirse(evaluacion, ciudad);
+        String tipoAntes = ciudad.getTipoEstructural().name();
 
-        if (fueExpandida) {
-            ciudad.expandirSegunPolitica();
-            historial  = simulador.simular(ciudad);
-            evaluacion = evaluador.evaluar(historial);
+        ResultadoEvaluacion evaluacion = evaluador.evaluar(historial, ciudad);
+
+        if (evaluacion.isExpansionEjecutada()) {
+            historial = simulador.simular(ciudad);
         }
 
-        RegistroDato registro = construirRegistroDato(ciudad, evaluacion, historial);
-        datasetActual.add(registro);
+        PredictionResult prediccion = evaluador.predecir(historial);
 
-        mostrarSistema(ciudad, evaluacion, null, historial,
-                fueExpandida, filasAntes, columnasAntes, tipoAntes);
+        mostrarSistema(
+                ciudad,
+                evaluacion,
+                prediccion,
+                historial,
+                evaluacion.isExpansionEjecutada(),
+                filasAntes,
+                columnasAntes,
+                tipoAntes
+        );
 
-        if (datasetRepository != null) {
-            try {
-                datasetRepository.guardarRegistro(registro, ciudad.getNombre());
-            } catch (Exception e) {
-                System.err.println("[CONTROLADOR] Error al persistir: " + e.getMessage());
-            }
-        }
+        guardarDatasetSiExiste(ciudad);
     }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion,
-                               PredictionResult prediccion){
-        mostrarSistema(ciudad, evaluacion, prediccion, null, false, 0, 0, ""); }
+                               PredictionResult prediccion) {
+        mostrarSistema(ciudad, evaluacion, prediccion, null, false, 0, 0, "");
+    }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion,
                                PredictionResult prediccion,
@@ -100,103 +121,136 @@ public class ControladorGUI {
         this.ciudadActual = ciudad;
         this.evaluacionActual = evaluacion;
         this.prediccionActual = prediccion;
-        this.historialActual  = historial;
+        this.historialActual = historial;
+
 
         if (panelCiudad != null) {
-            if (fueExpandida) {
             panelCiudad.mostrarCiudad(ciudad);
-        } else {
-                panelCiudad.refrescar();
-            }
         }
+
         if (panelResumen != null) {
-            panelResumen.mostrarSistema(ciudad, evaluacion,historial);
-            if (fueExpandida) {
-                panelResumen.mostrarExpansion(
-                        filasAntes, columnasAntes,
-                        ciudad.getFilas(), ciudad.getColumnas(),
-                        tipoAntes, ciudad.getTipoEstructural().name(),
-                        !tipoAntes.equals(ciudad.getTipoEstructural().name())
-                );
-            }
+            panelResumen.mostrarSistema(ciudad, evaluacion, prediccion);
         }
-        if (panelEvolucion != null && historial != null) {
+
+        if (panelEvolucion != null) {
             panelEvolucion.mostrarHistorial(historial);
         }
 
         if (panelNotificacion != null) {
-            if (fueExpandida) {
-                boolean cambioTipo = !tipoAntes.equals(ciudad.getTipoEstructural().name());
+            if (fueExpandida && ciudad != null) {
+                String tipoDespues = ciudad.getTipoEstructural().name();
                 panelNotificacion.mostrarExpansion(
-                        filasAntes, columnasAntes,
-                        ciudad.getFilas(), ciudad.getColumnas(),
-                        tipoAntes, ciudad.getTipoEstructural().name(),
-                        cambioTipo
+                        filasAntes,
+                        columnasAntes,
+                        ciudad.getFilas(),
+                        ciudad.getColumnas(),
+                        tipoAntes,
+                        tipoDespues,
+                        !tipoAntes.equals(tipoDespues)
                 );
             } else {
                 panelNotificacion.ocultar();
             }
         }
     }
+
     public void guardarResultadoActual() {
         if (resultadoRepository == null) {
             throw new FormatoSalidaException("No hay repositorio disponible.");
         }
-        if (ciudadActual == null || evaluacionActual == null) {
-            throw new FormatoSalidaException("No hay resultado completo para guardar.");
+        if (ciudadActual == null || evaluacionActual == null || prediccionActual == null) {
+            throw new FormatoSalidaException("No hay un resultado completo para guardar.");
         }
-        resultadoRepository.guardarResultado(ciudadActual,evaluacionActual);
+
+        resultadoRepository.guardarResultado(ciudadActual, evaluacionActual, prediccionActual);
     }
 
     public void guardarHistorialActual() {
-        if (resultadoRepository != null && historialActual != null && ciudadActual != null) {
-            resultadoRepository.guardarHistorial(historialActual, ciudadActual.getNombre());
+        if (resultadoRepository == null) {
+            throw new FormatoSalidaException("No hay repositorio disponible para guardar historial.");
         }
+        if (historialActual == null || ciudadActual == null) {
+            throw new FormatoSalidaException("No hay historial disponible para guardar.");
+        }
+
+        resultadoRepository.guardarHistorial(historialActual, ciudadActual.getNombre());
     }
 
     public void guardarDatasetActual() {
-        if (datasetRepository != null && !datasetActual.isEmpty() && ciudadActual != null) {
-            datasetRepository.guardarDataset(datasetActual, ciudadActual.getNombre());
+        if (datasetRepository == null) {
+            throw new FormatoSalidaException("No hay repositorio disponible para guardar dataset.");
         }
+        if (ciudadActual == null) {
+            throw new FormatoSalidaException("No hay ciudad actual para asociar al dataset.");
+        }
+
+        List<RegistroDato> registros = evaluador.getConstructorDataset().getDataset();
+        datasetRepository.guardarDataset(registros, ciudadActual.getNombre());
     }
 
     public void exportarDatasetCSV(String rutaArchivo) {
-        if (datasetActual.isEmpty()) {
-            System.err.println("[CSV] No hay datos para exportar.");
-            return;
+        if (rutaArchivo == null || rutaArchivo.isBlank()) {
+            throw new FormatoSalidaException("La ruta del CSV no puede ser nula o vacía.");
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
+        List<RegistroDato> registros = evaluador.getConstructorDataset().getDataset();
 
-            writer.write(String.join(",", RegistroDato.getFeatureNames()));
+        if (registros.isEmpty()) {
+            throw new FormatoSalidaException("No hay registros de dataset para exportar.");
+        }
+
+        String cabecera = "densidad,ratioEnergetico,ratioCoberturaServicios,"
+                + "contaminacion,contaminacionAcumulada,estabilidadMedia,"
+                + "tendenciaEstabilidad,tendenciaContaminacion,bienestar,"
+                + "scoreViabilidad,colapsoDetectado,ciclosEjecutados,"
+                + "saturacionDetectada,objetivo";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(rutaArchivo))) {
+            writer.write(cabecera);
             writer.newLine();
 
-            datasetActual.stream()
-                    .map(r -> {
-                        String features = Arrays.stream(r.toArray())
-                                .mapToObj(v -> String.format(java.util.Locale.ROOT, "%.6f", v))
+            registros.stream()
+                    .map(registro -> {
+                        String features = Arrays.stream(registro.toArray())
+                                .mapToObj(String::valueOf)
                                 .collect(Collectors.joining(","));
-                        return features + "," + r.getObjetivo();
+
+                        return features + "," + registro.getObjetivo();
                     })
                     .forEach(linea -> {
                         try {
                             writer.write(linea);
                             writer.newLine();
                         } catch (IOException e) {
-                            throw new RuntimeException("Error al escribir línea CSV.", e);
+                            throw new RuntimeException("Error al escribir una línea del CSV.", e);
                         }
                     });
 
-            System.out.println("[CSV] Dataset exportado a: " + rutaArchivo);
-
         } catch (IOException e) {
-            throw new FormatoSalidaException("Error al exportar CSV: " + rutaArchivo, e);
+            throw new FormatoSalidaException("Error al exportar el dataset CSV.", e);
+        } catch (RuntimeException e) {
+            throw new FormatoSalidaException("Error al escribir el contenido del CSV.", e);
         }
     }
 
+    private void guardarDatasetSiExiste(Ciudad ciudad) {
+        if (datasetRepository == null || ciudad == null) {
+            return;
+        }
+
+        List<RegistroDato> registros = evaluador.getConstructorDataset().getDataset();
+
+        if (!registros.isEmpty()) {
+            datasetRepository.guardarDataset(registros, ciudad.getNombre());
+        }
+    }
+
+
+    //-----------------------------------------------------------
+
     public void refrescarVista() {
         if (ciudadActual != null && evaluacionActual != null) {
-            mostrarSistema(ciudadActual, evaluacionActual, prediccionActual,historialActual, false, 0, 0, "");
+            mostrarSistema(ciudadActual, evaluacionActual, prediccionActual, historialActual, false, 0, 0, "");
         }
     }
 
@@ -204,26 +258,16 @@ public class ControladorGUI {
         ciudadActual = null;
         evaluacionActual = null;
         prediccionActual = null;
-        historialActual  = null;
+        historialActual = null;
 
         if (panelCiudad != null) panelCiudad.limpiar();
         if (panelResumen != null) panelResumen.limpiar();
-        if (panelEvolucion    != null) panelEvolucion.limpiar();
+        if (panelEvolucion != null) panelEvolucion.limpiar();
         if (panelNotificacion != null) panelNotificacion.ocultar();
     }
+
     public void setPanelNotificacion(PanelNotificacionExpansion panel) {
         this.panelNotificacion = panel;
-    }
-
-    public void guardarResultadoActual() {
-        if (resultadoRepository == null) {
-            throw new FormatoSalidaException("No hay repositorio disponible para guardar.");
-        }
-        if (ciudadActual == null || evaluacionActual == null || prediccionActual == null) {
-            throw new FormatoSalidaException("No hay un resultado completo para guardar.");
-        }
-
-        resultadoRepository.guardarResultado(ciudadActual, evaluacionActual, prediccionActual);
     }
 
     public String obtenerUltimoResultadoGuardado() {
@@ -241,46 +285,21 @@ public class ControladorGUI {
 
         return resultadoRepository.listarResultadosBasicos();
     }
-}
-    public List<RegistroDato> getDatasetActual() {
-        return new ArrayList<>(datasetActual);
+
+
+    private boolean necesitaYPuedeExpandirse(ResultadoEvaluacion evaluacion, Ciudad ciudad) {
+        double densidad = evaluacion.getMetricaCiudad().getDensidad();
+        double indiceSaturacion = evaluacion.getMetricaCiudad().getIndiceSaturacion();
+        double ratioServicios = evaluacion.getMetricaCiudad().getRatioCoberturaServicios();
+
+        boolean necesita = densidad >= 0.80
+                || indiceSaturacion >= 0.75
+                || (densidad >= 0.70 && ratioServicios < 1.0);
+
+        return necesita && ciudad.puedeExpandirse();
     }
-private boolean necesitaYPuedeExpandirse(ResultadoEvaluacion evaluacion, Ciudad ciudad) {
-    double densidad         = evaluacion.getMetricaCiudad().getDensidad();
-    double indiceSaturacion = evaluacion.getMetricaCiudad().getIndiceSaturacion();
-    double ratioServicios   = evaluacion.getMetricaCiudad().getRatioCoberturaServicios();
-
-    boolean necesita = densidad >= 0.80
-            || indiceSaturacion >= 0.75
-            || (densidad >= 0.70 && ratioServicios < 1.0);
-
-    return necesita && ciudad.puedeExpandirse();
 }
 
-private RegistroDato construirRegistroDato(Ciudad ciudad,
-                                           ResultadoEvaluacion evaluacion,
-                                           ResultadoSimulacion historial) {
-    int objetivo = switch (evaluacion.getNivelEvaluacion()) {
-        case SIN_DATOS  -> 0;
-        case CRITICO    -> 1;
-        case INESTABLE  -> 2;
-        case FUNCIONAL  -> 3;
-        case OPTIMO     -> 4;
-    };
-
-    return new RegistroDato(
-            ciudad.getNombre(),
-            evaluacion.getMetricaCiudad().getDensidad(),
-            evaluacion.getMetricaCiudad().getRatioEnergetico(),
-            evaluacion.getMetricaCiudad().getRatioCoberturaServicios(),
-            evaluacion.getMetricaCiudad().getContaminacion(),
-            evaluacion.getMetricaCiudad().getEstabilidadBasica(),
-            evaluacion.getScoreViabilidad(),
-            objetivo,
-            1,
-            historial.getEstadoSimulacion().name()
-    );
-}
 
 
 
