@@ -3,10 +3,7 @@ package org.synthcity.modulo_3;
 import org.junit.jupiter.api.Test;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_1.Posicion;
-import org.synthcity.modulo_1.bloques.BloqueEnergia;
-import org.synthcity.modulo_1.bloques.BloqueIndustrial;
-import org.synthcity.modulo_1.bloques.BloqueResidencial;
-import org.synthcity.modulo_1.bloques.BloqueServicios;
+import org.synthcity.modulo_1.bloques.*;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_2.SimuladorCiudad;
 

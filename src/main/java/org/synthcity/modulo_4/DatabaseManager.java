@@ -17,21 +17,61 @@ public class DatabaseManager {
     }
 
     public void inicializarTablaResultados() {
+        // La tabla incluye los campos de evaluación, predicción y variables analíticas
         String sql = "CREATE TABLE IF NOT EXISTS resultados (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY, " +
                 "nombre_ciudad VARCHAR(100), " +
                 "nivel_evaluacion VARCHAR(50), " +
                 "score_viabilidad DOUBLE, " +
                 "mensaje_evaluacion TEXT, " +
+
                 "tendencia_predicha VARCHAR(50), " +
                 "score_predicho DOUBLE, " +
                 "mensaje_prediccion TEXT, " +
+
                 "densidad DOUBLE, " +
                 "porcentaje_actividad DOUBLE, " +
                 "ratio_energetico DOUBLE, " +
                 "ratio_cobertura DOUBLE, " +
                 "contaminacion DOUBLE, " +
                 "estabilidad_basica DOUBLE, " +
+                "fue_expandida BOOLEAN DEFAULT FALSE, " +
+                "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+        ejecutarDDL(sql, "Tabla 'resultados' inicializada.");
+    }
+    public void inicializarTablaHistorial() {
+        String sql = "CREATE TABLE IF NOT EXISTS historial_simulacion (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre_ciudad VARCHAR(100), " +
+                "ciclos_ejecutados INT, " +
+                "motivo_parada VARCHAR(50), " +
+                "estabilidad_media DOUBLE, " +
+                "contaminacion_acumulada DOUBLE, " +
+                "equilibrio_energetico_ultimo INT, " +
+                "tipo_estructural VARCHAR(50), " +
+                "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+        ejecutarDDL(sql, "Tabla 'historial_simulacion' inicializada.");
+    }
+    public void inicializarTablaDataset() {
+        String sql = "CREATE TABLE IF NOT EXISTS dataset_registros (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre_ciudad VARCHAR(100), " +
+                "densidad DOUBLE, " +
+                "ratio_energetico DOUBLE, " +
+                "ratio_cobertura_servicios DOUBLE, " +
+                "contaminacion DOUBLE, " +
+                "contaminacion_acumulada DOUBLE, " +
+                "estabilidad_media DOUBLE, " +
+                "tendencia_estabilidad DOUBLE, " +
+                "tendencia_contaminacion DOUBLE, " +
+                "bienestar DOUBLE, " +
+                "score_viabilidad DOUBLE, " +
+                "colapso_detectado BOOLEAN, " +
+                "ciclos_ejecutados INT, " +
+                "saturacion_detectada BOOLEAN, " +
+                "objetivo VARCHAR(20), " +
                 "fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
@@ -41,7 +81,19 @@ public class DatabaseManager {
             pstmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new FormatoSalidaException("Error al inicializar la tabla de resultados.", e);
+            throw new FormatoSalidaException("Error al inicializar la tabla del dataset.", e);
+        }
+    }
+
+    private void ejecutarDDL(String sql, String mensajeOk) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.executeUpdate();
+            System.out.println("[JDBC] Base de datos e infraestructura preparadas correctamente.");
+
+        } catch (SQLException e) {
+            System.err.println("[JDBC] Error en la inicialización: " + e.getMessage());
         }
     }
 }

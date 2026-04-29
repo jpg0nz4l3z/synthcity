@@ -8,6 +8,11 @@ import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
 
+import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.AlertaEvaluacion;
+import java.util.stream.Collectors;
+import javafx.scene.control.Separator;
+
 public class PanelResumenSistema extends VBox {
 
     private final Label nombreCiudad;
@@ -20,6 +25,10 @@ public class PanelResumenSistema extends VBox {
     private final Label tendencia;
     private final Label scorePredicho;
     private final Label mensajePrediccion;
+
+    private final Label tendenciaTemporal;
+    private final Label alertas;
+    private final Label expansion;
 
     public PanelResumenSistema() {
         setSpacing(10);
@@ -38,7 +47,19 @@ public class PanelResumenSistema extends VBox {
         score = new Label("Score: ");
         mensajeEvaluacion = new Label("Mensaje evaluacion: ");
         mensajeEvaluacion.setWrapText(true);
-        evaluacionBox.getChildren().addAll(nivelEvaluacion, score, mensajeEvaluacion);
+
+        tendenciaTemporal = new Label("Tendencia temporal: ");
+        alertas = new Label("Alertas: ");
+        expansion = new Label("Expansión: ");
+
+        evaluacionBox.getChildren().addAll(
+                nivelEvaluacion,
+                score,
+                mensajeEvaluacion,
+                tendenciaTemporal,
+                alertas,
+                expansion
+        );
 
         Label tituloPrediccion = new Label("--- PREDICCION ---");
         VBox prediccionBox = new VBox(5);
@@ -46,9 +67,10 @@ public class PanelResumenSistema extends VBox {
         scorePredicho = new Label("Score predicho: ");
         mensajePrediccion = new Label("Mensaje prediccion: ");
         mensajePrediccion.setWrapText(true);
-        prediccionBox.getChildren().addAll(tendencia, scorePredicho, mensajePrediccion);
+        prediccionBox.getChildren().addAll(tendencia,   scorePredicho, mensajePrediccion);
 
         getChildren().addAll(tituloCiudad, infoCiudad, tituloEvaluacion, evaluacionBox, tituloPrediccion, prediccionBox);
+
     }
 
     public void mostrarSistema(Ciudad ciudad, ResultadoEvaluacion evaluacion, PredictionResult prediccion) {
@@ -66,6 +88,20 @@ public class PanelResumenSistema extends VBox {
         nivelEvaluacion.setText("Nivel: " + evaluacion.getNivelEvaluacion());
         score.setText("Score: " + String.format(Locale.ROOT, "%.2f", evaluacion.getScoreViabilidad()));
         mensajeEvaluacion.setText("Mensaje: " + evaluacion.getMensaje());
+
+
+        //sprint 3
+        tendenciaTemporal.setText("Tendencia temporal: " + evaluacion.getTendenciaTemporal());
+        alertas.setText("Alertas: " + evaluacion.getNumeroAlertas());
+
+        if (evaluacion.isExpansionEjecutada()) {
+            expansion.setText("Expansión: ejecutada");
+        } else if (evaluacion.getAlertas().contains(org.synthcity.modulo_3.AlertaEvaluacion.NECESIDAD_EXPANSION)) {
+            expansion.setText("Expansión: recomendada");
+        } else {
+            expansion.setText("Expansión: no necesaria");
+        }
+
 
         if (prediccion != null) {
             tendencia.setText("Tendencia: " + prediccion.getTendenciaPredicha());
@@ -90,5 +126,11 @@ public class PanelResumenSistema extends VBox {
         tendencia.setText("Tendencia: ");
         scorePredicho.setText("Score predicho: ");
         mensajePrediccion.setText("Mensaje prediccion: ");
+
+        tendenciaTemporal.setText("Tendencia temporal: ");
+        alertas.setText("Alertas: ");
+        expansion.setText("Expansión: ");
+
     }
+
 }

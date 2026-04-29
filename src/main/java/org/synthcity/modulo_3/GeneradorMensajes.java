@@ -78,6 +78,10 @@ public class GeneradorMensajes {
             case ACTIVIDAD_BAJA: return "actividad baja";
             case ESTABILIDAD_INSUFICIENTE: return "estabilidad insuficiente";
             case RIESGO_COLAPSO_POTENCIAL: return "riesgo de colapso potencial";
+            case TENDENCIA_NEGATIVA: return "tendencia negativa";
+            case CONTAMINACION_CRECIENTE: return "contaminación creciente";
+            case NECESIDAD_EXPANSION: return "necesidad de expansión";
+            case COLAPSO_DETECTADO: return "colapso detectado";
             default: return alerta.name();
         }
     }

@@ -4,6 +4,7 @@ import org.synthcity.modulo_1.TipoBloque;
 import org.synthcity.modulo_1.TipoEstructuralCiudad;
 import org.synthcity.modulo_2.EstadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
+import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
 
 import java.util.Collections;
 import java.util.EnumMap;
@@ -122,7 +123,7 @@ public class PredictionInput {
 
     public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
         if (metrica == null) {
-            throw new IllegalArgumentException("La metrica no puede ser null.");
+            throw new ResultadoSimulacionInvalidoException("La métrica no puede ser null.");
         }
 
         return new PredictionInput(

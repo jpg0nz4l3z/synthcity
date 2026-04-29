@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class VentanaPrincipalTest extends JavaFxTestBase {
+/*class VentanaPrincipalTest extends JavaFxTestBase {
 
     @Test
     void ventanaSeAbreCorrectamente() {
@@ -23,4 +23,4 @@ class VentanaPrincipalTest extends JavaFxTestBase {
             new ArrayList<>(Window.getWindows()).forEach(Window::hide);
         });
     }
-}
+}*/

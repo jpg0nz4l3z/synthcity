@@ -1,5 +1,7 @@
 package org.synthcity.modulo_3;
 
+import org.synthcity.modulo_1.ResultadoExpansion;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -15,11 +17,23 @@ public class ResultadoEvaluacion {
     private final Set<AlertaEvaluacion> alertas;
     private final String resumenRiesgo;
 
+    private final TendenciaTemporal tendenciaTemporal;
+    private final boolean expansionEjecutada;
+    private final ResultadoExpansion resultadoExpansion;
+    private final int ciclosSimulados;
+
     public ResultadoEvaluacion(String nombreCiudad,
                                MetricaCiudad metricaCiudad,
                                NivelEvaluacion nivelEvaluacion,
                                String mensaje) {
-        this(nombreCiudad, metricaCiudad, nivelEvaluacion, mensaje, 0.0, EnumSet.noneOf(AlertaEvaluacion.class), "Sin información de riesgo.");
+        this(nombreCiudad, metricaCiudad, nivelEvaluacion, mensaje,
+                0.0,
+                EnumSet.noneOf(AlertaEvaluacion.class),
+                "Sin información de riesgo.",
+                TendenciaTemporal.SIN_DATOS,
+                false,
+                null,
+                0);
     }
 
     public ResultadoEvaluacion(String nombreCiudad,
@@ -29,11 +43,29 @@ public class ResultadoEvaluacion {
                                double scoreViabilidad,
                                Set<AlertaEvaluacion> alertas,
                                String resumenRiesgo) {
+        this(nombreCiudad, metricaCiudad, nivelEvaluacion, mensaje,
+                scoreViabilidad, alertas, resumenRiesgo,
+                TendenciaTemporal.SIN_DATOS,
+                false,
+                null,
+                metricaCiudad == null ? 0 : metricaCiudad.getCiclosEjecutados());
+    }
+
+    public ResultadoEvaluacion(String nombreCiudad,
+                               MetricaCiudad metricaCiudad,
+                               NivelEvaluacion nivelEvaluacion,
+                               String mensaje,
+                               double scoreViabilidad,
+                               Set<AlertaEvaluacion> alertas,
+                               String resumenRiesgo,
+                               TendenciaTemporal tendenciaTemporal,
+                               boolean expansionEjecutada,
+                               ResultadoExpansion resultadoExpansion,
+                               int ciclosSimulados) {
 
         if (nombreCiudad == null || nombreCiudad.isBlank()) {
             throw new ResultadoSimulacionInvalidoException("El nombre de la ciudad no puede ser nulo ni vacío.");
         }
-
         if (metricaCiudad == null || nivelEvaluacion == null || mensaje == null) {
             throw new ResultadoSimulacionInvalidoException("El resultado de evaluación no puede estar incompleto.");
         }
@@ -46,16 +78,28 @@ public class ResultadoEvaluacion {
         if (resumenRiesgo == null) {
             throw new ResultadoSimulacionInvalidoException("El resumen de riesgo no puede ser nulo.");
         }
+        if (tendenciaTemporal == null) {
+            throw new ResultadoSimulacionInvalidoException("La tendencia temporal no puede ser nula.");
+        }
+        if (ciclosSimulados < 0) {
+            throw new ResultadoSimulacionInvalidoException("Los ciclos simulados no pueden ser negativos.");
+        }
 
         this.nombreCiudad = nombreCiudad;
         this.metricaCiudad = metricaCiudad;
         this.nivelEvaluacion = nivelEvaluacion;
         this.mensaje = mensaje;
         this.scoreViabilidad = scoreViabilidad;
+
         Set<AlertaEvaluacion> copia = EnumSet.noneOf(AlertaEvaluacion.class);
         copia.addAll(alertas);
         this.alertas = Collections.unmodifiableSet(copia);
+
         this.resumenRiesgo = resumenRiesgo;
+        this.tendenciaTemporal = tendenciaTemporal;
+        this.expansionEjecutada = expansionEjecutada;
+        this.resultadoExpansion = resultadoExpansion;
+        this.ciclosSimulados = ciclosSimulados;
     }
 
     public String getNombreCiudad() {
@@ -109,6 +153,31 @@ public class ResultadoEvaluacion {
     public boolean esViable() {
         return nivelEvaluacion == NivelEvaluacion.FUNCIONAL
                 || nivelEvaluacion == NivelEvaluacion.OPTIMO;
+    }
+
+    public TendenciaTemporal getTendenciaTemporal() {
+        return tendenciaTemporal;
+    }
+
+    public boolean fueExpandida() {
+        return expansionEjecutada;
+    }
+
+    public boolean isExpansionEjecutada() {
+        return expansionEjecutada;
+    }
+
+    public ResultadoExpansion getResultadoExpansion() {
+        return resultadoExpansion;
+    }
+
+    public int getCiclosSimulados() {
+        return ciclosSimulados;
+    }
+
+    public boolean esCriticoOColapsando() {
+        return nivelEvaluacion == NivelEvaluacion.CRITICO
+                || tendenciaTemporal == TendenciaTemporal.COLAPSANDO;
     }
 
     @Override
