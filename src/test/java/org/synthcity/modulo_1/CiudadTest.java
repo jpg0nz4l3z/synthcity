@@ -196,6 +196,48 @@ class CiudadTest {
     }
 
     @Test
+    void reconstruirCiudadConNombreInvalidoLanzaIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                Ciudad.reconstruir(null, 10, 10, 0));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                Ciudad.reconstruir("", 10, 10, 0));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                Ciudad.reconstruir("   ", 10, 10, 0));
+    }
+
+    @Test
+    void reconstruirCiudadConDimensionesInvalidasLanzaDimensionesInvalidasException() {
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadA", 0, 10, 0));
+
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadB", 10, 0, 0));
+
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadC", -1, 10, 0));
+
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadD", 10, -1, 0));
+
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadE", 101, 10, 0));
+
+        assertThrows(DimensionesInvalidasException.class, () ->
+                Ciudad.reconstruir("CiudadF", 10, 101, 0));
+    }
+
+    @Test
+    void reconstruirCiudadConExpansionesInvalidasLanzaIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () ->
+                Ciudad.reconstruir("Negativa", 10, 10, -1));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                Ciudad.reconstruir("Excesiva", 70, 70, 6));
+    }
+
+    @Test
     void insercionDeBloqueEnPosicionValida() {
         Ciudad ciudad = new Ciudad("CiudadA", 5, 5);
         BloqueResidencial bloque = new BloqueResidencial(new Posicion(2, 3));
