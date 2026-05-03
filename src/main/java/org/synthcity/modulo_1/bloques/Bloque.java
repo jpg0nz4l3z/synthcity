@@ -42,6 +42,12 @@ public abstract class Bloque {
         }
     }
 
+    public static Bloque crearBloque(TipoBloque tipo, Posicion posicion, boolean activo) {
+        Bloque bloque = crearBloque(tipo, posicion);
+        bloque.cambiarEstado(activo);
+        return bloque;
+    }
+
     public TipoBloque getTipo() {
         return tipoBloque;
     }
