@@ -1,0 +1,513 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R 11 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 2583 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td
+13 TL
+(CIERRE TECNICO - MODULO 1 - SPRINT 4) Tj
+T*
+() Tj
+T*
+(Equipo) Tj
+T*
+() Tj
+T*
+(Modulo 1: Modelo + Tablero) Tj
+T*
+(Integrantes: Nicolas Pardo, Alfa Umaro Jalo y Juan Pablo Gonzalez.) Tj
+T*
+(Scrum Master del modulo: Nicolas Pardo.) Tj
+T*
+() Tj
+T*
+(Objetivo del sprint) Tj
+T*
+() Tj
+T*
+(En el Sprint 4 el Modulo 1 tenia que cerrar el modelo de dominio para que una ciudad) Tj
+T*
+(pudiera guardarse y recuperarse sin perder informacion importante. La meta era que una) Tj
+T*
+(ciudad recuperada desde persistencia pudiera usarse igual que una ciudad creada en) Tj
+T*
+(memoria.) Tj
+T*
+() Tj
+T*
+(El Modulo 1 no implementa JDBC. Esa responsabilidad corresponde al Modulo 4. Desde este) Tj
+T*
+(modulo se entrega la API necesaria para que persistencia pueda reconstruir objetos del) Tj
+T*
+(dominio sin saltarse validaciones internas.) Tj
+T*
+() Tj
+T*
+(Trabajo de Juan Pablo: reconstruccion de Ciudad) Tj
+T*
+() Tj
+T*
+(Se agrego en Ciudad el metodo:) Tj
+T*
+() Tj
+T*
+(public static Ciudad reconstruir\(String nombre, int filas, int columnas, int) Tj
+T*
+(expansionesRealizadas\)) Tj
+T*
+() Tj
+T*
+(Este metodo permite crear una instancia valida desde datos persistidos. La) Tj
+T*
+(reconstruccion reutiliza las validaciones del constructor normal para nombre, filas y) Tj
+T*
+(columnas. Tambien valida que expansionesRealizadas no sea negativo y no supere el maximo) Tj
+T*
+(permitido.) Tj
+T*
+() Tj
+T*
+(Despues de reconstruir, la ciudad queda con tablero inicializado, tipo estructural) Tj
+T*
+(recalculado segun filas y columnas, contador de expansiones conservado y lista para) Tj
+T*
+(repoblarse con bloques desde persistencia.) Tj
+T*
+() Tj
+T*
+(Archivo principal modificado:) Tj
+T*
+() Tj
+T*
+(src/main/java/org/synthcity/modulo_1/Ciudad.java) Tj
+T*
+() Tj
+T*
+(Trabajo de Alfa: factoria de Bloques) Tj
+T*
+() Tj
+T*
+(Se agregaron en Bloque los metodos:) Tj
+T*
+() Tj
+T*
+(public static Bloque crearBloque\(TipoBloque tipo, Posicion posicion\)) Tj
+T*
+(public static Bloque crearBloque\(TipoBloque tipo, Posicion posicion, boolean activo\)) Tj
+T*
+() Tj
+T*
+(La primera version crea el bloque concreto segun su TipoBloque. La segunda version) Tj
+T*
+(permite reconstruir tambien el estado activo o inactivo guardado en base de datos.) Tj
+T*
+() Tj
+T*
+(Mapeo implementado:) Tj
+T*
+() Tj
+T*
+(- RESIDENCIAL crea BloqueResidencial) Tj
+T*
+(- ENERGIA crea BloqueEnergia) Tj
+T*
+(- INDUSTRIAL crea BloqueIndustrial) Tj
+T*
+(- SERVICIOS crea BloqueServicios) Tj
+T*
+(- TRANSPORTE crea BloqueTransporte) Tj
+T*
+() Tj
+T*
+ET
+BT
+/F1 8 Tf
+50 30 Td
+(Pagina 1 de 4 - Cierre Tecnico Modulo 1 Sprint 4) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 1923 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td
+13 TL
+(Archivo principal modificado:) Tj
+T*
+() Tj
+T*
+(src/main/java/org/synthcity/modulo_1/bloques/Bloque.java) Tj
+T*
+() Tj
+T*
+(Trabajo de Nicolas: cierre y contrato de persistencia) Tj
+T*
+() Tj
+T*
+(Como parte del cierre tecnico y la coordinacion del modulo, se agrego una clase de) Tj
+T*
+(validacion del contrato de persistencia:) Tj
+T*
+() Tj
+T*
+(ContratoPersistenciaModulo1) Tj
+T*
+() Tj
+T*
+(Su objetivo es revisar que una Ciudad y sus Bloques tengan los datos minimos necesarios) Tj
+T*
+(antes de guardarse o integrarse con persistencia.) Tj
+T*
+() Tj
+T*
+(La clase valida:) Tj
+T*
+() Tj
+T*
+(- Ciudad no nula) Tj
+T*
+(- Nombre de ciudad presente) Tj
+T*
+(- Dimensiones validas) Tj
+T*
+(- Capacidad coherente con filas y columnas) Tj
+T*
+(- Tipo estructural presente) Tj
+T*
+(- Expansiones realizadas no negativas) Tj
+T*
+(- Lista de bloques no nula) Tj
+T*
+(- Bloques no nulos) Tj
+T*
+(- Tipo de bloque presente) Tj
+T*
+(- Posicion de bloque presente) Tj
+T*
+(- Bloques dentro de los limites de la ciudad) Tj
+T*
+() Tj
+T*
+(Archivos principales modificados:) Tj
+T*
+() Tj
+T*
+(src/main/java/org/synthcity/modulo_1/ContratoPersistenciaModulo1.java) Tj
+T*
+(src/test/java/org/synthcity/modulo_1/ContratoPersistenciaModulo1Test.java) Tj
+T*
+() Tj
+T*
+(API util de Ciudad) Tj
+T*
+() Tj
+T*
+(- getNombre\(\)) Tj
+T*
+(- getFilas\(\)) Tj
+T*
+(- getColumnas\(\)) Tj
+T*
+(- getCapacidadMaxima\(\)) Tj
+T*
+(- getTipoEstructural\(\)) Tj
+T*
+(- getExpansionesRealizadas\(\)) Tj
+T*
+(- listarBloques\(\)) Tj
+T*
+(- listarBloquesActivos\(\)) Tj
+T*
+(- addBloque\(Bloque bloque\)) Tj
+T*
+() Tj
+T*
+(API util de Bloque y Posicion) Tj
+T*
+() Tj
+T*
+(De Bloque:) Tj
+T*
+() Tj
+T*
+(- getTipo\(\)) Tj
+T*
+(- getPosicion\(\)) Tj
+T*
+(- estaActivo\(\)) Tj
+T*
+(- activar\(\)) Tj
+T*
+(- desactivar\(\)) Tj
+T*
+(- cambiarEstado\(boolean estado\)) Tj
+T*
+() Tj
+T*
+(De Posicion:) Tj
+T*
+ET
+BT
+/F1 8 Tf
+50 30 Td
+(Pagina 2 de 4 - Cierre Tecnico Modulo 1 Sprint 4) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 2114 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td
+13 TL
+() Tj
+T*
+(- getFila\(\)) Tj
+T*
+(- getColumna\(\)) Tj
+T*
+() Tj
+T*
+(Datos que debe persistir Modulo 4) Tj
+T*
+() Tj
+T*
+(Para reconstruir correctamente una ciudad, el Modulo 4 debe guardar al menos:) Tj
+T*
+() Tj
+T*
+(- Nombre de la ciudad) Tj
+T*
+(- Filas) Tj
+T*
+(- Columnas) Tj
+T*
+(- Expansiones realizadas) Tj
+T*
+(- Bloques de la ciudad) Tj
+T*
+(- Tipo de cada bloque) Tj
+T*
+(- Fila de cada bloque) Tj
+T*
+(- Columna de cada bloque) Tj
+T*
+(- Estado activo o inactivo de cada bloque) Tj
+T*
+() Tj
+T*
+(El tipo estructural puede guardarse como dato de consulta, pero el modelo lo recalcula) Tj
+T*
+(desde las dimensiones actuales para mantener coherencia.) Tj
+T*
+() Tj
+T*
+(Pruebas agregadas) Tj
+T*
+() Tj
+T*
+(En CiudadTest se agregaron pruebas para:) Tj
+T*
+() Tj
+T*
+(- Reconstruccion con dimensiones validas) Tj
+T*
+(- Reconstruccion con cero expansiones) Tj
+T*
+(- Reconstruccion con expansiones mayores que cero) Tj
+T*
+(- Nombre invalido) Tj
+T*
+(- Dimensiones invalidas) Tj
+T*
+(- Dimensiones por encima del maximo) Tj
+T*
+(- Expansiones negativas) Tj
+T*
+(- Expansiones por encima del maximo permitido) Tj
+T*
+(- Tipo estructural igual al de una ciudad normal con las mismas dimensiones) Tj
+T*
+() Tj
+T*
+(En BloqueTest se agregaron pruebas para:) Tj
+T*
+() Tj
+T*
+(- Creacion por factoria de los cinco tipos de bloque) Tj
+T*
+(- Conservacion de tipo y posicion) Tj
+T*
+(- Validacion de tipo nulo) Tj
+T*
+(- Validacion de posicion nula) Tj
+T*
+(- Reconstruccion con estado activo) Tj
+T*
+(- Reconstruccion con estado inactivo) Tj
+T*
+(- Comparacion del comportamiento funcional con los constructores directos) Tj
+T*
+() Tj
+T*
+(En ContratoPersistenciaModulo1Test se agregaron pruebas para:) Tj
+T*
+() Tj
+T*
+(- Ciudad persistible con bloques activos e inactivos) Tj
+T*
+(- Rechazo de ciudad nula) Tj
+T*
+(- Rechazo de bloque nulo) Tj
+T*
+(- Rechazo de bloque fuera de los limites de la ciudad) Tj
+T*
+() Tj
+T*
+(Ramas de trabajo) Tj
+T*
+() Tj
+T*
+(Rama de Juan Pablo:) Tj
+T*
+(feature/modulo1-juanpablo-reconstruccion-ciudad) Tj
+T*
+() Tj
+T*
+ET
+BT
+/F1 8 Tf
+50 30 Td
+(Pagina 3 de 4 - Cierre Tecnico Modulo 1 Sprint 4) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 1620 >>
+stream
+BT
+/F1 10 Tf
+50 800 Td
+13 TL
+(Rama de Alfa:) Tj
+T*
+(feature/modulo1-alfa-factoria-bloques) Tj
+T*
+() Tj
+T*
+(Rama de Nicolas:) Tj
+T*
+(feature/modulo1-nico-documentacion-integracion) Tj
+T*
+() Tj
+T*
+(Orden recomendado de merge) Tj
+T*
+() Tj
+T*
+(1. feature/modulo1-juanpablo-reconstruccion-ciudad) Tj
+T*
+(2. feature/modulo1-alfa-factoria-bloques) Tj
+T*
+(3. feature/modulo1-nico-documentacion-integracion) Tj
+T*
+() Tj
+T*
+(Este orden permite integrar primero la reconstruccion de ciudad, despues la) Tj
+T*
+(reconstruccion de bloques y al final el contrato de cierre del modulo.) Tj
+T*
+() Tj
+T*
+(Estado de pruebas) Tj
+T*
+() Tj
+T*
+(Se dejo cobertura unitaria para los cambios del modelo. En este equipo queda pendiente) Tj
+T*
+(ejecutar la suite completa con Maven desde un entorno donde mvn este disponible o desde) Tj
+T*
+(IntelliJ.) Tj
+T*
+() Tj
+T*
+(Pendientes de integracion) Tj
+T*
+() Tj
+T*
+(- Modulo 4 debe usar Ciudad.reconstruir\(...\) para cargar ciudad.) Tj
+T*
+(- Modulo 4 debe usar Bloque.crearBloque\(...\) para cargar bloques.) Tj
+T*
+(- Se debe probar guardar, cerrar la aplicacion, cargar y volver a simular.) Tj
+T*
+(- Se debe comparar una ciudad original contra una ciudad reconstruida con los mismos) Tj
+T*
+(datos.) Tj
+T*
+() Tj
+T*
+(Conclusion) Tj
+T*
+() Tj
+T*
+(El Modulo 1 queda preparado para el cierre del sistema. La persistencia puede) Tj
+T*
+(reconstruir ciudad y bloques usando metodos publicos del dominio, manteniendo) Tj
+T*
+(validaciones, dimensiones, tipo estructural, contador de expansiones y estado de) Tj
+T*
+(bloques.) Tj
+T*
+ET
+BT
+/F1 8 Tf
+50 30 Td
+(Pagina 4 de 4 - Cierre Tecnico Modulo 1 Sprint 4) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 10 0 R >>
+endobj
+xref
+0 12
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000134 00000 n
+0000000204 00000 n
+0000002838 00000 n
+0000002964 00000 n
+0000004938 00000 n
+0000005064 00000 n
+0000007229 00000 n
+0000007355 00000 n
+0000009027 00000 n
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+9155
+%%EOF
