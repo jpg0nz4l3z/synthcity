@@ -43,6 +43,24 @@ public class Ciudad implements Expansionable {
         this.expandidaDesdeUltimaSimulacion = false;
     }
 
+    public static Ciudad reconstruir(String nombre, int filas, int columnas, int expansionesRealizadas) {
+        if (expansionesRealizadas < 0) {
+            throw new IllegalArgumentException("Las expansiones realizadas no pueden ser negativas.");
+        }
+
+        Ciudad ciudad = new Ciudad(nombre, filas, columnas);
+
+        if (expansionesRealizadas > ciudad.maximoExpansiones) {
+            throw new IllegalArgumentException("Las expansiones realizadas no pueden superar el maximo permitido.");
+        }
+
+        ciudad.expansionesRealizadas = expansionesRealizadas;
+        ciudad.tipoEstructural = ciudad.calcularTipoEstructural();
+        ciudad.expandidaDesdeUltimaSimulacion = false;
+
+        return ciudad;
+    }
+
     private TipoEstructuralCiudad calcularTipoEstructural() {
         int capacidad = capacidadMaxima();
 
