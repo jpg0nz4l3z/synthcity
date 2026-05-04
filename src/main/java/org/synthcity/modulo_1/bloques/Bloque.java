@@ -12,6 +12,14 @@ public abstract class Bloque {
 
 
     public Bloque(TipoBloque tipoBloque, Posicion posicion, boolean activo) {
+        if (tipoBloque == null) {
+            throw new IllegalArgumentException("El tipo de bloque no puede ser nulo.");
+        }
+
+        if (posicion == null) {
+            throw new IllegalArgumentException("La posición del bloque no puede ser nula.");
+        }
+
         this.tipoBloque = tipoBloque;
         this.posicion = posicion;
         this.activo = activo;

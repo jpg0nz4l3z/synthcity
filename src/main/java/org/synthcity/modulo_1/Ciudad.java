@@ -44,11 +44,11 @@ public class Ciudad implements Expansionable {
     }
 
     public static Ciudad reconstruir(String nombre, int filas, int columnas, int expansionesRealizadas) {
-        Ciudad ciudad = new Ciudad(nombre, filas, columnas);
-
         if (expansionesRealizadas < 0) {
             throw new IllegalArgumentException("Las expansiones realizadas no pueden ser negativas.");
         }
+
+        Ciudad ciudad = new Ciudad(nombre, filas, columnas);
 
         if (expansionesRealizadas > ciudad.maximoExpansiones) {
             throw new IllegalArgumentException("Las expansiones realizadas no pueden superar el maximo permitido.");
