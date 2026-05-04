@@ -17,6 +17,37 @@ public abstract class Bloque {
         this.activo = activo;
     }
 
+    public static Bloque crearBloque(TipoBloque tipo, Posicion posicion) {
+        if (tipo == null) {
+            throw new IllegalArgumentException("El tipo de bloque no puede ser nulo.");
+        }
+
+        if (posicion == null) {
+            throw new IllegalArgumentException("La posicion del bloque no puede ser nula.");
+        }
+
+        switch (tipo) {
+            case RESIDENCIAL:
+                return new BloqueResidencial(posicion);
+            case ENERGIA:
+                return new BloqueEnergia(posicion);
+            case INDUSTRIAL:
+                return new BloqueIndustrial(posicion);
+            case SERVICIOS:
+                return new BloqueServicios(posicion);
+            case TRANSPORTE:
+                return new BloqueTransporte(posicion);
+            default:
+                throw new IllegalArgumentException("Tipo de bloque no soportado: " + tipo);
+        }
+    }
+
+    public static Bloque crearBloque(TipoBloque tipo, Posicion posicion, boolean activo) {
+        Bloque bloque = crearBloque(tipo, posicion);
+        bloque.cambiarEstado(activo);
+        return bloque;
+    }
+
     public TipoBloque getTipo() {
         return tipoBloque;
     }
