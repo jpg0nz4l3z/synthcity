@@ -1,7 +1,6 @@
 package org.synthcity.modulo_2;
 
 /**
- *
  * Centraliza las reglas que usarán tanto el motor como las subclases de Bloque.
  */
 public final class ReglasSimulacion {
@@ -36,6 +35,41 @@ public final class ReglasSimulacion {
     public static final int RADIO_COBERTURA_SERVICIOS = 5;
     public static final int RADIO_INFLUENCIA_TRANSPORTE = 3;
     public static final double FACTOR_PENALIZACION_DISTANCIA = 0.1;
+
+    // ========== NUEVAS CONSTANTES AÑADIDAS EN SPRINT 4 ==========
+
+    // --- Pesos para el cálculo de bienestar ---
+    public static final double PESO_SERVICIOS_BASE_BIENESTAR = 0.40;
+    public static final double PESO_SERVICIOS_POND_BIENESTAR = 0.60;
+    public static final double PESO_SERVICIOS_BIENESTAR = 0.30;
+    public static final double PESO_ENERGIA_BIENESTAR = 0.25;
+    public static final double PESO_TRANSPORTE_BIENESTAR = 0.15;
+    public static final double PESO_ACTIVIDAD_BIENESTAR = 0.15;
+    public static final double PESO_CONTAMINACION_BIENESTAR = 0.15;
+
+    // --- Pesos para el cálculo de estabilidad ---
+    public static final double PESO_SERVICIOS_BASE_ESTABILIDAD = 0.50;
+    public static final double PESO_SERVICIOS_POND_ESTABILIDAD = 0.50;
+    public static final double PESO_ENERGIA_ESTABILIDAD = 0.30;
+    public static final double PESO_SERVICIOS_ESTABILIDAD = 0.25;
+    public static final double PESO_DENSIDAD_ESTABILIDAD = 0.20;
+    public static final double PESO_ACTIVIDAD_ESTABILIDAD = 0.10;
+    public static final double PESO_TRANSPORTE_ESTABILIDAD = 0.10;
+    public static final double PESO_CONTAMINACION_ESTABILIDAD = 0.05;
+
+    // --- Factores de escala de contaminación ---
+    public static final double ESCALA_CONTAMINACION_BIENESTAR = 150.0;
+    public static final double ESCALA_CONTAMINACION_ESTABILIDAD = 200.0;
+
+    // --- Umbral para considerar simulación estable ---
+    public static final double UMBRAL_ESTABILIDAD_SIMULACION_ESTABLE = 0.65;
+
+    // --- Valor por defecto para ratios si denominador es cero ---
+    public static final double RATIO_POR_DEFECTO = 1.0;
+
+    // --- Factor de suavizado para la fórmula de influencia espacial ---
+    public static final double FACTOR_SUAVIZADO_INFLUENCIA = 1.0;
+
     private ReglasSimulacion() {
         throw new UnsupportedOperationException("Esta clase es un contenedor de constantes.");
     }
