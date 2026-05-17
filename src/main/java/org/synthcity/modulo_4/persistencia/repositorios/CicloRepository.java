@@ -1,7 +1,7 @@
-package com.synthcity.modulo4.persistencia.repositorios;
+package org.synthcity.modulo_4.persistencia.repositorios;
 
-import com.synthcity.modulo4.persistencia.ConexionBD;
-import com.synthcity.modulo4.persistencia.entidades.CicloEntidad;
+import org.synthcity.modulo_4.persistencia.ConexionBD;
+import org.synthcity.modulo_4.persistencia.entidades.CicloEntidad;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

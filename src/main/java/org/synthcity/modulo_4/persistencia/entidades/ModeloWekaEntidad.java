@@ -1,4 +1,4 @@
-package com.synthcity.modulo4.persistencia.entidades;
+package org.synthcity.modulo_4.persistencia.entidades;
 
 public class ModeloWekaEntidad {
     private Long id;

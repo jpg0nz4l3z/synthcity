@@ -1,4 +1,4 @@
-package com.synthcity.modulo4.config;
+package org.synthcity.modulo_4.config;
 
 public class ConfigRutas {
     // Rutas estáticas obligatorias del enunciado del Sprint 4

@@ -1,4 +1,4 @@
-package com.synthcity.modulo4.persistencia;
+package org.synthcity.modulo_4.persistencia;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
