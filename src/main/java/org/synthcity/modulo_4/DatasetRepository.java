@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,57 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         this.dbManager = dbManager;
     }
 
-    //  Implementación de Persistible
+    // =========================================================================
+    // OPERACIONES OBLIGATORIAS SPRINT 4 (Metadatos Estructurales del Dataset)
+    // =========================================================================
+
+    public long guardarReferencia(String rutaCsv, int columnas, int registros, String variableObjetivo) {
+        String sql = "INSERT INTO dataset_referencia (ruta_csv, columnas, registros, objetivo) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, rutaCsv);
+            ps.setInt(2, columnas);
+            ps.setInt(3, registros);
+            ps.setString(4, variableObjetivo);
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error al registrar los metadatos de control del dataset (S4).", e);
+        }
+        return -1;
+    }
+
+    public long obtenerIdPorRuta(String rutaCsv) {
+        String sql = "SELECT id FROM dataset_referencia WHERE ruta_csv = ? ORDER BY id DESC LIMIT 1";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, rutaCsv);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("[DatasetRepository] Error al buscar id por ruta: " + e.getMessage());
+        }
+        return -1;
+    }
+
+    // =========================================================================
+    // LÓGICA DE REGISTROS HEREDADA DEL SPRINT 3 (Se preserva intacta)
+    // =========================================================================
 
     @Override
     public void guardar(RegistroDato dato) {
-        guardarRegistro(dato, null);
+        guardarRegistro(dato, "Ciudad_Anonima");
     }
 
     @Override
@@ -58,16 +105,11 @@ public class DatasetRepository implements Persistible<RegistroDato> {
                         Integer.parseInt(rs.getString("objetivo"))
                 ));
             }
-
             return registros;
-
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al listar registros del dataset.", e);
         }
     }
-
-
-    //Operaciones de escritura
 
     public void guardarRegistro(RegistroDato dato, String nombreCiudad) {
         if (dato == null) {
@@ -94,7 +136,6 @@ public class DatasetRepository implements Persistible<RegistroDato> {
             throw new FormatoSalidaException("Error al guardar el registro del dataset.", e);
         }
     }
-
 
     public void guardarDataset(List<RegistroDato> registros, String nombreCiudad) {
         if (registros == null) {
@@ -132,8 +173,6 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         }
     }
 
-    // Consultas
-
     public int contarRegistros() {
         String sql = "SELECT COUNT(*) FROM dataset_registros";
 
@@ -147,7 +186,6 @@ public class DatasetRepository implements Persistible<RegistroDato> {
             throw new FormatoSalidaException("Error al contar registros del dataset.", e);
         }
     }
-
 
     public List<String> listarRegistrosBasicos() {
         List<String> lista = new ArrayList<>();
