@@ -21,11 +21,7 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         this.dbManager = dbManager;
     }
 
-    // =========================================================================
-    // OPERACIONES OBLIGATORIAS SPRINT 4 (Metadatos Estructurales del Dataset)
-    // =========================================================================
-
-    public long guardarReferencia(String rutaCsv, int columnas, int registros, String variableObjetivo) {
+    public long guardarReferenciaDataset(String rutaCsv, int columnas, int registros, String variableObjetivo) {
         String sql = "INSERT INTO dataset_referencia (ruta_csv, columnas, registros, objetivo) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = dbManager.getConnection();
@@ -43,7 +39,7 @@ public class DatasetRepository implements Persistible<RegistroDato> {
                 }
             }
         } catch (SQLException e) {
-            throw new FormatoSalidaException("Error al registrar los metadatos de control del dataset (S4).", e);
+            throw new FormatoSalidaException("Error crítico JDBC al registrar los metadatos de control del dataset.", e);
         }
         return -1;
     }
@@ -60,14 +56,10 @@ public class DatasetRepository implements Persistible<RegistroDato> {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("[DatasetRepository] Error al buscar id por ruta: " + e.getMessage());
+            System.err.println("[DatasetRepository] Fallo al consultar id por ruta física: " + e.getMessage());
         }
         return -1;
     }
-
-    // =========================================================================
-    // LÓGICA DE REGISTROS HEREDADA DEL SPRINT 3 (Se preserva intacta)
-    // =========================================================================
 
     @Override
     public void guardar(RegistroDato dato) {

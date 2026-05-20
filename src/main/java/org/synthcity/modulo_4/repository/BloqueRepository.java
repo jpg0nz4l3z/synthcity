@@ -23,9 +23,10 @@ public class BloqueRepository {
     }
 
     /**
-     * Guarda la colección de bloques pertenecientes a una ciudad dentro de una transacción activa.
+     * ALINEACIÓN: Guarda un bloque individual utilizando la conexión de la transacción activa.
+     * Renombrado a 'guardarBloque' para sincronizarse perfectamente con ResultadoRepository.
      */
-    public void guardarBloquesDeCiudad(Connection conn, long ciudadId, int x, int y, String tipo, boolean activo) throws SQLException {
+    public void guardarBloque(Connection conn, long ciudadId, int x, int y, String tipo, boolean activo) throws SQLException {
         String sql = "INSERT INTO bloque (ciudad_id, x, y, tipo, activo) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setLong(1, ciudadId);
@@ -38,16 +39,15 @@ public class BloqueRepository {
     }
 
     /**
-     * Recupera y extrae todos los bloques guardados de una ciudad específica para la reconstrucción del tablero.
+     * Recupera todos los bloques pertenecientes a una ciudad específica.
+     * Sincronizado con la rehidratación del mapa de celdas en el Orden de Carga.
      */
     public List<DatosBloqueDTO> cargarBloquesDeCiudad(long ciudadId) {
-        String sql = "SELECT x, y, tipo, activo FROM bloque WHERE city_id = ? or ciudad_id = ?";
-        // Se duplica la condición por compatibilidad de nombres de columnas en scripts de respaldo
-        String sqlAjustado = "SELECT x, y, tipo, activo FROM bloque WHERE ciudad_id = ?";
+        String sql = "SELECT x, y, tipo, activo FROM bloque WHERE ciudad_id = ?";
         List<DatosBloqueDTO> listaBloques = new ArrayList<>();
 
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sqlAjustado)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setLong(1, ciudadId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -67,7 +67,7 @@ public class BloqueRepository {
     }
 
     /**
-     * Estructura de transferencia de datos interna para el transporte limpio de las celdas de la cuadrícula.
+     * Clase estática interna de transferencia de datos (DTO) para reconstruir el grid urbano.
      */
     public static class DatosBloqueDTO {
         public final int x;
