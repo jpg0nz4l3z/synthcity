@@ -17,14 +17,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.synthcity.modulo_3.prediccion.PredictorCiudad;
+
 public class ControladorGUI {
     private Ciudad ciudadActual;
     private ResultadoSimulacion historialActual;
+    private boolean usarML = false;
     private ResultadoEvaluacion evaluacionActual;
     private PredictionResult prediccionActual;
 
     private final SimuladorCiudad simulador;
-    private final EvaluadorCiudad evaluador;
+    private EvaluadorCiudad evaluador;
 
     private final PanelCiudad panelCiudad;
     private final PanelResumenSistema panelResumen;
@@ -297,6 +300,25 @@ public class ControladorGUI {
                 || (densidad >= 0.70 && ratioServicios < 1.0);
 
         return necesita && ciudad.puedeExpandirse();
+    }
+
+    public void cambiarPredictor(boolean usarML) {
+
+        this.usarML = usarML;
+
+        this.evaluador = new EvaluadorCiudad(
+                simulador::simular
+        );
+
+        if (usarML) {
+            System.out.println("Predictor ML activado");
+        } else {
+            System.out.println("Predictor heurístico activado");
+        }
+
+        if (ciudadActual != null) {
+            ejecutarSistemaCompleto(ciudadActual);
+        }
     }
 }
 

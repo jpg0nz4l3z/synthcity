@@ -18,6 +18,8 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import javafx.scene.control.TitledPane;
 
+import javafx.scene.control.ComboBox;
+
 public class    VentanaPrincipal {
     private Stage stage;
     private BorderPane root;
@@ -34,6 +36,10 @@ public class    VentanaPrincipal {
     private Button btnGuardarHistorial;
     private Button btnGuardarDataset;
     private Button btnExportarCSV;
+
+
+
+    private ComboBox<String> selectorPredictor;
 
     public VentanaPrincipal(PanelCiudad panelCiudad,
                             PanelResumenSistema panelResumen,
@@ -54,7 +60,19 @@ public class    VentanaPrincipal {
         btnGuardar = new Button("Guardar");
         btnLimpiar = new Button("Limpiar");
 
+        selectorPredictor = new ComboBox<>();
+
+        selectorPredictor.getItems().addAll(
+                "Predictor Heurístico",
+                "Predictor ML"
+        );
+
         String estiloBoton = "-fx-font-size: 18px; -fx-padding: 12 24; -fx-background-radius: 8;";
+
+        selectorPredictor.setValue("Predictor Heurístico");
+        selectorPredictor.setStyle(estiloBoton);
+
+
         btnRefrescar.setStyle(estiloBoton);
         btnGuardar.setStyle(estiloBoton);
         btnLimpiar.setStyle(estiloBoton);
@@ -91,6 +109,8 @@ public class    VentanaPrincipal {
                 btnRefrescar, btnGuardar, btnLimpiar,
                 new Separator(Orientation.VERTICAL)
         );*/
+
+
 
         botonera.getChildren().addAll(
                 btnRefrescar,
@@ -164,6 +184,16 @@ public class    VentanaPrincipal {
             if (controlador != null) controlador.limpiarVista();
         });
 
+        selectorPredictor.setOnAction(event -> {
+            if (controlador != null) {
+
+                boolean usarML =
+                        selectorPredictor.getValue().equals("Predictor ML");
+
+                controlador.cambiarPredictor(usarML);
+            }
+        });
+
 
 
         btnGuardarHistorial.setOnAction(e -> {
@@ -204,4 +234,5 @@ public class    VentanaPrincipal {
         }
         stage.show();
     }
+
 }
