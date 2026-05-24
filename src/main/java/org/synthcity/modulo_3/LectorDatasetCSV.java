@@ -19,7 +19,7 @@ public class LectorDatasetCSV {
         try (BufferedReader reader = new BufferedReader(new FileReader(rutaArchivo))) {
             String linea;
 
-            // Saltar la primera línea (cabecera)
+
             if ((linea = reader.readLine()) != null) {
                 numeroLinea++;
             }
