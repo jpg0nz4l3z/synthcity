@@ -9,7 +9,7 @@ import weka.core.DenseInstance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.Utils;
-import weka.core.pmml.jaxbbindings.Predictor;
+
 
 import java.util.ArrayList;
 import java.util.List;
