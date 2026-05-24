@@ -1,5 +1,5 @@
 
-package org.synthcity.modulo_3.prediccion;
+package main.java.org.synthcity.modulo_3.prediccion;
 
 
 public interface Predictor {
