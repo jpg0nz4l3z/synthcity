@@ -9,6 +9,7 @@ import org.synthcity.modulo_1.bloques.BloqueResidencial;
 import org.synthcity.modulo_1.bloques.BloqueServicios;
 import org.synthcity.modulo_2.SimuladorCiudad;
 import org.synthcity.modulo_3.prediccion.*;
+import weka.core.Instance;
 
 import java.io.File;
 import java.util.List;
