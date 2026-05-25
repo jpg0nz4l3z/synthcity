@@ -13,6 +13,14 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <!-- Repositorio de Waikato necesario para Weka -->
+    <repositories>
+        <repository>
+            <id>waikato-releases</id>
+            <url>https://maven.waikato.ac.nz/nexus/content/repositories/releases</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -36,12 +44,24 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.6</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
             <version>21</version>
         </dependency>
+
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.6</version>
+        </dependency>
+
     </dependencies>
 
     <build>
