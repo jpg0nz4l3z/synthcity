@@ -181,16 +181,18 @@ public class DatasetRepository implements Persistible<RegistroDato> {
 
     public List<String> listarRegistrosBasicos() {
         List<String> lista = new ArrayList<>();
-        String sql = "SELECT nombre_ciudad, score_viabilidad, objetivo, fecha_registro " +
+        String sql = "SELECT id, nombre_ciudad, score_viabilidad, objetivo " +
                 "FROM dataset_registros ORDER BY id DESC LIMIT 50";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
+                double score = rs.getDouble("score_viabilidad");
+                String scoreFormato = String.format(java.util.Locale.US, "%.2f", score);
                 lista.add(rs.getString("nombre_ciudad") +
-                        " | Score: " + String.format("%.2f", rs.getDouble("score_viabilidad")) +
+                        " | Score: " + scoreFormato +
                         " | Obj: " + rs.getInt("objetivo") +
-                        " | " + rs.getTimestamp("fecha_registro"));
+                        " | ID: " + rs.getLong("id"));
             }
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al listar dataset.", e);

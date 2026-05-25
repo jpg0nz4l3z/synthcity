@@ -110,7 +110,27 @@ public class DatabaseManager {
     }
 
     public void inicializarTablaDataset() {
-        // 9. Tabla Dataset Referencia (Módulo 3/4) - Almacena propiedades estructurales, no registros individuales
+        // 9. Tabla Dataset Registros (Módulo 3/4) - Almacena los registros individuales del dataset
+        String sqlRegistros = "CREATE TABLE IF NOT EXISTS dataset_registros (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
+                "nombre_ciudad VARCHAR(100), " +
+                "densidad DOUBLE, " +
+                "ratio_energetico DOUBLE, " +
+                "ratio_cobertura_servicios DOUBLE, " +
+                "contaminacion DOUBLE, " +
+                "contaminacion_acumulada DOUBLE, " +
+                "estabilidad_media DOUBLE, " +
+                "tendencia_estabilidad DOUBLE, " +
+                "tendencia_contaminacion DOUBLE, " +
+                "bienestar DOUBLE, " +
+                "score_viabilidad DOUBLE, " +
+                "colapso_detectado BOOLEAN, " +
+                "ciclos_ejecutados INT, " +
+                "saturacion_detectada BOOLEAN, " +
+                "objetivo VARCHAR(50)" +
+                ")";
+
+        // 10. Tabla Dataset Referencia (Módulo 3/4) - Almacena propiedades estructurales, no registros individuales
         String sqlRef = "CREATE TABLE IF NOT EXISTS dataset_referencia (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "ruta_csv VARCHAR(255), " +
@@ -119,7 +139,7 @@ public class DatabaseManager {
                 "objetivo VARCHAR(50)" +
                 ")";
 
-        // 10. Tabla Modelo Weka (Módulo 3/4) - Mapea metadatos de los clasificadores binarios persistidos en disco
+        // 11. Tabla Modelo Weka (Módulo 3/4) - Mapea metadatos de los clasificadores binarios persistidos en disco
         String sqlModelo = "CREATE TABLE IF NOT EXISTS modelo_weka (" +
                 "id BIGINT AUTO_INCREMENT PRIMARY KEY, " +
                 "ruta_modelo VARCHAR(255), " +
@@ -132,6 +152,7 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
+            stmt.execute(sqlRegistros);
             stmt.execute(sqlRef);
             stmt.execute(sqlModelo);
             System.out.println("[JDBC] Infraestructura de control de Machine Learning integrada correctamente.");

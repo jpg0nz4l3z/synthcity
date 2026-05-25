@@ -1,0 +1,24 @@
+=================================================
+ INFORME FINAL DE LA CIUDAD: MegaDensa
+ Fecha de generación: 25/05/2026 22:32:37
+=================================================
+
+--- RESUMEN ESTRUCTURAL ---
+- Dimensiones: 15x15
+- Tipo Estructural: PEQUENA
+- Densidad: 0.10666666666666667
+
+--- EVALUACIÓN ACTUAL ---
+- Nivel: CRITICO
+- Score: 48.623333333333335
+- Mensaje: La ciudad se encuentra en estado crítico por acumulación de desequilibrios estructurales. Alertas (7): déficit energético, contaminación alta, riesgo de colapso potencial, tendencia negativa, contaminación creciente, necesidad de expansión, colapso detectado. Score: 48.6/100.
+- Alertas: DEFICIT_ENERGETICO, CONTAMINACION_ALTA, RIESGO_COLAPSO_POTENCIAL, TENDENCIA_NEGATIVA, CONTAMINACION_CRECIENTE, NECESIDAD_EXPANSION, COLAPSO_DETECTADO
+
+--- PREDICCIÓN FUTURA ---
+- Predictor activo: Predictor Heurístico
+- Tendencia: RIESGO_MODERADO
+- Score predicho: 54.817499999999995
+- Mensaje: La ciudad presenta señales de riesgo moderado que pueden agravarse si no se corrigen desequilibrios.
+
+--- RANKING GLOBAL DE CIUDADES ---
+No hay suficientes datos para generar un ranking.

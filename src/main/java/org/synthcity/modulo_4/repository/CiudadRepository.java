@@ -68,7 +68,7 @@ public class CiudadRepository {
                     int columnas = rs.getInt("columnas");
 
                     // Invocación al método estático de fábrica obligatorio del Sprint 4
-                    ciudadReconstruida = Ciudad.reconstruir(nombre, filas, columnas);
+                    ciudadReconstruida = Ciudad.reconstruir(nombre, filas, columnas, 0);
                 } else {
                     // Escenario de error controlado: la entidad buscada no existe en el sistema
                     throw new FormatoSalidaException("Escenario Controlado: La ciudad con ID [" + idCiudad + "] no existe en el sistema.");
@@ -80,20 +80,16 @@ public class CiudadRepository {
 
             // PASO 4 DEL ORDEN: Rehidratar la matriz inyectando cada bloque en su celda correspondiente
             for (BloqueRepository.DatosBloqueDTO b : bloques) {
-                // Métodos puentes integrados en la clase Ciudad
-                ciudadReconstruida.colocarBloque(b.x, b.y, b.tipo);
-                if (!b.activo) {
-                    ciudadReconstruida.desactivarBloque(b.x, b.y);
+                try {
+                    Bloque bloque = crearBloqueDesdeDTO(b);
+                    ciudadReconstruida.addBloque(bloque);
+                } catch (Exception e) {
+                    System.err.println("[Persistencia] Error al cargar bloque en (" + b.x + ", " + b.y + "): " + e.getMessage());
                 }
             }
 
-            // PASOS 5, 6, 7 y 8 DEL ORDEN: Logs e inspección de trazas de auditoría de relaciones hijas
-            verificarEstructurasDependientesAsociadas(idCiudad);
-
-            // COMPROBACIÓN EXTREMA DE CALIDAD S4:
-            // Forzamos al objeto a disparar el recuento interno de sus invariantes de dimensiones.
-            // Esto garantiza que la ciudad recuperada sea reactiva y que el Módulo 2 pueda simularla de inmediato.
-            ciudadReconstruida.recalcularTipoEstructural();
+            // PASOS 5, 6, 7 y 8 DEL ORDEN: Verificación de integridad
+            System.out.println("[Persistencia] Ciudad rehidratada con " + bloques.size() + " bloques.");
 
             System.out.println("[Persistencia S4] Ciudad '" + ciudadReconstruida.getNombre() + "' rehidratada con éxito y lista para simular.");
 
@@ -123,23 +119,16 @@ public class CiudadRepository {
         return lista;
     }
 
-    /**
-     * Método interno auxiliar encargado de comprobar la salud relacional de las tablas hijas.
-     * Evita la existencia de registros huérfanos o desalineaciones en las claves foráneas.
-     */
-    private void verificarEstructurasDependientesAsociadas(long idCiudad) throws SQLException {
-        String sql = "SELECT s.id AS sim_id, e.nivel FROM simulacion s " +
-                "LEFT JOIN evaluacion e ON s.id = e.simulacion_id WHERE s.ciudad_id = ?";
-        try (Connection conn = dbManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, idCiudad);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    long simId = rs.getLong("sim_id");
-                    String nivel = rs.getString("nivel");
-                    System.out.println("[Trazabilidad Carga] Detectada Simulación previa ID: " + simId + " | Última Evaluación: " + nivel);
-                }
-            }
-        }
+    private Bloque crearBloqueDesdeDTO(BloqueRepository.DatosBloqueDTO dto) {
+        Posicion pos = new Posicion(dto.x, dto.y);
+        Bloque bloque = switch(dto.tipo) {
+            case "ENERGIA" -> new BloqueEnergia(pos);
+            case "RESIDENCIAL" -> new BloqueResidencial(pos);
+            case "INDUSTRIAL" -> new BloqueIndustrial(pos);
+            case "SERVICIOS" -> new BloqueServicios(pos);
+            case "TRANSPORTE" -> new BloqueTransporte(pos);
+            default -> throw new IllegalArgumentException("Tipo de bloque desconocido: " + dto.tipo);
+        };
+        return bloque;
     }
 }

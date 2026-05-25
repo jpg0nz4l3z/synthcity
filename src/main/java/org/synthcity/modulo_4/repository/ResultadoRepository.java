@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.Posicion;
+import org.synthcity.modulo_1.bloques.*;
 import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_3.MetricaCiudad;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
@@ -90,10 +92,13 @@ public class ResultadoRepository implements Persistible<ResultadoEvaluacion> {
             // 2. ORDEN DE GUARDADO: Guardar los bloques componentes del grid en bucle masivo
             for (int f = 0; f < ciudad.getFilas(); f++) {
                 for (int c = 0; c < ciudad.getColumnas(); c++) {
-                    String tipoBloque = ciudad.getTipoBloque(f, c);
-                    boolean estaActivo = ciudad.isBloqueActivo(f, c);
-                    // CORRECCIÓN: Se inyecta la 'conn' para que escriba sobre la misma transacción
-                    bloqueRepository.guardarBloque(conn, ciudadId, f, c, tipoBloque, estaActivo);
+                    Bloque bloque = ciudad.getBloque(f, c);
+                    if (bloque != null) {
+                        String tipoBloque = bloque.getTipo().name();
+                        boolean estaActivo = bloque.estaActivo();
+                        // CORRECCIÓN: Se inyecta la 'conn' para que escriba sobre la misma transacción
+                        bloqueRepository.guardarBloque(conn, ciudadId, f, c, tipoBloque, estaActivo);
+                    }
                 }
             }
 
@@ -175,14 +180,13 @@ public class ResultadoRepository implements Persistible<ResultadoEvaluacion> {
 
             // PASO 4 DEL ORDEN: Reconstruir la matriz asociando cada bloque a su celda correspondiente
             for (BloqueRepository.DatosBloqueDTO celda : celdas) {
-                ciudadInstanciada.colocarBloque(celda.x, celda.y, celda.tipo);
+                Posicion pos = new Posicion(celda.x, celda.y);
+                Bloque bloque = crearBloqueDesdeDTO(celda);
+                ciudadInstanciada.addBloque(bloque);
                 if (!celda.activo) {
-                    ciudadInstanciada.desactivarBloque(celda.x, celda.y);
+                    ciudadInstanciada.desactivarBloque(pos);
                 }
             }
-
-            // COMPROBACIÓN EXTREMA SPRINT 4 (Contrato de Integración):
-            ciudadInstanciada.recalcularTipoEstructural();
 
             System.out.println("[Persistencia Central] Ciudad '" + ciudadInstanciada.getNombre() + "' completamente rehidratada y simulable.");
 
@@ -191,6 +195,19 @@ public class ResultadoRepository implements Persistible<ResultadoEvaluacion> {
         }
 
         return ciudadInstanciada;
+    }
+
+    private Bloque crearBloqueDesdeDTO(BloqueRepository.DatosBloqueDTO dto) {
+        Posicion pos = new Posicion(dto.x, dto.y);
+        Bloque bloque = switch(dto.tipo) {
+            case "ENERGIA" -> new BloqueEnergia(pos);
+            case "RESIDENCIAL" -> new BloqueResidencial(pos);
+            case "INDUSTRIAL" -> new BloqueIndustrial(pos);
+            case "SERVICIOS" -> new BloqueServicios(pos);
+            case "TRANSPORTE" -> new BloqueTransporte(pos);
+            default -> throw new IllegalArgumentException("Tipo de bloque desconocido: " + dto.tipo);
+        };
+        return bloque;
     }
 
     /**
