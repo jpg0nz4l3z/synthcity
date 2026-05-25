@@ -21,6 +21,7 @@ import javafx.scene.control.TitledPane;
 public class    VentanaPrincipal {
     private Stage stage;
     private BorderPane root;
+    private final PanelRanking panelRanking;
     private PanelCiudad panelCiudad;
     private PanelResumenSistema panelResumen;
     private ControladorGUI controlador;
@@ -34,15 +35,18 @@ public class    VentanaPrincipal {
     private Button btnGuardarHistorial;
     private Button btnGuardarDataset;
     private Button btnExportarCSV;
+    private Button btnVerRanking;
 
     public VentanaPrincipal(PanelCiudad panelCiudad,
                             PanelResumenSistema panelResumen,
                             PanelEvolucionTemporal panelEvolucion,
-                            PanelNotificacionExpansion panelNotificacion) {
+                            PanelNotificacionExpansion panelNotificacion,
+                            PanelRanking panelRanking) {
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
         this.panelEvolucion = panelEvolucion;
         this.panelNotificacion = panelNotificacion;
+        this.panelRanking = panelRanking;
         inicializarComponentes();
         construirLayout();
         configurarEventos();
@@ -62,6 +66,7 @@ public class    VentanaPrincipal {
         btnGuardarHistorial = new Button("Guardar historial");
         btnGuardarDataset = new Button("Guardar dataset");
         btnExportarCSV = new Button("Exportar CSV");
+        btnVerRanking = new Button("Ver Top 5");
 
         btnGuardarHistorial.setStyle(estiloBoton);
         btnGuardarDataset.setStyle(estiloBoton);
@@ -98,6 +103,7 @@ public class    VentanaPrincipal {
                 btnGuardarHistorial,
                 btnGuardarDataset,
                 btnExportarCSV,
+                btnVerRanking,
                 btnLimpiar
         );
         botonera.setStyle("-fx-padding: 20; -fx-alignment: center; -fx-background-color: #f5f5f5;");
@@ -129,6 +135,9 @@ public class    VentanaPrincipal {
 
         if (panelNotificacion != null) {
             panelDerecho.getChildren().add(panelNotificacion);
+        }
+        if (panelRanking != null) {
+            panelDerecho.getChildren().add(panelRanking);
         }
 
         if (panelResumen == null && panelEvolucion == null && panelNotificacion == null) {
@@ -163,7 +172,11 @@ public class    VentanaPrincipal {
         btnLimpiar.setOnAction(e -> {
             if (controlador != null) controlador.limpiarVista();
         });
-
+        btnVerRanking.setOnAction(e -> {
+            if (controlador != null) {
+                controlador.calcularYMostrarRanking();
+            }
+        });
 
 
         btnGuardarHistorial.setOnAction(e -> {

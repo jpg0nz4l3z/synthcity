@@ -1,5 +1,8 @@
 package org.synthcity.modulo_4;
 
+import java.util.List;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_3.RegistroDato;
 import org.synthcity.modulo_3.prediccion.PredictionResult;
@@ -30,6 +33,7 @@ public class ControladorGUI {
     private final PanelResumenSistema panelResumen;
     private final PanelEvolucionTemporal panelEvolucion;
     private PanelNotificacionExpansion panelNotificacion;
+    private final PanelRanking panelRanking;
 
     private final ResultadoRepository resultadoRepository;
     private final DatasetRepository datasetRepository;
@@ -40,6 +44,7 @@ public class ControladorGUI {
                           PanelCiudad panelCiudad,
                           PanelResumenSistema panelResumen,
                           PanelEvolucionTemporal panelEvolucion,
+                          PanelRanking panelRanking,
                           ResultadoRepository resultadoRepository,
                           DatasetRepository datasetRepository
     ) {
@@ -55,6 +60,7 @@ public class ControladorGUI {
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
         this.panelEvolucion = panelEvolucion;
+        this.panelRanking = panelRanking;
         this.resultadoRepository = resultadoRepository;
         this.datasetRepository = datasetRepository;
 
@@ -297,6 +303,32 @@ public class ControladorGUI {
                 || (densidad >= 0.70 && ratioServicios < 1.0);
 
         return necesita && ciudad.puedeExpandirse();
+    }
+    public void calcularYMostrarRanking() {
+        // 1. Obtener los datos usando el repositorio de tus compañeros
+        List<RegistroRanking> todosLosRegistros = resultadoRepository.obtenerTodosLosRegistros();
+
+        // 2. La tubería de Streams para procesar y ordenar
+        String textoTop = todosLosRegistros.stream()
+                .sorted(Comparator.comparingDouble(RegistroRanking::getScoreViabilidad).reversed())
+                .limit(5)
+                .map(registro -> String.format("▶ %s | Puntuación: %.2f | Eval: %s",
+                        registro.getNombreCiudad(),
+                        registro.getScoreViabilidad(),
+                        registro.getNivelEvaluacion()))
+                .collect(Collectors.joining("\n"));
+
+        // 3. Enviar el resultado a tu clase PanelRanking
+        panelRanking.actualizarRanking(textoTop);
+    }
+    public String filtrarHistorialPorNivel(String nivelDeseado) {
+        List<RegistroRanking> todosLosRegistros = resultadoRepository.obtenerTodosLosRegistros();
+
+        // Tubería usando stream.filter() como exige el PDF
+        return todosLosRegistros.stream()
+                .filter(registro -> registro.getNivelEvaluacion().equalsIgnoreCase(nivelDeseado))
+                .map(registro -> "▶ " + registro.getNombreCiudad() + " | Puntuación: " + registro.getScoreViabilidad())
+                .collect(Collectors.joining("\n"));
     }
 }
 
