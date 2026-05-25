@@ -9,6 +9,72 @@ import static org.junit.jupiter.api.Assertions.*;
 class BloqueTest {
 
     @Test
+    void crearBloqueDevuelveSubclaseCorrectaParaCadaTipo() {
+        assertInstanceOf(BloqueResidencial.class,
+                Bloque.crearBloque(TipoBloque.RESIDENCIAL, new Posicion(0, 0)));
+        assertInstanceOf(BloqueEnergia.class,
+                Bloque.crearBloque(TipoBloque.ENERGIA, new Posicion(0, 1)));
+        assertInstanceOf(BloqueIndustrial.class,
+                Bloque.crearBloque(TipoBloque.INDUSTRIAL, new Posicion(1, 0)));
+        assertInstanceOf(BloqueServicios.class,
+                Bloque.crearBloque(TipoBloque.SERVICIOS, new Posicion(1, 1)));
+        assertInstanceOf(BloqueTransporte.class,
+                Bloque.crearBloque(TipoBloque.TRANSPORTE, new Posicion(2, 0)));
+    }
+
+    @Test
+    void crearBloqueMantieneTipoYPosicion() {
+        Posicion posicion = new Posicion(4, 7);
+        Bloque bloque = Bloque.crearBloque(TipoBloque.SERVICIOS, posicion);
+
+        assertEquals(TipoBloque.SERVICIOS, bloque.getTipo());
+        assertEquals(posicion, bloque.getPosicion());
+        assertTrue(bloque.estaActivo());
+    }
+
+    @Test
+    void crearBloqueRechazaTipoYPosicionNulos() {
+        assertThrows(IllegalArgumentException.class, () ->
+                Bloque.crearBloque(null, new Posicion(0, 0)));
+
+        assertThrows(IllegalArgumentException.class, () ->
+                Bloque.crearBloque(TipoBloque.RESIDENCIAL, null));
+    }
+
+    @Test
+    void crearBloqueConEstadoPermiteReconstruirBloquesActivosEInactivos() {
+        Bloque activo = Bloque.crearBloque(TipoBloque.ENERGIA, new Posicion(0, 0), true);
+        Bloque inactivo = Bloque.crearBloque(TipoBloque.ENERGIA, new Posicion(0, 1), false);
+
+        assertTrue(activo.estaActivo());
+        assertFalse(inactivo.estaActivo());
+    }
+
+    @Test
+    void bloquesCreadosPorFactoriaMantienenComportamientoFuncionalDeSubclases() {
+        assertComportamientoEquivalente(
+                new BloqueResidencial(new Posicion(0, 0)),
+                Bloque.crearBloque(TipoBloque.RESIDENCIAL, new Posicion(0, 0))
+        );
+        assertComportamientoEquivalente(
+                new BloqueEnergia(new Posicion(0, 1)),
+                Bloque.crearBloque(TipoBloque.ENERGIA, new Posicion(0, 1))
+        );
+        assertComportamientoEquivalente(
+                new BloqueIndustrial(new Posicion(1, 0)),
+                Bloque.crearBloque(TipoBloque.INDUSTRIAL, new Posicion(1, 0))
+        );
+        assertComportamientoEquivalente(
+                new BloqueServicios(new Posicion(1, 1)),
+                Bloque.crearBloque(TipoBloque.SERVICIOS, new Posicion(1, 1))
+        );
+        assertComportamientoEquivalente(
+                new BloqueTransporte(new Posicion(2, 0)),
+                Bloque.crearBloque(TipoBloque.TRANSPORTE, new Posicion(2, 0))
+        );
+    }
+
+    @Test
     void bloqueEnergiaActivo_devuelveProduccionEnergiaMayorQueCero() {
         BloqueEnergia bloque = new BloqueEnergia(new Posicion(0, 0));
 
@@ -166,5 +232,18 @@ class BloqueTest {
         BloqueTransporte bloque = new BloqueTransporte(new Posicion(0, 0));
 
         assertEquals(ReglasSimulacion.RADIO_INFLUENCIA_TRANSPORTE, bloque.getRadioInfluencia());
+    }
+
+    private void assertComportamientoEquivalente(Bloque esperado, Bloque creado) {
+        assertEquals(esperado.getTipo(), creado.getTipo());
+        assertEquals(esperado.getProduccionEnergia(), creado.getProduccionEnergia());
+        assertEquals(esperado.getConsumoEnergetico(), creado.getConsumoEnergetico());
+        assertEquals(esperado.getDemandaServicios(), creado.getDemandaServicios());
+        assertEquals(esperado.getCoberturaServicios(), creado.getCoberturaServicios());
+        assertEquals(esperado.getPresionIndustrial(), creado.getPresionIndustrial());
+        assertEquals(esperado.getSoporteTransporte(), creado.getSoporteTransporte());
+        assertEquals(esperado.getContaminacion(), creado.getContaminacion());
+        assertEquals(esperado.getRadioInfluencia(), creado.getRadioInfluencia());
+        assertEquals(esperado.esGeneradorDemanda(), creado.esGeneradorDemanda());
     }
 }
