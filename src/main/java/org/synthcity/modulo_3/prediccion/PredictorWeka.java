@@ -105,15 +105,15 @@ public class PredictorWeka implements Predictor {
             valores[1]  = input.getRatioEnergetico();
             valores[2]  = input.getRatioCoberturaServicios();
             valores[3]  = input.getContaminacion();
-            valores[4]  = 0.0;
+            valores[4]  = input.getContaminacionAcumulada();
             valores[5]  = input.getEstabilidadBasica();
-            valores[6]  = 0.0;
-            valores[7]  = 0.0;
+            valores[6]  = input.getTendenciaEstabilidad();
+            valores[7]  = input.getTendenciaContaminacion();
             valores[8]  = input.getBienestar();
             valores[9]  = input.getIndiceViabilidadBase() * 100.0;
-            valores[10] = 0.0;
-            valores[11] = 0.0;
-            valores[12] = input.getIndiceSaturacion() > 0.8 ? 1.0 : 0.0;
+            valores[10] = input.getCiclosEjecutados();
+            valores[11] = input.isColapsoDetectado() ? 1.0 : 0.0;
+            valores[12] = input.isSaturacionDetectada() ? 1.0 : 0.0;
             valores[estructuraDataset.classIndex()] = Utils.missingValue();
 
             DenseInstance instancia = new DenseInstance(1.0, valores);

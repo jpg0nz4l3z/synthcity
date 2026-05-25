@@ -32,6 +32,13 @@ public class PredictionInput {
     private final TipoEstructuralCiudad tipoEstructural;
     private final Map<TipoBloque, Integer> conteoPorTipo;
 
+    private final double contaminacionAcumulada;
+    private final double tendenciaEstabilidad;
+    private final double tendenciaContaminacion;
+    private final int    ciclosEjecutados;
+    private final boolean colapsoDetectado;
+    private final boolean saturacionDetectada;
+
     public PredictionInput(
             int totalBloques,
             int bloquesActivos,
@@ -47,7 +54,14 @@ public class PredictionInput {
             double indiceViabilidadBase,
             EstadoSimulacion estadoSimulacion,
             TipoEstructuralCiudad tipoEstructural,
-            Map<TipoBloque, Integer> conteoPorTipo
+            Map<TipoBloque, Integer> conteoPorTipo,
+
+            double contaminacionAcumulada,
+            double tendenciaEstabilidad,
+            double tendenciaContaminacion,
+            int ciclosEjecutados,
+            boolean colapsoDetectado,
+            boolean saturacionDetectada
     ) {
         if (totalBloques < 0) {
             throw new IllegalArgumentException("El total de bloques no puede ser negativo.");
@@ -94,6 +108,13 @@ public class PredictionInput {
         if (conteoPorTipo == null) {
             throw new IllegalArgumentException("conteoPorTipo no puede ser null.");
         }
+        if (contaminacionAcumulada < 0.0) {
+            throw new IllegalArgumentException("contaminacionAcumulada no puede ser negativa.");
+        }
+        if (ciclosEjecutados < 0) {
+            throw new IllegalArgumentException("ciclosEjecutados no puede ser negativo.");
+        }
+
 
         EnumMap<TipoBloque, Integer> copia = new EnumMap<>(TipoBloque.class);
         for (TipoBloque tipo : TipoBloque.values()) {
@@ -119,6 +140,12 @@ public class PredictionInput {
         this.estadoSimulacion = estadoSimulacion;
         this.tipoEstructural = tipoEstructural;
         this.conteoPorTipo = Collections.unmodifiableMap(copia);
+        this.contaminacionAcumulada  = contaminacionAcumulada;
+        this.tendenciaEstabilidad    = tendenciaEstabilidad;
+        this.tendenciaContaminacion  = tendenciaContaminacion;
+        this.ciclosEjecutados        = ciclosEjecutados;
+        this.colapsoDetectado        = colapsoDetectado;
+        this.saturacionDetectada     = saturacionDetectada;
     }
 
     public static PredictionInput desdeMetrica(MetricaCiudad metrica) {
@@ -141,7 +168,13 @@ public class PredictionInput {
                 metrica.getIndiceViabilidadBase(),
                 metrica.getEstadoSimulacion(),
                 metrica.getTipoEstructural(),
-                metrica.getConteoPorTipo()
+                metrica.getConteoPorTipo(),
+                metrica.getContaminacionAcumulada(),
+                metrica.getTendenciaEstabilidad(),
+                metrica.getTendenciaContaminacion(),
+                metrica.getCiclosEjecutados(),
+                metrica.colapsoDetectado(),
+                metrica.saturacionDetectada()
         );
     }
 
@@ -218,4 +251,11 @@ public class PredictionInput {
     public Map<TipoBloque, Integer> getConteoPorTipo() {
         return conteoPorTipo;
     }
+
+    public double getContaminacionAcumulada()  { return contaminacionAcumulada; }
+    public double getTendenciaEstabilidad()    { return tendenciaEstabilidad; }
+    public double getTendenciaContaminacion()  { return tendenciaContaminacion; }
+    public int    getCiclosEjecutados()        { return ciclosEjecutados; }
+    public boolean isColapsoDetectado()        { return colapsoDetectado; }
+    public boolean isSaturacionDetectada()     { return saturacionDetectada; }
 }
