@@ -1,4 +1,4 @@
-package main.java.org.synthcity.modulo_3.prediccion;
+package org.synthcity.modulo_3.prediccion;
 
 import org.synthcity.modulo_3.ResultadoSimulacionInvalidoException;
 import org.synthcity.modulo_3.TendenciaPredicha;
