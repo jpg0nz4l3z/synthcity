@@ -1,6 +1,8 @@
 package org.synthcity.modulo_4.repository;
 
 import org.synthcity.modulo_1.Ciudad;
+import org.synthcity.modulo_1.bloques.*;
+import org.synthcity.modulo_1.*;
 import org.synthcity.modulo_4.DatabaseManager;
 import org.synthcity.modulo_4.FormatoSalidaException;
 
