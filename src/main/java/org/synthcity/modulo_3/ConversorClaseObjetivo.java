@@ -13,4 +13,15 @@ public class ConversorClaseObjetivo {
             );
         }
     }
+
+    public static int convertirEntero(String etiqueta) {
+        return switch (etiqueta.toUpperCase()) {
+            case "CRITICO" -> 1;
+            case "INESTABLE" -> 2;
+            case "FUNCIONAL" -> 3;
+            case "OPTIMO" -> 4;
+            default -> throw new IllegalArgumentException(
+                    "Etiqueta de objetivo no reconocida: " + etiqueta);
+        };
+    }
 }
