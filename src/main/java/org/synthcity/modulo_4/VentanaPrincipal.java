@@ -14,10 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.synthcity.modulo_1.Ciudad;
 
-import javafx.stage.FileChooser;
-import java.io.File;
-import javafx.scene.control.TitledPane;
-
 import javafx.scene.control.ComboBox;
 
 public class    VentanaPrincipal {
@@ -46,8 +42,7 @@ public class    VentanaPrincipal {
     public VentanaPrincipal(PanelCiudad panelCiudad,
                             PanelResumenSistema panelResumen,
                             PanelEvolucionTemporal panelEvolucion,
-                            PanelNotificacionExpansion panelNotificacion,
-                            PanelRanking panelRanking) {
+                            PanelNotificacionExpansion panelNotificacion) {
         this.panelCiudad = panelCiudad;
         this.panelResumen = panelResumen;
         this.panelEvolucion = panelEvolucion;
@@ -101,7 +96,8 @@ public class    VentanaPrincipal {
         gridShadow.setOffsetY(2);
         gridShadow.setColor(Color.rgb(0, 0, 0, 0.3));
         panelCiudad.setEffect(gridShadow);
-        ScrollPane scrollCiudad = new ScrollPane(panelCiudad);
+        ScrollPane scrollCiudad = new ScrollPane();
+        scrollCiudad.setContent(panelCiudad);
         scrollCiudad.setFitToWidth(true);
         scrollCiudad.setFitToHeight(true);
         scrollCiudad.setPannable(true);
@@ -118,6 +114,7 @@ public class    VentanaPrincipal {
 
 
         botonera.getChildren().addAll(
+                selectorPredictor,
                 btnRefrescar,
                 btnGuardar,
                 btnGuardarHistorial,
@@ -178,7 +175,8 @@ public class    VentanaPrincipal {
         verticalSep.setOrientation(Orientation.VERTICAL);
         verticalSep.setStyle("-fx-padding: 0 5 0 0;");
 
-        HBox rightContainer = new HBox(verticalSep, panelDerecho);
+        HBox rightContainer = new HBox(10); // Crea el contenedor con un espaciado de 10px
+        rightContainer.getChildren().addAll(verticalSep, panelDerecho); // Mete los componentes
         root.setRight(rightContainer);
     }
 

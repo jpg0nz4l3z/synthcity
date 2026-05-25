@@ -1,31 +1,22 @@
 package org.synthcity.modulo_4;
 
 import java.util.List;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 import org.synthcity.modulo_1.Ciudad;
 import org.synthcity.modulo_3.RegistroDato;
-import org.synthcity.modulo_3.prediccion.PredictionResult;
 import org.synthcity.modulo_3.ResultadoEvaluacion;
-import org.synthcity.modulo_3.Predictor;
 
-import javax.swing.*;
 import java.io.IOException;
-import java.util.List;
+
 import org.synthcity.modulo_2.ResultadoSimulacion;
 import org.synthcity.modulo_2.SimuladorCiudad;
 import org.synthcity.modulo_3.EvaluadorCiudad;
-import org.synthcity.modulo_2.ResultadoSimulacion;
+import org.synthcity.modulo_3.prediccion.PredictionResult;
+import org.synthcity.modulo_3.prediccion.PredictorCiudad;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.synthcity.modulo_3.prediccion.PredictorCiudad;
 
 public class ControladorGUI {
     private Ciudad ciudadActual;
@@ -34,8 +25,7 @@ public class ControladorGUI {
     private ResultadoEvaluacion evaluacionActual;
     private PredictionResult prediccionActual;
     private List<ResultadoEvaluacion> rankingActual;
-    private Predictor predictorActivo;
-
+    private PredictorCiudad predictorActivo;
     private final SimuladorCiudad simulador;
     private EvaluadorCiudad evaluador;
 
@@ -43,29 +33,23 @@ public class ControladorGUI {
     private final PanelResumenSistema panelResumen;
     private final PanelEvolucionTemporal panelEvolucion;
     private PanelNotificacionExpansion panelNotificacion;
-    private final PanelRanking panelRanking;
+    private PanelRanking panelRanking = new PanelRanking();
 
     private final ResultadoRepository resultadoRepository;
     private final DatasetRepository datasetRepository;
 
-
-    public ControladorGUI(PanelCiudad panelCiudad,
 
     public ControladorGUI(SimuladorCiudad simulador,
                           EvaluadorCiudad evaluador,
                           PanelCiudad panelCiudad,
                           PanelResumenSistema panelResumen,
                           PanelEvolucionTemporal panelEvolucion,
-                          PanelRanking panelRanking,
                           ResultadoRepository resultadoRepository,
-                          DatasetRepository datasetRepository
-    ) {
-
+                          DatasetRepository datasetRepository) {
 
         if (simulador == null || evaluador == null) {
             throw new FormatoSalidaException("Simulador y evaluador son obligatorios.");
         }
-
 
         this.simulador = simulador;
         this.evaluador = evaluador;
@@ -75,7 +59,6 @@ public class ControladorGUI {
         this.panelRanking = panelRanking;
         this.resultadoRepository = resultadoRepository;
         this.datasetRepository = datasetRepository;
-
     }
 
     // Sistema Completo
@@ -337,61 +320,79 @@ public class ControladorGUI {
     }
 
     public void exportarInformeActual(String rutaArchivo) {
-        // Validación obligatoria: No exportar si no hay una evaluación en curso [cite: 2340]
         if (evaluacionActual == null) {
-            mostrarMensajeError("No se puede exportar: primero debe ejecutarse una simulación y evaluación válida.");
+            System.err.println("No se puede exportar: primero debe ejecutarse una simulación válida.");
             return;
         }
 
         ExportadorInforme exportador = new ExportadorInforme();
 
         try {
-            // Llamada al método de exportación usando las variables reales del controlador
-            // Se usa un operador ternario para el predictor en caso de que Persona 1 aún no lo haya inicializado.
             exportador.exportar(
                     rutaArchivo,
                     ciudadActual,
                     evaluacionActual,
                     prediccionActual,
                     rankingActual,
-                    (predictorActivo != null) ? predictorActivo.getNombre() : "Predictor no especificado"
+                    usarML ? "Predictor ML (Weka)" : "Predictor Heurístico"
             );
 
-            mostrarMensajeExito("Informe exportado correctamente en:\n" + rutaArchivo);
+            // Mensaje de éxito por consola limpia
+            System.out.println("Informe exportado correctamente en: " + rutaArchivo);
 
         } catch (IOException e) {
-            // Requisito Persona 2: Gestión de error obligatoria sin silenciar la excepción [cite: 2599, 2533]
-            mostrarMensajeError("Error crítico al guardar el informe. Verifique la ruta y permisos del archivo.\nDetalles: " + e.getMessage());
+            // Requisito del Sprint 4: No silenciar el error y mostrar mensaje claro [cite: 176, 499, 502]
+            System.err.println("Error crítico al guardar el informe. Detalles: " + e.getMessage());
         }
     }
     public void calcularYMostrarRanking() {
-        // 1. Obtener los datos usando el repositorio de tus compañeros
-        List<RegistroRanking> todosLosRegistros = resultadoRepository.obtenerTodosLosRegistros();
+        if (resultadoRepository == null) {
+            panelRanking.actualizarRanking("Repositorio no disponible.");
+            return;
+        }
 
-        // 2. La tubería de Streams para procesar y ordenar
-        String textoTop = todosLosRegistros.stream()
-                .sorted(Comparator.comparingDouble(RegistroRanking::getScoreViabilidad).reversed())
+        List<String> historialLista = datasetRepository.listarRegistrosBasicos();
+
+        if (historialLista == null || historialLista.isEmpty()) {
+            panelRanking.actualizarRanking("No hay evaluaciones guardadas.");
+            return;
+        }
+
+        String textoTop = historialLista.stream()
+                .filter(linea -> linea != null && linea.contains("| Score: "))
+                .sorted((l1, l2) -> {
+                    try {
+                        double s1 = Double.parseDouble(l1.split("\\| Score: ")[1].split(" \\|")[0].trim());
+                        double s2 = Double.parseDouble(l2.split("\\| Score: ")[1].split(" \\|")[0].trim());
+                        return Double.compare(s2, s1);
+                    } catch (Exception e) {
+                        return 0;
+                    }
+                })
                 .limit(5)
-                .map(registro -> String.format("▶ %s | Puntuación: %.2f | Eval: %s",
-                        registro.getNombreCiudad(),
-                        registro.getScoreViabilidad(),
-                        registro.getNivelEvaluacion()))
+                .map(linea -> "▶ " + linea)
                 .collect(Collectors.joining("\n"));
 
-        // 3. Enviar el resultado a tu clase PanelRanking
         panelRanking.actualizarRanking(textoTop);
     }
-    public String filtrarHistorialPorNivel(String nivelDeseado) {
-        List<RegistroRanking> todosLosRegistros = resultadoRepository.obtenerTodosLosRegistros();
 
-        // Tubería usando stream.filter() como exige el PDF
-        return todosLosRegistros.stream()
-                .filter(registro -> registro.getNivelEvaluacion().equalsIgnoreCase(nivelDeseado))
-                .map(registro -> "▶ " + registro.getNombreCiudad() + " | Puntuación: " + registro.getScoreViabilidad())
+    public String filtrarHistorialPorNivel(String nivelDeseado) {
+        if (resultadoRepository == null || nivelDeseado == null) {
+            return "Filtro no disponible.";
+        }
+
+        List<String> historialLista = datasetRepository.listarRegistrosBasicos();
+
+        if (historialLista == null || historialLista.isEmpty()) {
+            return "No hay registros.";
+        }
+
+        return historialLista.stream()
+                .filter(linea -> linea != null && linea.toLowerCase().contains("obj: " + nivelDeseado.toLowerCase()))
+                .map(linea -> "▶ " + linea)
                 .collect(Collectors.joining("\n"));
     }
 }
-
 
 
 
