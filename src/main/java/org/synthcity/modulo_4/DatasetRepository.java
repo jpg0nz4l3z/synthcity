@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,49 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         this.dbManager = dbManager;
     }
 
-    //  Implementación de Persistible
+    public long guardarReferenciaDataset(String rutaCsv, int columnas, int registros, String variableObjetivo) {
+        String sql = "INSERT INTO dataset_referencia (ruta_csv, columnas, registros, objetivo) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, rutaCsv);
+            ps.setInt(2, columnas);
+            ps.setInt(3, registros);
+            ps.setString(4, variableObjetivo);
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new FormatoSalidaException("Error crítico JDBC al registrar los metadatos de control del dataset.", e);
+        }
+        return -1;
+    }
+
+    public long obtenerIdPorRuta(String rutaCsv) {
+        String sql = "SELECT id FROM dataset_referencia WHERE ruta_csv = ? ORDER BY id DESC LIMIT 1";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, rutaCsv);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("[DatasetRepository] Fallo al consultar id por ruta física: " + e.getMessage());
+        }
+        return -1;
+    }
 
     @Override
     public void guardar(RegistroDato dato) {
-        guardarRegistro(dato, null);
+        guardarRegistro(dato, "Ciudad_Anonima");
     }
 
     @Override
@@ -58,16 +97,11 @@ public class DatasetRepository implements Persistible<RegistroDato> {
                         Integer.parseInt(rs.getString("objetivo"))
                 ));
             }
-
             return registros;
-
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al listar registros del dataset.", e);
         }
     }
-
-
-    //Operaciones de escritura
 
     public void guardarRegistro(RegistroDato dato, String nombreCiudad) {
         if (dato == null) {
@@ -94,7 +128,6 @@ public class DatasetRepository implements Persistible<RegistroDato> {
             throw new FormatoSalidaException("Error al guardar el registro del dataset.", e);
         }
     }
-
 
     public void guardarDataset(List<RegistroDato> registros, String nombreCiudad) {
         if (registros == null) {
@@ -132,8 +165,6 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         }
     }
 
-    // Consultas
-
     public int contarRegistros() {
         String sql = "SELECT COUNT(*) FROM dataset_registros";
 
@@ -148,19 +179,20 @@ public class DatasetRepository implements Persistible<RegistroDato> {
         }
     }
 
-
     public List<String> listarRegistrosBasicos() {
         List<String> lista = new ArrayList<>();
-        String sql = "SELECT nombre_ciudad, score_viabilidad, objetivo, fecha_registro " +
+        String sql = "SELECT id, nombre_ciudad, score_viabilidad, objetivo " +
                 "FROM dataset_registros ORDER BY id DESC LIMIT 50";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
+                double score = rs.getDouble("score_viabilidad");
+                String scoreFormato = String.format(java.util.Locale.US, "%.2f", score);
                 lista.add(rs.getString("nombre_ciudad") +
-                        " | Score: " + String.format("%.2f", rs.getDouble("score_viabilidad")) +
+                        " | Score: " + scoreFormato +
                         " | Obj: " + rs.getInt("objetivo") +
-                        " | " + rs.getTimestamp("fecha_registro"));
+                        " | ID: " + rs.getLong("id"));
             }
         } catch (SQLException e) {
             throw new FormatoSalidaException("Error al listar dataset.", e);

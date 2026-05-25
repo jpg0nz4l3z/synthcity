@@ -52,4 +52,34 @@ class ResultadoExpansionTest {
         assertFalse(r.isAprobada());
         assertEquals("No permitido", r.getMotivoRechazo());
     }
+
+    @Test
+    void resultadoExpansionExponeTodosLosDatosNecesariosParaPersistirHistorial() {
+        ResultadoExpansion r = new ResultadoExpansion(
+                true,
+                10,
+                20,
+                30,
+                40,
+                TipoEstructuralCiudad.PEQUENA,
+                TipoEstructuralCiudad.MEDIANA,
+                null
+        );
+
+        assertTrue(r.isAprobada());
+        assertTrue(r.isExitosa());
+
+        assertEquals(10, r.getFilasAnteriores());
+        assertEquals(20, r.getColumnasAnteriores());
+        assertEquals(30, r.getFilasNuevas());
+        assertEquals(40, r.getColumnasNuevas());
+
+        assertEquals(30, r.getNuevasFilas());
+        assertEquals(40, r.getNuevasColumnas());
+
+        assertEquals(TipoEstructuralCiudad.PEQUENA, r.getTipoEstructuralAnterior());
+        assertEquals(TipoEstructuralCiudad.MEDIANA, r.getTipoEstructuralNuevo());
+        assertTrue(r.cambioTipoEstructural());
+        assertNull(r.getMotivoRechazo());
+    }
 }

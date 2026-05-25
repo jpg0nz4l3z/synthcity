@@ -10,9 +10,12 @@ import org.synthcity.modulo_1.bloques.*;
 import org.synthcity.modulo_2.SimuladorCiudad;
 
 import org.synthcity.modulo_3.EvaluadorCiudad;
+import org.synthcity.modulo_3.GestorExpansion;
+import org.synthcity.modulo_3.ConstructorDataset;
 import org.synthcity.modulo_3.prediccion.*;
 
 import org.synthcity.modulo_4.*;
+import org.synthcity.modulo_4.PanelRanking;
 
 class Launcher {
     public static void main(String[]args){
@@ -28,14 +31,23 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-
         SimuladorCiudad simulador = new SimuladorCiudad();
-        EvaluadorCiudad evaluador = new EvaluadorCiudad(simulador::simular);
 
+        // Crear instancias de ambos predictores
+        Predictor predictorHeuristico = new PredictorHeuristico();
+        PredictorWeka predictorML = new PredictorWeka();
+
+        // Crear evaluador con el predictor heurístico por defecto
+        EvaluadorCiudad evaluador = new EvaluadorCiudad(
+                simulador::simular,
+                new GestorExpansion(),
+                new ConstructorDataset(),
+                predictorHeuristico
+        );
 
         DatabaseManager db = new DatabaseManager();
         db.inicializarTablaResultados();
+        db.inicializarTablaHistorial();
         db.inicializarTablaDataset();
 
         ResultadoRepository repo = new ResultadoRepository(db);
@@ -43,9 +55,9 @@ public class Main extends Application {
 
         PanelCiudad panelCiudad = new PanelCiudad();
         PanelResumenSistema panelResumen = new PanelResumenSistema();
-
         PanelEvolucionTemporal panelEvolucion = new PanelEvolucionTemporal();
         PanelNotificacionExpansion panelNotificacion = new PanelNotificacionExpansion();
+        PanelRanking panelRanking = new PanelRanking();
 
         ControladorGUI controlador = new ControladorGUI(
                 simulador,
@@ -54,14 +66,19 @@ public class Main extends Application {
                 panelResumen,
                 panelEvolucion,
                 repo,
-                datasetRepo
+                datasetRepo,
+                panelRanking
         );
+
+        // Inyectar ambos predictores en el controlador
+        controlador.setPredictores(predictorHeuristico, predictorML);
 
         VentanaPrincipal ventana = new VentanaPrincipal(
                 panelCiudad,
                 panelResumen,
                 panelEvolucion,
-                panelNotificacion
+                panelNotificacion,
+                panelRanking
         );
         ventana.setControlador(controlador);
 

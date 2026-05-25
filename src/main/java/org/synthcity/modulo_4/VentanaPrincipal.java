@@ -14,9 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.synthcity.modulo_1.Ciudad;
 
-import javafx.stage.FileChooser;
-import java.io.File;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.ComboBox;
 
 public class    VentanaPrincipal {
     private Stage stage;
@@ -36,6 +34,16 @@ public class    VentanaPrincipal {
     private Button btnGuardarDataset;
     private Button btnExportarCSV;
     private Button btnVerRanking;
+    private Button btnExportarInforme;
+
+    private ComboBox<String> selectorPredictor;
+
+    public VentanaPrincipal(PanelCiudad panelCiudad,
+                            PanelResumenSistema panelResumen,
+                            PanelEvolucionTemporal panelEvolucion,
+                            PanelNotificacionExpansion panelNotificacion) {
+        this(panelCiudad, panelResumen, panelEvolucion, panelNotificacion, new PanelRanking());
+    }
 
     public VentanaPrincipal(PanelCiudad panelCiudad,
                             PanelResumenSistema panelResumen,
@@ -58,7 +66,19 @@ public class    VentanaPrincipal {
         btnGuardar = new Button("Guardar");
         btnLimpiar = new Button("Limpiar");
 
+        selectorPredictor = new ComboBox<>();
+
+        selectorPredictor.getItems().addAll(
+                "Predictor Heurístico",
+                "Predictor ML"
+        );
+
         String estiloBoton = "-fx-font-size: 18px; -fx-padding: 12 24; -fx-background-radius: 8;";
+
+        selectorPredictor.setValue("Predictor Heurístico");
+        selectorPredictor.setStyle(estiloBoton);
+
+
         btnRefrescar.setStyle(estiloBoton);
         btnGuardar.setStyle(estiloBoton);
         btnLimpiar.setStyle(estiloBoton);
@@ -67,10 +87,12 @@ public class    VentanaPrincipal {
         btnGuardarDataset = new Button("Guardar dataset");
         btnExportarCSV = new Button("Exportar CSV");
         btnVerRanking = new Button("Ver Top 5");
+        btnExportarInforme = new Button("Exportar Informe");
 
         btnGuardarHistorial.setStyle(estiloBoton);
         btnGuardarDataset.setStyle(estiloBoton);
         btnExportarCSV.setStyle(estiloBoton);
+        btnExportarInforme.setStyle(estiloBoton);
     }
 
     private void construirLayout() {
@@ -83,7 +105,8 @@ public class    VentanaPrincipal {
         gridShadow.setOffsetY(2);
         gridShadow.setColor(Color.rgb(0, 0, 0, 0.3));
         panelCiudad.setEffect(gridShadow);
-        ScrollPane scrollCiudad = new ScrollPane(panelCiudad);
+        ScrollPane scrollCiudad = new ScrollPane();
+        scrollCiudad.setContent(panelCiudad);
         scrollCiudad.setFitToWidth(true);
         scrollCiudad.setFitToHeight(true);
         scrollCiudad.setPannable(true);
@@ -97,13 +120,17 @@ public class    VentanaPrincipal {
                 new Separator(Orientation.VERTICAL)
         );*/
 
+
+
         botonera.getChildren().addAll(
+                selectorPredictor,
                 btnRefrescar,
                 btnGuardar,
                 btnGuardarHistorial,
                 btnGuardarDataset,
                 btnExportarCSV,
                 btnVerRanking,
+                btnExportarInforme,
                 btnLimpiar
         );
         botonera.setStyle("-fx-padding: 20; -fx-alignment: center; -fx-background-color: #f5f5f5;");
@@ -119,12 +146,21 @@ public class    VentanaPrincipal {
         root.setBottom(bottomContainer);
 
         // --- RIGHT: Contenedor con separador vertical + panel resumen
+        ScrollPane scrollPanelDerecho = new ScrollPane();
         VBox panelDerecho = new VBox();
         panelDerecho.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-background-color: white;");
         panelDerecho.setPrefWidth(300);
         panelDerecho.setMinWidth(300);
-        panelDerecho.setMaxWidth(300);
-        // Placeholder inicial
+        panelDerecho.setSpacing(10);
+
+        // PRIMERO: Panel Ranking (prioridad máxima)
+        if (panelRanking != null) {
+            panelRanking.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1; -fx-padding: 5;");
+            panelDerecho.getChildren().add(panelRanking);
+            javafx.scene.layout.VBox.setVgrow(panelRanking, javafx.scene.layout.Priority.ALWAYS);
+        }
+
+        // DESPUÉS: Otros paneles
         if (panelResumen != null) {
             panelDerecho.getChildren().add(panelResumen);
         }
@@ -136,11 +172,8 @@ public class    VentanaPrincipal {
         if (panelNotificacion != null) {
             panelDerecho.getChildren().add(panelNotificacion);
         }
-        if (panelRanking != null) {
-            panelDerecho.getChildren().add(panelRanking);
-        }
 
-        if (panelResumen == null && panelEvolucion == null && panelNotificacion == null) {
+        if (panelResumen == null && panelEvolucion == null && panelNotificacion == null && panelRanking == null) {
             Label placeholder = new Label("Panel de resumen\n(próximamente)");
             placeholder.setStyle("-fx-text-fill: gray; -fx-font-size: 14px; -fx-alignment: center;");
             placeholder.setWrapText(true);
@@ -154,11 +187,18 @@ public class    VentanaPrincipal {
         resumenShadow.setColor(Color.rgb(0, 0, 0, 0.4));
         panelDerecho.setEffect(resumenShadow);
 
+        scrollPanelDerecho.setContent(panelDerecho);
+        scrollPanelDerecho.setPrefWidth(300);
+        scrollPanelDerecho.setMinWidth(300);
+        scrollPanelDerecho.setMaxWidth(300);
+        scrollPanelDerecho.setFitToWidth(true);
+
         Separator verticalSep = new Separator();
         verticalSep.setOrientation(Orientation.VERTICAL);
         verticalSep.setStyle("-fx-padding: 0 5 0 0;");
 
-        HBox rightContainer = new HBox(verticalSep, panelDerecho);
+        HBox rightContainer = new HBox(10); // Crea el contenedor con un espaciado de 10px
+        rightContainer.getChildren().addAll(verticalSep, scrollPanelDerecho); // Mete los componentes
         root.setRight(rightContainer);
     }
 
@@ -172,6 +212,17 @@ public class    VentanaPrincipal {
         btnLimpiar.setOnAction(e -> {
             if (controlador != null) controlador.limpiarVista();
         });
+
+        selectorPredictor.setOnAction(event -> {
+            if (controlador != null) {
+
+                boolean usarML =
+                        selectorPredictor.getValue().equals("Predictor ML");
+
+                controlador.cambiarPredictor(usarML);
+            }
+        });
+
         btnVerRanking.setOnAction(e -> {
             if (controlador != null) {
                 controlador.calcularYMostrarRanking();
@@ -190,6 +241,12 @@ public class    VentanaPrincipal {
         btnExportarCSV.setOnAction(e -> {
             if (controlador != null) {
                 controlador.exportarDatasetCSV("dataset_synthcity.csv");
+            }
+        });
+
+        btnExportarInforme.setOnAction(e -> {
+            if (controlador != null) {
+                controlador.exportarInformeActual("informe_synthcity.txt");
             }
         });
 
@@ -217,4 +274,5 @@ public class    VentanaPrincipal {
         }
         stage.show();
     }
+
 }
