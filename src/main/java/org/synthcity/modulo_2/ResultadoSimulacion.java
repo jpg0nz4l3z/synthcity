@@ -570,7 +570,11 @@ public class ResultadoSimulacion {
         return necesidadExpansionDetectada;
     }
 
+    public boolean getNecesidadExpansionDetectada() {return necesidadExpansionDetectada;}
+
     public boolean isHistorialReiniciadoPorExpansion() {
         return historialReiniciadoPorExpansion;
     }
+
+
 }

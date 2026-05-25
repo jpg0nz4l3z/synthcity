@@ -246,6 +246,52 @@ class SimuladorCiudadTest {
             assertNotNull(conteo.get(tipo));
         }
     }
+    @Test
+    void ciudadConBloquesActivosCalculaCiclosYEstadoAgregado() {
+        // Usamos la ciudad base pero le añadimos una industria para que genere contaminación
+        Ciudad ciudad = crearCiudadEquilibrada();
+        ciudad.addBloque(new BloqueIndustrial(new org.synthcity.modulo_1.Posicion(5, 5)));
+
+        ResultadoSimulacion resultado = simulador.simular(ciudad);
+
+        // Comprobar ciclosEjecutados >= 1
+        assertTrue(resultado.getCiclosEjecutados() >= 1,
+                "Una ciudad con bloques activos debe tener ciclosEjecutados >= 1");
+
+        // Comprobar estadoAgregado != null y con valores calculados
+        EstadoCiclo estadoAgregado = resultado.getEstadoAgregado();
+        assertNotNull(estadoAgregado, "El estadoAgregado no puede ser nulo si hay ciclos");
+
+        // Verificamos que no son valores por defecto (0)
+        assertTrue(estadoAgregado.getEnergiaProducida() > 0,
+                "El estado agregado debe tener energía calculada real");
+        assertTrue(estadoAgregado.getDemandaServicios() > 0,
+                "El estado agregado debe tener demanda de servicios calculada real");
+        assertTrue(estadoAgregado.getContaminacionAcumulada() > 0,
+                "El estado agregado debe registrar la contaminación al haber industria");
+    }
+
+    @Test
+    void tendenciasCalculanDiferenciaExactaEntreUltimoYPrimerCiclo() {
+        Ciudad ciudad = crearCiudadEquilibrada();
+
+        ResultadoSimulacion resultado = simulador.simular(ciudad);
+        List<EstadoCiclo> ciclos = resultado.getCiclos();
+
+        // Sacamos los valores a mano del historial
+        EstadoCiclo primerCiclo = ciclos.get(0);
+        EstadoCiclo ultimoCiclo = ciclos.get(ciclos.size() - 1);
+
+        double diferenciaEstabilidadEsperada = ultimoCiclo.getEstabilidad() - primerCiclo.getEstabilidad();
+        double diferenciaContaminacionEsperada = ultimoCiclo.getContaminacionAcumulada() - primerCiclo.getContaminacionAcumulada();
+
+        // COMPROBAR getTendenciaEstabilidad y getTendenciaContaminacion
+        assertEquals(diferenciaEstabilidadEsperada, resultado.getTendenciaEstabilidad(), 0.0001,
+                "getTendenciaEstabilidad debe ser la resta real entre el último y primer ciclo");
+
+        assertEquals(diferenciaContaminacionEsperada, resultado.getTendenciaContaminacion(), 0.0001,
+                "getTendenciaContaminacion debe ser la resta real entre el último y primer ciclo");
+    }
 
     private Ciudad crearCiudadEquilibrada() {
         Ciudad ciudad = new Ciudad("Equilibrada", 10, 10);

@@ -78,11 +78,11 @@ public class CalculadorEspacial {
                 .mapToDouble(candidato -> {
                     int distancia = distanciaManhattan(origen.getPosicion(), candidato.getPosicion());
                     int radio = candidato.getRadioInfluencia();
-
                     if (distancia <= radio) {
-                        return (double) (radio - distancia + 1) / (radio + 1);
+                        // CAMBIO: literal +1 reemplazado por constante FACTOR_SUAVIZADO_INFLUENCIA
+                        double c = ReglasSimulacion.FACTOR_SUAVIZADO_INFLUENCIA;
+                        return (radio - distancia + c) / (radio + c);
                     }
-
                     return 0.0;
                 })
                 .max()
@@ -110,7 +110,6 @@ public class CalculadorEspacial {
         if (grupo1 == null || grupo2 == null || grupo1.isEmpty() || grupo2.isEmpty()) {
             return 0.0;
         }
-
         return grupo1.stream()
                 .flatMapToInt(b1 -> grupo2.stream()
                         .mapToInt(b2 -> distanciaManhattan(b1.getPosicion(), b2.getPosicion())))

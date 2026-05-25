@@ -151,6 +151,10 @@ public final class EstadoCiclo {
         return necesidadExpansionDetectada;
     }
 
+    public boolean getNecesidadExpansionDetectada() {return necesidadExpansionDetectada;}
+
+    public boolean isSuperaUmbralSaturacion() {return necesidadExpansionDetectada;}
+
     public EstadoSimulacion getEstadoSimulacion() {
         return estadoSimulacion;
     }
